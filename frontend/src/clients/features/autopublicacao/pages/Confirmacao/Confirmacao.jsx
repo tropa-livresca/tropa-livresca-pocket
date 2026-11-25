@@ -7,10 +7,8 @@ import { LIVRO_ESTADO } from "../../../../../common/config/livroEstados";
 function criarUrlPreview(arquivo, urlsTemporarias) {
   if (!arquivo) return "";
 
-  // Arquivos já enviados ao PocketBase.
   if (typeof arquivo === "string") return arquivo;
 
-  // Arquivos selecionados no navegador.
   if (arquivo instanceof Blob) {
     const url = URL.createObjectURL(arquivo);
     urlsTemporarias.push(url);
@@ -52,7 +50,6 @@ export default function Confirmacao({
   const capaFrente = capa.frente;
   const capaVerso = capa.verso;
 
-  // Gera URLs temporárias para arquivos locais e preserva URLs do PocketBase.
   useEffect(() => {
     const urlsTemporarias = [];
 
@@ -105,7 +102,6 @@ export default function Confirmacao({
 
   return (
     <main>
-      {/* Detalhes do livro */}
       <div className={styles.form}>
         <div className={styles.tituloContainer}>
           <h1 className={styles.titulo}>Confirmação</h1>
@@ -216,7 +212,6 @@ export default function Confirmacao({
         </div>
       </div>
 
-      {/* Manuscrito */}
       <div className={styles.containerManuscrito}>
         <div className={styles.form}>
           <div className={styles.manuscritoHeader}>
@@ -226,8 +221,19 @@ export default function Confirmacao({
               <p className={styles.manuscritoDescricao}>
                 Pré-visualização do arquivo enviado
               </p>
-            </div>
 
+              <button
+                type="button"
+                onClick={() => irParaEtapaEspecifica(2)}
+                className={styles.btnEditarDescricao}
+                title="Editar imagens da capa"
+                aria-label="Editar imagens da capa"
+                disabled={salvando}
+              >
+                <FaPen />
+                <span>Editar</span>
+              </button>
+            </div>
             <div
               className={`${styles.statusArquivo} ${
                 previews.manuscrito
@@ -267,7 +273,6 @@ export default function Confirmacao({
         </div>
       </div>
 
-      {/* Capas */}
       <div className={styles.form}>
         <div className={styles.tituloContainer}>
           <h1 className={styles.titulo}>Imagens da Capa</h1>
@@ -311,7 +316,6 @@ export default function Confirmacao({
         </div>
       </div>
 
-      {/* Orçamento */}
       <div className={`${styles.form} ${styles.formOrcamento}`}>
         <div className={styles.tituloContainer}>
           <h1 className={styles.titulo}>Orçamento</h1>
