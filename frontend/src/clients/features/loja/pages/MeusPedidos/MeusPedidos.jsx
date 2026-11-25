@@ -6,6 +6,7 @@ import styles from "./MeusPedidos.module.css";
 import { useCompra } from "../../hooks/useCompra";
 import Carregando from "../../../../components/Carregando/Carregando";
 import DescricaoTela from "../../../../components/DescricaoTela/DescricaoTela";
+import Paginacao from "../../../../../common/components/Paginacao/Paginacao";
 
 const LIMITE = 12;
 
@@ -97,8 +98,6 @@ export default function MeusPedidos() {
     setter(valor);
     setPagina(1);
   };
-
-  const totalPaginas = Number(meta.totalPages || 1);
 
   return (
     <main>
@@ -232,29 +231,12 @@ export default function MeusPedidos() {
               })}
             </ul>
 
-            {totalPaginas > 1 && (
-              <div className={styles.paginacao}>
-                <button
-                  type="button"
-                  disabled={pagina <= 1}
-                  onClick={() => setPagina((atual) => atual - 1)}
-                >
-                  Anterior
-                </button>
-
-                <span>
-                  Página {pagina} de {totalPaginas}
-                </span>
-
-                <button
-                  type="button"
-                  disabled={pagina >= totalPaginas}
-                  onClick={() => setPagina((atual) => atual + 1)}
-                >
-                  Próxima
-                </button>
-              </div>
-            )}
+            <Paginacao
+              totalPaginas={meta?.totalPages}
+              paginaAtual={pagina}
+              onMudarPagina={setPagina}
+              totalItems={meta?.totalItems}
+            />
           </>
         )}
       </div>

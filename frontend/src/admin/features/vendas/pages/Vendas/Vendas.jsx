@@ -27,27 +27,92 @@ export default function Vendas() {
     enviarPedido,
     marcarEntregue,
   } = useVendas();
+
   const { user } = useAdmin();
 
   const [pagina, setPagina] = useState(1);
   const [emAndamento, setEmAndamento] = useState(null);
   const [mensagem, setMensagem] = useState(null);
 
+  const [busca, setBusca] = useState("");
+  const [statusPagamento, setStatusPagamento] = useState("");
+  const [statusEntrega, setStatusEntrega] = useState("");
+  const [periodo, setPeriodo] = useState("");
+  const [ordem, setOrdem] = useState("recentes");
+
   useEffect(() => {
-    buscarVendas(pagina, POR_PAGINA);
-  }, [pagina, buscarVendas]);
+    const hoje = new Date();
+    const inicio = new Date(hoje);
+
+    if (periodo === "7") inicio.setDate(hoje.getDate() - 7);
+    if (periodo === "30") inicio.setDate(hoje.getDate() - 30);
+    if (periodo === "90") inicio.setDate(hoje.getDate() - 90);
+
+    if (periodo === "ano") {
+      inicio.setMonth(0, 1);
+      inicio.setHours(0, 0, 0, 0);
+    }
+
+    const converterData = (data) => {
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, "0");
+      const dia = String(data.getDate()).padStart(2, "0");
+      return `${ano}-${mes}-${dia}`;
+    };
+
+    buscarVendas(
+      pagina,
+      POR_PAGINA,
+      busca.trim(),
+      statusPagamento,
+      statusEntrega,
+      periodo ? converterData(inicio) : "",
+      periodo ? converterData(hoje) : "",
+      ordem,
+    );
+  }, [
+    pagina,
+    buscarVendas,
+    busca,
+    statusPagamento,
+    statusEntrega,
+    periodo,
+    ordem,
+  ]);
+
+  const limparFiltros = () => {
+    setBusca("");
+    setStatusPagamento("");
+    setStatusEntrega("");
+    setPeriodo("");
+    setOrdem("recentes");
+    setPagina(1);
+  };
 
   const executarAcao = async (vendaId, acao, sucesso) => {
     setEmAndamento(vendaId);
     setMensagem(null);
+
     const erroAcao = await acao(vendaId);
+
     setMensagem(
       erroAcao
         ? { tipo: "erro", texto: `Pedido #${vendaId}: ${erroAcao}` }
         : { tipo: "sucesso", texto: `Pedido #${vendaId}: ${sucesso}` },
     );
+
     setEmAndamento(null);
-    await buscarVendas(pagina, POR_PAGINA);
+
+    await buscarVendas(
+      pagina,
+      POR_PAGINA,
+      busca.trim(),
+      statusPagamento,
+      statusEntrega,
+      "",
+      "",
+      ordem,
+    );
   };
 
   const renderAcoes = (venda) => {
@@ -142,12 +207,83 @@ export default function Vendas() {
           </p>
         )}
 
+        <div>
+          <input
+            type="text"
+            placeholder="Pesquisar pelo ID do pedido..."
+            value={busca}
+            onChange={(e) => {
+              setBusca(e.target.value);
+              setPagina(1);
+            }}
+          />
+
+          <select
+            value={statusPagamento}
+            onChange={(e) => {
+              setStatusPagamento(e.target.value);
+              setPagina(1);
+            }}
+          >
+            <option value="">Todos os pagamentos</option>
+            <option value="pago">Pago</option>
+            <option value="pendente">Pendente</option>
+          </select>
+
+          <select
+            value={statusEntrega}
+            onChange={(e) => {
+              setStatusEntrega(e.target.value);
+              setPagina(1);
+            }}
+          >
+            <option value="">Todas as entregas</option>
+            <option value="Pendente">Pendente</option>
+            <option value="A caminho">A caminho</option>
+          </select>
+
+          <select
+            value={periodo}
+            onChange={(e) => {
+              setPeriodo(e.target.value);
+              setPagina(1);
+            }}
+          >
+            <option value="">Todo o período</option>
+            <option value="7">Últimos 7 dias</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="90">Últimos 90 dias</option>
+            <option value="ano">Este ano</option>
+          </select>
+
+          <select
+            value={ordem}
+            onChange={(e) => {
+              setOrdem(e.target.value);
+              setPagina(1);
+            }}
+          >
+            <option value="recentes">Mais recentes</option>
+            <option value="antigos">Mais antigos</option>
+            <option value="maior_valor">Maior valor</option>
+            <option value="menor_valor">Menor valor</option>
+          </select>
+
+          <button type="button" onClick={limparFiltros}>
+            Limpar filtros
+          </button>
+        </div>
+
         {carregando && vendas.length === 0 ? (
           <Carregando mensagem="Carregando vendas..." />
         ) : erro ? (
           <p className={styles.mensagemErro}>{erro}</p>
         ) : vendas.length === 0 ? (
-          <p className={styles.vazio}>Nenhuma venda registrada ainda.</p>
+          <p className={styles.vazio}>
+            {busca || statusPagamento || statusEntrega || periodo
+              ? "Nenhuma venda encontrada com os filtros selecionados."
+              : "Nenhuma venda registrada ainda."}
+          </p>
         ) : (
           <div className={styles.tabelaWrapper}>
             <table className={styles.tabela}>
@@ -163,6 +299,7 @@ export default function Vendas() {
                   <th>Ações</th>
                 </tr>
               </thead>
+
               <tbody>
                 {vendas.map((venda) => {
                   const totalLivros = (venda.itens_venda || []).reduce(
@@ -180,7 +317,9 @@ export default function Vendas() {
                           </span>
                         </small>
                       </td>
+
                       <td>{venda.users_profile?.nome || "—"}</td>
+
                       <td>
                         <ul className={styles.livros}>
                           {(venda.itens_venda || []).map((item, index) => (
@@ -194,11 +333,13 @@ export default function Vendas() {
                           ))}
                         </ul>
                       </td>
+
                       <td>
                         <span className={styles.numero}>
                           {formatarPreco(venda.total)}
                         </span>
                       </td>
+
                       <td>
                         <span
                           className={`${styles.etiqueta} ${
@@ -212,6 +353,7 @@ export default function Vendas() {
                             : "Pendente"}
                         </span>
                       </td>
+
                       <td>
                         <span
                           className={`${styles.etiqueta} ${
@@ -223,6 +365,7 @@ export default function Vendas() {
                           {venda.status_entrega}
                         </span>
                       </td>
+
                       <td>
                         {venda.repassado ? (
                           <span className={`${styles.etiqueta} ${styles.ok}`}>
@@ -236,6 +379,7 @@ export default function Vendas() {
                           </span>
                         )}
                       </td>
+
                       <td>
                         <div className={styles.acoes}>{renderAcoes(venda)}</div>
                       </td>

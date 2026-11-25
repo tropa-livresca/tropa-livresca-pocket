@@ -3,11 +3,25 @@ import { LojaService } from "./loja.service.js";
 export class LojaController {
   static async consultarVendas(req, res, next) {
     try {
-      const { page = 1, limit = 12, ordem = "" } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        busca = "",
+        statusPagamento = "",
+        statusEntrega = "",
+        dataInicio = "",
+        dataFim = "",
+        ordem = "recentes",
+      } = req.query;
 
       const vendas = await LojaService.consultarVendas({
         page: Number(page),
         limit: Number(limit),
+        busca,
+        statusPagamento,
+        statusEntrega,
+        dataInicio,
+        dataFim,
         ordem,
       });
 
