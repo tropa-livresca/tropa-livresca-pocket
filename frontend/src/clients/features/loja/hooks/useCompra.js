@@ -128,28 +128,60 @@ export const useCompra = () => {
     }
   }, []);
 
-  const buscarPedidos = useCallback(async () => {
-    setCarregando(true);
-    setErro(null);
-    try {
-      const response = await apiFetch("/api/v1/clients/loja/historico-vendas");
+  const buscarPedidos = useCallback(
+    async (
+      page = 1,
+      limit = 12,
+      busca = "",
+      statusPagamento = "",
+      statusEntrega = "",
+      dataInicio = "",
+      dataFim = "",
+      ordem = "recentes",
+    ) => {
+      setCarregando(true);
+      setErro(null);
 
-      if (!response.ok) {
-        throw new Error(
-          await lerErro(response, "Não foi possível carregar seus pedidos."),
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+          busca,
+          statusPagamento,
+          statusEntrega,
+          dataInicio,
+          dataFim,
+          ordem,
+        });
+
+        const response = await apiFetch(
+          `/api/v1/clients/loja/historico-vendas?${params.toString()}`,
         );
+
+        if (!response.ok) {
+          throw new Error(
+            await lerErro(response, "Não foi possível carregar seus pedidos."),
+          );
+        }
+
+        const { vendaUsuario } = await response.json();
+
+        setPedidos(vendaUsuario?.data || []);
+
+        return {
+          data: vendaUsuario?.data || [],
+          meta: vendaUsuario?.meta || {},
+        };
+      } catch (err) {
+        setErro(err.message);
+        setPedidos([]);
+        return { data: [], meta: {} };
+      } finally {
+        setCarregando(false);
       }
-
-      const { vendaUsuario } = await response.json();
-      setPedidos(vendaUsuario?.data || []);
-    } catch (err) {
-      setErro(err.message);
-      setPedidos([]);
-    } finally {
-      setCarregando(false);
-    }
-  }, []);
-
+    },
+    [],
+  );
   return {
     carregando,
     erro,

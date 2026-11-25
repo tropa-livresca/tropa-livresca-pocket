@@ -251,10 +251,30 @@ export class LojaService {
     error(400, "Endereço de entrega inválido.");
   }
 
-  static async buscarHistoricoVendasUsuario(usuarioId) {
+  static async buscarHistoricoVendasUsuario(
+    usuarioId,
+    page = 1,
+    limit = 12,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  ) {
     if (!usuarioId) errorUsuarioId();
 
-    const buscaVendas = await LojaModel.buscarHistoricoVendasUsuario(usuarioId);
+    const buscaVendas = await LojaModel.buscarHistoricoVendasUsuario({
+      usuarioId,
+      page,
+      limit,
+      busca,
+      statusPagamento,
+      statusEntrega,
+      dataInicio,
+      dataFim,
+      ordem,
+    });
 
     if (buscaVendas.error) throw buscaVendas.error;
 

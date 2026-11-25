@@ -614,27 +614,141 @@ export class LojaModel {
     };
   }
 
-  static async buscarHistoricoVendasUsuario(usuarioId) {
+  static async buscarHistoricoVendasUsuario({
+    usuarioId,
+    page = 1,
+    limit = 12,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  } = {}) {
     const pb = await criarClienteModel();
 
     try {
       const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
-        filter: pb.filter(`${RELACAO_PERFIL} = {:usuarioId}`, { usuarioId }),
+        filter: pb.filter(`${RELACAO_PERFIL} = {:usuarioId}`, {
+          usuarioId,
+        }),
         sort: "-data",
       });
 
-      const data = await Promise.all(
-        vendas.map(async (venda) => ({
-          ...venda,
-          itens_venda: (
-            await buscarItensVenda(pb, [venda.id], {
-              expandLivros: true,
-            })
-          ).map((item) => mapearItemVenda(pb, item)),
-        })),
+      if (!vendas.length) {
+        return {
+          data: [],
+          count: 0,
+          meta: {
+            totalItems: 0,
+            page: 1,
+            limit,
+            totalPages: 0,
+          },
+        };
+      }
+
+      const itens = await buscarItensVenda(
+        pb,
+        vendas.map((venda) => venda.id),
+        { expandLivros: true },
       );
 
-      return { data, count: data.length };
+      const itensPorVenda = new Map();
+
+      for (const item of itens) {
+        const vendaId = item[RELACAO_VENDA];
+
+        if (!itensPorVenda.has(vendaId)) {
+          itensPorVenda.set(vendaId, []);
+        }
+
+        itensPorVenda.get(vendaId).push(mapearItemVenda(pb, item));
+      }
+
+      const termo = String(busca).trim().toLowerCase();
+
+      let resultado = vendas.map((venda) => ({
+        ...venda,
+        itens_venda: itensPorVenda.get(venda.id) ?? [],
+      }));
+
+      if (termo) {
+        resultado = resultado.filter((venda) => {
+          const encontrouId = venda.id.toLowerCase().includes(termo);
+
+          const encontrouLivro = venda.itens_venda.some((item) =>
+            String(item.livros?.titulo || "")
+              .toLowerCase()
+              .includes(termo),
+          );
+
+          return encontrouId || encontrouLivro;
+        });
+      }
+
+      if (statusPagamento) {
+        resultado = resultado.filter(
+          (venda) => venda.status_pagamento === statusPagamento,
+        );
+      }
+
+      if (statusEntrega) {
+        resultado = resultado.filter(
+          (venda) => venda.status_entrega === statusEntrega,
+        );
+      }
+
+      if (dataInicio) {
+        const inicio = new Date(`${dataInicio}T00:00:00`).getTime();
+
+        resultado = resultado.filter(
+          (venda) => new Date(venda.data).getTime() >= inicio,
+        );
+      }
+
+      if (dataFim) {
+        const fim = new Date(`${dataFim}T23:59:59.999`).getTime();
+
+        resultado = resultado.filter(
+          (venda) => new Date(venda.data).getTime() <= fim,
+        );
+      }
+
+      resultado.sort((a, b) => {
+        switch (ordem) {
+          case "antigos":
+            return new Date(a.data) - new Date(b.data);
+
+          case "maior_valor":
+            return Number(b.total || 0) - Number(a.total || 0);
+
+          case "menor_valor":
+            return Number(a.total || 0) - Number(b.total || 0);
+
+          case "recentes":
+          default:
+            return new Date(b.data) - new Date(a.data);
+        }
+      });
+
+      const pagina = Math.max(1, Number(page) || 1);
+      const limite = Math.max(1, Number(limit) || 12);
+
+      const count = resultado.length;
+      const totalPages = Math.ceil(count / limite);
+      const inicio = (pagina - 1) * limite;
+
+      return {
+        data: resultado.slice(inicio, inicio + limite),
+        count,
+        meta: {
+          totalItems: count,
+          page: pagina,
+          limit: limite,
+          totalPages,
+        },
+      };
     } catch (error) {
       marcarErro(error);
     }
