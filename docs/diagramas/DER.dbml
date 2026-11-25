@@ -1,122 +1,149 @@
-Table users_profile {
-  id uuid [pk, not null]
-  nome text [not null]
-  sobrenome text [not null]
-  telefone varchar [not null]
-  imagem text
-  descricao text
-  redes_sociais jsonb
-  is_admin boolean [not null]
-  senha_adm text
-  primeiro_acesso boolean [not null]
-  email text
-  is_master boolean
-  dados_bancarios jsonb
+
+Project TropaLivresca {
+  database_type: 'SQLite'
+  Note: 'Modelo baseado nas collections funcionais do schema exportado do PocketBase.'
 }
 
-Table itens_venda {
-  id bigint [pk, increment, not null]
-  qtd bigint [not null]
-  subtotal numeric [not null]
-  fk_livros_itens_id bigint [not null]
-  fk_vendas_id bigint [not null]
-  fisico boolean [not null]
-  preco_unitario numeric [not null]
+Table users_profile {
+  id varchar(15) [pk, not null]
+  password text [not null]
+  tokenKey varchar(60) [not null, unique]
+  email varchar(255) [not null, unique]
+  emailVisibility boolean
+  verified boolean
+  nome text
+  sobrenome text
+  descricao text
+  redes_sociais json
+  is_admin boolean
+  senha_admin text
+  primeiro_acesso boolean
+  is_master boolean
+  dados_bancarios json
+  imagem text [note: 'Arquivo de imagem armazenado pelo PocketBase']
+  telefone text
+  created datetime
+  updated datetime
+
+  Note: 'Collection de autenticação users_profile do PocketBase.'
 }
 
 Table livros {
-  id bigint [pk, increment, not null]
+  id varchar(15) [pk, not null]
   direitos_de_publicacao boolean [not null]
   data_de_publicacao date [not null]
-  preco_digital numeric [not null]
-  preco_fisico numeric [not null]
+  preco_digital real [not null]
+  preco_fisico real [not null]
   titulo text [not null]
   subtitulo text [not null]
   descricao text [not null]
-  fk_user_profile_id uuid [not null]
-  ativo boolean [not null]
-  estado varchar [not null]
+  ativo boolean
+  estado text [not null]
   idioma text [not null]
-  manuscrito text
-  colaboradores jsonb
-  capa jsonb
+  colaboradores json
   categoria text
   ISBN text
-  numero_paginas smallint
-}
+  numero_paginas real
+  manuscrito text [note: 'Arquivo PDF armazenado pelo PocketBase']
+  capa_frente text [note: 'Arquivo de imagem armazenado pelo PocketBase']
+  capa_verso text [note: 'Arquivo de imagem armazenado pelo PocketBase']
+  fk_user_profile_id varchar(15)
 
-Table avaliacoes {
-  id bigint [pk, increment, not null]
-  data_criacao timestamptz [not null]
-  fk_livros_id bigint
-  fk_user_profile_id uuid
-  qtd_estrelas smallint
-}
-
-Table vendas {
-  id bigint [pk, increment, not null]
-  data timestamptz [not null]
-  total numeric [not null]
-  metodo_pagamento bigint [not null]
-  status_pagamento text [not null]
-  fk_user_profile_id uuid [not null]
-  endereco_entrega jsonb
-  status_entrega text [not null]
-}
-
-Table movimentacoes_financeiras {
-  id bigint [pk, increment, not null]
-  data timestamptz [not null]
-  fk_user_profile_id uuid
-  fk_vendas_id bigint
-  tipo text [not null]
-  valor numeric [not null]
-  descricao text [not null]
-  status text [not null]
+  Note: 'Cadastro de livros e informações de publicação.'
 }
 
 Table enderecos {
-  id bigint [pk, increment, not null]
-  estado varchar [not null]
+  id varchar(15) [pk, not null]
+  estado text [not null]
   bairro text [not null]
   rua text [not null]
-  num integer [not null]
-  cep varchar [not null]
-  fk_user_profile_id uuid [not null]
+  num real [not null]
+  cep text [not null]
   cidade text [not null]
   complemento text
   pais text
   ativo boolean
   principal boolean
+  fk_user_profile_id varchar(15)
+
+  Note: 'Endereços cadastrados pelos usuários.'
+}
+
+Table avaliacoes {
+  id varchar(15) [pk, not null]
+  data_criacao date [not null]
+  qtd_estrelas real
+  fk_livros_id varchar(15)
+  fk_user_profile_id varchar(15)
+
+  Note: 'Avaliações associadas a livros e usuários.'
+}
+
+Table vendas {
+  id varchar(15) [pk, not null]
+  data date [not null]
+  total real [not null]
+  metodo_pagamento real [not null]
+  status_pagamento text [not null]
+  endereco_entrega json
+  status_entrega text [not null]
+  fk_user_profile_id varchar(15)
+
+  Note: 'Pedidos e informações gerais das vendas.'
+}
+
+Table itens_venda {
+  id varchar(15) [pk, not null]
+  qtd real [not null]
+  subtotal real [not null]
+  fisico boolean
+  preco_unitario real [not null]
+  fk_livros_itens_id varchar(15) [not null]
+  fk_vendas_id varchar(15) [not null]
+
+  Note: 'Livros e quantidades vinculados a cada venda.'
+}
+
+Table movimentacoes_financeiras {
+  id varchar(15) [pk, not null]
+  data date [not null]
+  tipo text [not null]
+  valor real [not null]
+  descricao text [not null]
+  status text [not null]
+  fk_vendas_id varchar(15)
+  dados_bancarios json
+  fk_user_profile_id varchar(15)
+
+  Note: 'Entradas, saídas e demais movimentações financeiras.'
 }
 
 Table revisoes {
-  id bigint [pk, increment, not null]
-  arquivo text [not null]
-  data_criacao timestamptz [not null]
+  id varchar(15) [pk, not null]
   apontamento text
-  fk_user_profile_id uuid [not null]
-  fk_livro_id bigint [not null]
   nome text
-  completado boolean [not null]
+  completado boolean
+  fk_livro_id varchar(15) [not null]
+  fk_user_profile_id varchar(15)
+  arquivo text [note: 'Arquivo PDF armazenado pelo PocketBase']
+  data_criacao datetime
+
+  Note: 'Registros de revisão dos livros.'
 }
 
-// Relacionamentos / Chaves estrangeiras
-
-Ref: movimentacoes_financeiras.fk_vendas_id > vendas.id
-Ref: movimentacoes_financeiras.fk_user_profile_id > users_profile.id
-
-Ref: itens_venda.fk_livros_itens_id > livros.id
-Ref: itens_venda.fk_vendas_id > vendas.id
-
+// Relacionamentos com usuários
+Ref: livros.fk_user_profile_id > users_profile.id
+Ref: enderecos.fk_user_profile_id > users_profile.id
+Ref: avaliacoes.fk_user_profile_id > users_profile.id
 Ref: vendas.fk_user_profile_id > users_profile.id
-
-Ref: revisoes.fk_livro_id > livros.id
+Ref: movimentacoes_financeiras.fk_user_profile_id > users_profile.id
 Ref: revisoes.fk_user_profile_id > users_profile.id
 
-Ref: enderecos.fk_user_profile_id > users_profile.id
-
-Ref: livros.fk_user_profile_id > users_profile.id
-
+// Relacionamentos com livros
 Ref: avaliacoes.fk_livros_id > livros.id
-Ref: avaliacoes.fk_user_profile_id > users_profile.id
+Ref: itens_venda.fk_livros_itens_id > livros.id
+Ref: revisoes.fk_livro_id > livros.id
+
+// Relacionamentos com vendas
+Ref: itens_venda.fk_vendas_id > vendas.id
+Ref: movimentacoes_financeiras.fk_vendas_id > vendas.id

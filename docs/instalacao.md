@@ -1,78 +1,137 @@
-# Instalação e Execução
+# Instalação
 
-Este documento reúne as instruções de instalação, configuração de ambiente e execução do projeto Tropa Livresca.
-
----
+Este documento descreve a instalação e a configuração local do PocketBase para o projeto Tropa Livresca.
 
 ## Pré-requisitos
 
-- Node.js 20 ou superior
-- Gerenciador de pacotes npm
-- Conta e projeto ativo no Supabase
+- Windows com PowerShell.
+- Node.js 20 ou superior.
+- npm.
+- Executável do PocketBase na pasta `pocketbase`.
+- Arquivo de configuração `backend/.env`.
 
----
+## Instalação das dependências
 
-## Variáveis de Ambiente
+Na raiz do projeto, execute:
 
-O projeto utiliza isolamento de escopo com arquivos de configuração separados para backend e frontend. Crie um arquivo `.env` na raiz de cada respectivo diretório baseando-se no modelo abaixo.
-
-### Backend (`backend/.env`)
-
-- `PORT`: Porta de execução do servidor Express (Padrão: 3000)
-- `SUPABASE_URL` e `SUPABASE_ANON_KEY`: URL e chave pública do projeto Supabase
-- `SUPABASE_SERVICE_ROLE_KEY`: Chave privada administrativa para bypass de políticas RLS
-- `FRONTEND_URL` e `BACKEND_URL`: URLs públicas do frontend e backend; obrigatórias em produção
-- `SMTP_HOST`: Endereço do servidor de e-mail de saída (ex: ://gmail.com)
-- `SMTP_PORT`: Porta do servidor SMTP de e-mail (ex: 587 ou 465)
-- `SMTP_USER`: Usuário ou e-mail de autenticação do serviço de correio eletrônico
-- `SMTP_PASS`: Senha de aplicativo ou credencial de acesso do serviço de e-mail
-
-### Frontend (`frontend/.env`)
-
-- `VITE_API_URL`: URL do backend; opcional em `localhost` (padrão `http://localhost:3000`) e obrigatória em produção
-- `VITE_SUPABASE_URL`: Endpoint de API do seu projeto Supabase
-- `VITE_SUPABASE_ANON_KEY`: Chave pública anônima do Supabase
-
-Não coloque segredos do provedor Google nos arquivos do frontend. Configure o Client ID e o Client Secret Google nas configurações de autenticação do projeto Supabase, conforme [Autenticação com Google](autenticacao.md#autenticação-com-google).
-
----
-
-## Passo a Passo para Instalação
-
-Execute os comandos a partir da raiz do projeto para instalar todas as dependências nos respectivos diretórios:
-
-```bash
+```powershell
 npm install
-npm install -w backend
-npm install -w frontend
 ```
 
----
+Esse comando instala as dependências definidas no projeto e nos seus workspaces.
 
-## Execução em Desenvolvimento
+## Configuração do PocketBase
 
-Para rodar o ecossistema completo simultaneamente através da automação da raiz, execute:
+O executável do PocketBase deve estar localizado em:
 
-```bash
-npm run dev
+```text
+pocketbase/
+└── pocketbase.exe
 ```
 
-## Scripts Disponíveis
+Os dados da aplicação são armazenados no diretório:
 
-A tabela abaixo descreve as ferramentas de execução configuradas no projeto:
+```text
+pocketbase/
+└── pb_data/
+```
 
-| Local    | Comando            | Função                                                                                |
-| :------- | :----------------- | :------------------------------------------------------------------------------------ |
-| Raiz     | npm run dev        | Inicializa o ecossistema (backend e frontend) em paralelo                             |
-| Raiz     | npm run server     | Inicializa exclusivamente o servidor backend                                          |
-| Raiz     | npm run client     | Inicializa exclusivamente a aplicação frontend                                        |
-| backend  | npm run dev        | Inicializa a API em modo de desenvolvimento utilizando nodemon                        |
-| backend  | npm start          | Inicializa a API em modo de produção puro através do Node.js                          |
-| backend  | npm test           | Executa de forma isolada os testes de integração e unitários do backend               |
-| backend  | npm run test:watch | Executa de forma isolada os testes de integração e unitários do backend em tempo real |
-| frontend | npm run dev        | Inicializa o servidor de desenvolvimento do Vite                                      |
-| frontend | npm run build      | Compila a aplicação gerando o pacote otimizado de produção                            |
-| frontend | npm run preview    | Executa um servidor local para visualizar a build de produção gerada                  |
-| frontend | npm run lint       | Dispara a análise estática de código através do ESLint                                |
+Esse diretório contém o banco SQLite e os arquivos armazenados pelo PocketBase. Não o exclua durante a instalação se precisar preservar os dados existentes.
 
-> Nunca inclua ou versione arquivos .env contendo credenciais de produção no histórico do Git.
+## Variáveis de ambiente
+
+As configurações do projeto ficam centralizadas em um único arquivo:
+
+```text
+backend/.env
+```
+
+A conexão do backend com o PocketBase é configurada pela variável:
+
+```env
+POCKETBASE_URL=http://127.0.0.1:8090
+```
+
+O backend carrega as variáveis desse arquivo durante sua inicialização.
+
+Não é necessário criar um `frontend/.env` para configurar o PocketBase. O frontend se comunica com a API Express, enquanto o backend realiza as operações de persistência e autenticação no PocketBase.
+
+Não exponha credenciais administrativas, senhas ou segredos no frontend nem em variáveis com prefixo `VITE_`.
+
+## Inicialização do PocketBase
+
+Para iniciar o PocketBase manualmente durante o desenvolvimento, abra um terminal na raiz do projeto e execute:
+
+```powershell
+cd pocketbase
+.\pocketbase.exe serve --http=127.0.0.1:8090
+```
+
+O servidor ficará disponível em:
+
+```text
+http://127.0.0.1:8090
+```
+
+O painel administrativo pode ser acessado em:
+
+[http://127.0.0.1:8090/_/](http://127.0.0.1:8090/_/)
+
+No primeiro acesso, configure a conta de superusuário. As credenciais devem permanecer protegidas e fora do repositório.
+
+**Importante:** mantenha o PocketBase em execução enquanto o backend precisar acessar o banco de dados.
+
+## Migrações
+
+As migrações JavaScript ficam armazenadas em:
+
+```text
+pocketbase/
+└── pb_migrations/
+```
+
+O PocketBase aplica automaticamente as migrações pendentes durante a inicialização.
+
+Para aplicá-las manualmente, com o servidor parado, execute:
+
+```powershell
+cd pocketbase
+.\pocketbase.exe migrate up
+```
+
+Para gerar uma migração a partir das alterações nas collections:
+
+```powershell
+.\pocketbase.exe migrate collections
+```
+
+As migrações devem ser mantidas no projeto e versionadas junto com o código-fonte.
+
+## Execução da aplicação
+
+A execução local envolve três componentes:
+
+1. **PocketBase:** responsável pelo banco de dados, autenticação e armazenamento de arquivos.
+2. **Backend Express:** responsável pela API, regras de negócio e comunicação com o PocketBase.
+3. **Frontend React:** responsável pela interface e comunicação com a API do backend.
+
+Durante o desenvolvimento, mantenha o PocketBase em execução e inicie o backend e o frontend conforme os scripts definidos na raiz do projeto.
+
+Na versão portátil para Windows, a inicialização é automatizada pelo lançador do projeto, que executa os componentes necessários sem exigir que a pessoa usuária inicie cada serviço manualmente.
+
+## Portas locais
+
+| Componente            | Endereço                   |
+| --------------------- | -------------------------- |
+| Frontend Vite         | `http://localhost:5173`    |
+| Backend Express       | `http://localhost:3000`    |
+| PocketBase            | `http://127.0.0.1:8090`    |
+| Painel administrativo | `http://127.0.0.1:8090/_/` |
+
+## Observações
+
+- O PocketBase precisa estar disponível antes das operações do backend que dependem dele.
+- Não execute duas instâncias do PocketBase utilizando simultaneamente o mesmo diretório `pb_data`.
+- Preserve o diretório `pb_data` para manter o banco e os arquivos da aplicação.
+- Mantenha o arquivo `backend/.env` fora do controle de versão.
+- Em ambientes como GitHub Codespaces, os endereços e configurações de rede devem respeitar as variáveis específicas desse ambiente.
