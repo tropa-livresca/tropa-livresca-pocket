@@ -224,7 +224,7 @@ export default function Loja() {
             {carregando ? (
               <Carregando mensagem="Carregando loja..." />
             ) : livros.length === 0 ? (
-              <p className={styles.semResultados}>Nenhum livro encontrado.</p>
+              <p className={styles.semResultados}>Nenhum livro encontrado66666.</p>
             ) : (
               livros.map((livro) => (
                 <CardProduto

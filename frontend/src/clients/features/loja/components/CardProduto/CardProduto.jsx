@@ -42,15 +42,6 @@ export default function CardProduto({ livro, aoAdicionar }) {
         ) : (
           <div className={styles.semImagem}>
             <span>Sem imagem</span>
-            <span className={styles.tipolivroCapa}>Digital</span>
-            <button
-              type="button"
-              className={styles.btnCarrinhoCapa}
-              onClick={handleAdicionarCarrinho}
-              title="Adicionar ao carrinho"
-            >
-              <FiShoppingCart />
-            </button>
           </div>
         )}
       </Link>

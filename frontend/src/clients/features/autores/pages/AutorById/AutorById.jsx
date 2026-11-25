@@ -17,17 +17,41 @@ export default function AutorById() {
   const { id } = useParams();
   const { autor, redesSociais, livros, carregando, meta, buscarAutorById } =
     useAutores();
+
   const [paginaAtual, setPaginaAtual] = useState(1);
+  const [limiteLivros, setLimiteLivros] = useState(5);
 
   useEffect(() => {
     setPaginaAtual(1);
   }, [id]);
 
   useEffect(() => {
+    const atualizarLimite = () => {
+      if (window.innerWidth <= 480) {
+        setLimiteLivros(2);
+      } else if (window.innerWidth <= 768) {
+        setLimiteLivros(4);
+      } else if (window.innerWidth <= 1199) {
+        setLimiteLivros(4);
+      } else if (window.innerWidth <= 1599) {
+        setLimiteLivros(5);
+      } else {
+        setLimiteLivros(6);
+      }
+    };
+
+    atualizarLimite();
+
+    window.addEventListener("resize", atualizarLimite);
+
+    return () => window.removeEventListener("resize", atualizarLimite);
+  }, []);
+
+  useEffect(() => {
     if (id) {
-      buscarAutorById(id, paginaAtual, 6);
+      buscarAutorById(id, paginaAtual, limiteLivros);
     }
-  }, [id, paginaAtual, buscarAutorById]);
+  }, [id, paginaAtual, limiteLivros, buscarAutorById]);
 
   const { facebook, instagram, linkedin, email } = redesSociais || {};
   const temRedesSociais = facebook || instagram || linkedin || email;
@@ -180,11 +204,13 @@ export default function AutorById() {
               aria-label="Ver livros anteriores"
               title="Ver livros anteriores"
             >
+            
               <FaChevronLeft aria-hidden="true" />
+               Anterior
             </button>
 
             <span className={styles.indicadorPagina} aria-live="polite">
-              {paginaAtual} / {meta.totalPages}
+              Página <span className={styles.num}>{paginaAtual}</span> de <span className={styles.num}>{meta.totalPages}</span>
             </span>
 
             <button
@@ -197,8 +223,9 @@ export default function AutorById() {
               }
               disabled={paginaAtual === meta.totalPages}
             >
-              Ver mais livros
+               Próximo
               <FaChevronRight aria-hidden="true" />
+             
             </button>
           </nav>
         )}

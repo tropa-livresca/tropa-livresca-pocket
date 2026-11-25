@@ -110,7 +110,7 @@ export default function BibliotecaPessoal() {
   };
 
   return (
-    <main>
+   <main>
       <DescricaoTela
         titulo="Biblioteca Pessoal"
         descricao="Aqui você pode acessar os livros digitais que comprou e reenviar o e-mail de acesso."
@@ -126,7 +126,9 @@ export default function BibliotecaPessoal() {
         <div className={styles.containerLivros}>
           <aside className={styles.filtros}>
             <section>
-              <h2>Gênero</h2>
+              <div className={styles.oi2}>
+              <h1>Gênero</h1>
+            </div>
               <ul>
                 <li
                   className={categoria === "" ? styles.filtroAtivo : ""}
@@ -147,7 +149,9 @@ export default function BibliotecaPessoal() {
             </section>
 
             <section className={styles.filtroIdioma}>
-              <h2>Idioma</h2>
+               <div className={styles.oi2}>
+              <h1>Idioma</h1>
+            </div>
               <ul>
                 <li
                   className={idioma === "" ? styles.filtroAtivo : ""}
@@ -268,7 +272,8 @@ export default function BibliotecaPessoal() {
             ) : (
               livros.map((livro) => {
                 const capa =
-                  livro.capa?.frente || null;
+                  livro.capa?.frente ||
+                  (typeof livro.capa === "string" ? livro.capa : null);
                 const autor = livro.users_profile
                   ? `${livro.users_profile.nome} ${livro.users_profile.sobrenome || ""}`.trim()
                   : "Autor desconhecido";
@@ -301,7 +306,7 @@ export default function BibliotecaPessoal() {
                       </Link>
                       <p className={styles.autor}>{autor}</p>
                       <small>
-                        Comprado em {formatarData(livro.dataCompra)}
+                        Comprado em <span className={styles.numero}>{formatarData(livro.dataCompra)}</span>
                       </small>
                       <button
                         type="button"

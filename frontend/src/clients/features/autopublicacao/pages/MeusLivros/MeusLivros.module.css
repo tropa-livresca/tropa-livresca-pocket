@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Jacques+Francois&display=swap");
 
 .topo {
@@ -95,6 +96,7 @@
   min-width: 0;
   display: block;
   background: transparent;
+  margin-bottom: 0 !important;
 }
 
 .campoBusca input {
@@ -236,7 +238,7 @@
   gap: 0.4rem;
   padding: 0.45rem;
   background: #fffdf7;
-  box-shadow:
+   box-shadow:
     0 8px 20px rgba(103, 23, 12, 0.08),
     0 2px 6px rgba(103, 23, 12, 0.05);
   border-radius: 1rem;
@@ -287,7 +289,7 @@
   padding: 1.5rem 2rem;
   border-radius: 1rem;
   background: #fffdf7;
-  box-shadow:
+ box-shadow:
     0 8px 20px rgba(103, 23, 12, 0.08),
     0 2px 6px rgba(103, 23, 12, 0.05);
   box-sizing: border-box;
@@ -410,21 +412,21 @@
 }
 
 .btnPublicar {
-  border-color: #67170c;
-  background: #67170c;
-  color: #ede6b3;
+  border: 1px solid #d4b46a;
+  background: #fff8d7;
+  color: #67170c;
 }
 
 .btnPublicar:hover {
   border-color: #ffbb33;
   background: #ffbb33;
-  color: #67170c;
+  color: #ede6b3;
 }
 
 .btnInativar:hover {
-  border-color: #b83232;
-  background: #b83232;
-  color: #fff;
+ border-color: #ffbb33;
+  background: #ffbb33;
+  color: #ede6b3;
 }
 
 .textoPublicado {
@@ -470,7 +472,7 @@
   justify-content: center;
   gap: 1rem;
   padding: 4rem 2rem;
-  box-shadow:
+ box-shadow:
     0 8px 20px rgba(103, 23, 12, 0.08),
     0 2px 6px rgba(103, 23, 12, 0.05);
   border-radius: 1rem;

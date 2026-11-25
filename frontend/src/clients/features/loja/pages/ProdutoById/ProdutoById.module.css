@@ -104,10 +104,11 @@
   font-size: 0.85rem;
   border: 1px solid #e3d5ad;
 }
+
 .informacoes {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: 72px;
+  grid-auto-rows: minmax(72px, auto);
   align-items: stretch;
   gap: 0.65rem;
   margin-top: 1.3rem;
@@ -119,7 +120,7 @@
   align-items: center;
   gap: 0.7rem;
   width: 100%;
-  height: 72px;
+  height: auto;
   min-width: 0;
   min-height: 72px;
   padding: 0.6rem 0.8rem;
@@ -198,6 +199,7 @@
   border: 1px solid #d4b46a;
   font-size: 0.6rem;
 }
+
 .linkAutor {
   color: inherit;
   text-decoration: none;
@@ -223,7 +225,8 @@
 
 .conteudo {
   width: 100%;
-  max-width: none;
+  margin: 0 auto;
+  max-width: 1400px;
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
   gap: 2rem;
@@ -265,7 +268,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
   gap: 0.8rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
 }
 
 .formato {
@@ -359,6 +362,7 @@
   background: #67170c;
   color: #ede6b3;
   transition: 0.3s;
+  margin: 0;
 }
 
 .btnCarrinho:hover {
@@ -377,10 +381,11 @@
   border-radius: 10px;
   background: #fff8d7;
   color: #67170c;
+  text-align: center;
 }
 
 .avisoLivroComprado p {
-  margin: 0 0 0.5rem;
+  margin: 0;
   font-weight: 600;
 }
 
@@ -420,51 +425,6 @@
   flex-shrink: 0;
   font-size: 1.15rem;
   color: #67170c;
-}
-
-.secaoColaboradores {
-  width: 100%;
-  margin-top: 2rem;
-  padding: 2rem;
-  box-sizing: border-box;
-  border-radius: 14px;
-  background: #fffdf7;
-  border: 1px solid #eee4c9;
-}
-
-.tituloSecao {
-  margin: 0 0 1.3rem;
-  color: #67170c;
-  font-family: "Jacques Francois", serif;
-}
-
-.listaColaboradores {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.colaborador {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 9px;
-  background: #f5eed7;
-}
-
-.nomeColaborador {
-  font-weight: 600;
-  color: #30231f;
-}
-
-.funcaoColaborador {
-  color: #75635b;
-  text-align: right;
 }
 
 .naoEncontrado {
@@ -554,23 +514,8 @@
   }
 
   .conteudoPrincipal,
-  .compra,
-  .secaoColaboradores {
+  .compra {
     padding: 1.3rem;
-  }
-
-  .listaColaboradores {
-    grid-template-columns: 1fr;
-  }
-
-  .colaborador {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
-  .funcaoColaborador {
-    text-align: left;
   }
 }
 
