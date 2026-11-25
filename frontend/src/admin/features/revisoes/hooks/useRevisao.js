@@ -2,9 +2,6 @@ import { useCallback, useState } from "react";
 import { apiFetch } from "../../../../common/services/api.js";
 import { LIVRO_ESTADO } from "../../../../common/config/livroEstados.js";
 
-/**
- * Lê a resposta da API e apresenta mensagens de erro consistentes.
- */
 async function lerResposta(response, mensagemErro) {
   let resultado = null;
 

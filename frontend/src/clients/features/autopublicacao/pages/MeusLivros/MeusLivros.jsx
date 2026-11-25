@@ -38,9 +38,10 @@ const ORDENACOES = [
 const FILTROS_ESTADO = [
   ["", "Todos"],
   [LIVRO_ESTADO.RASCUNHO, "Rascunhos"],
-  [LIVRO_ESTADO.EM_REVISAO, "Em revisão"],
+  [LIVRO_ESTADO.EM_REVISAO, "Em Revisão"],
   [LIVRO_ESTADO.PUBLICADO, "Publicados"],
   [LIVRO_ESTADO.NEGADO, "Negados"],
+  [LIVRO_ESTADO.RECALL, "Corrigir"],
 ];
 
 export default function MeusLivros() {

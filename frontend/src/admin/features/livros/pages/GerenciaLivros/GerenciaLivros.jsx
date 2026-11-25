@@ -38,7 +38,7 @@ export default function GerenciaLivros() {
       month: "2-digit",
       year: "numeric",
     });
-  }
+  };
 
   useEffect(() => {
     buscarLivros(paginaAtual, itensPorPagina, busca, filtro, ordem, "", estado);
@@ -132,9 +132,9 @@ export default function GerenciaLivros() {
         : "Crescente";
 
   const textoEstado =
-    estado === "publicado"
+    estado === "Publicado"
       ? "Publicados"
-      : estado === "em_revisao"
+      : estado === "Em Revisão"
         ? "Para revisão"
         : "Todos";
 
@@ -278,18 +278,18 @@ export default function GerenciaLivros() {
 
                 <div
                   className={`${styles.opcao} ${
-                    estado === "publicado" ? styles.opcaoSelecionada : ""
+                    estado === "Publicado" ? styles.opcaoSelecionada : ""
                   }`}
-                  onClick={() => selecionarEstado("publicado")}
+                  onClick={() => selecionarEstado("Publicado")}
                 >
                   Publicados
                 </div>
 
                 <div
                   className={`${styles.opcao} ${
-                    estado === "em_revisao" ? styles.opcaoSelecionada : ""
+                    estado === "Em revisão" ? styles.opcaoSelecionada : ""
                   }`}
-                  onClick={() => selecionarEstado("em_revisao")}
+                  onClick={() => selecionarEstado("Em revisão")}
                 >
                   Para revisão
                 </div>
@@ -367,18 +367,18 @@ export default function GerenciaLivros() {
                       </td>
                       <td>
                         <span
-                          className={`${styles.badge} ${livro.estado === "publicado" ? styles.badgeOn : styles.badgeOff}`}
+                          className={`${styles.badge} ${livro.estado === "Publicado" ? styles.badgeOn : styles.badgeOff}`}
                         >
-                          {livro.estado === "publicado"
+                          {livro.estado === "Publicado"
                             ? "Publicado"
                             : "Não publicado"}
                         </span>
                       </td>
                       <td>
                         <span
-                          className={`${styles.badge} ${livro.estado === "em_revisao" ? styles.badgeOn : styles.badgeOff}`}
+                          className={`${styles.badge} ${livro.estado === "Em Revisão" ? styles.badgeOn : styles.badgeOff}`}
                         >
-                          {livro.estado === "em_revisao"
+                          {livro.estado === "Em Revisão"
                             ? "Em revisão"
                             : "Revisto"}
                         </span>
@@ -399,7 +399,7 @@ export default function GerenciaLivros() {
                             Ver Livro{" "}
                           </Link>
 
-                          {livro.estado === "em_revisao" && (
+                          {livro.estado === "Em Revisão" && (
                             <Link
                               to={`/admin/livros/revisoes/nova-revisao/${livro.id}`}
                               className={styles.revisar}
@@ -408,7 +408,7 @@ export default function GerenciaLivros() {
                             </Link>
                           )}
 
-                          {livro.estado === "publicado" && (
+                          {livro.estado === "Publicado" && (
                             <button
                               onClick={() => handleInativar(livro)}
                               className={styles.inativar}

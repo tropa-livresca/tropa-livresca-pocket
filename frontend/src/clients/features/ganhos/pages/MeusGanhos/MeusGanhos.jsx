@@ -15,12 +15,8 @@ const formatarData = (data) =>
   data ? new Date(data).toLocaleDateString("pt-BR") : "";
 
 export default function MeusGanhos() {
-  const {
-    dadosBancarios,
-    buscarDadosBancarios,
-    solicitarSaque,
-    erro: erroDadosBancarios,
-  } = useDadosBancarios();
+  const { dadosBancarios, buscarDadosBancarios, solicitarSaque } =
+    useDadosBancarios();
 
   const { ganhos, carregando, erro, buscarGanhos } = useGanhos();
 
@@ -73,6 +69,11 @@ export default function MeusGanhos() {
       setErroSaque(
         "O valor solicitado não pode ser maior que seu saldo disponível.",
       );
+      return;
+    }
+
+    if (valor < 50) {
+      setErroSaque("O valor solicitado não pode ser inferior a R$ 50,00.");
       return;
     }
 
@@ -184,11 +185,6 @@ export default function MeusGanhos() {
                   <Link to="/perfil/dadosbancarios">
                     Cadastrar dados bancários
                   </Link>
-                </p>
-              )}
-              {erroDadosBancarios && !erroSaque && (
-                <p role="alert" className={styles.erro}>
-                  {erroDadosBancarios}
                 </p>
               )}
 

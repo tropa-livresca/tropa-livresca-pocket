@@ -7,11 +7,11 @@ import Carregando from "../../../../components/Carregando/Carregando";
 import Popup from "../../../../components/PopUp/Popup";
 
 const ROTULO_ESTADO = {
-  rascunho: "Rascunho",
-  em_revisao: "Em revisão",
-  publicado: "Publicado",
-  negado: "Negado",
-  recall: "Recall",
+  Rascunho: "Rascunho",
+  "Em Revisão": "Em revisão",
+  Publicado: "Publicado",
+  Negado: "Negado",
+  Recall: "Corrigir",
 };
 
 const formatarPreco = (valor) =>
