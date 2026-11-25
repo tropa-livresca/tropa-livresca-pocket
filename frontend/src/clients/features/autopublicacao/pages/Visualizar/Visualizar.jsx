@@ -35,6 +35,7 @@ export default function Visualizar() {
     preco_digital,
     preco_fisico,
     colaboradores,
+    revisoes = [],
     direitos_de_publicacao,
   } = livroSelecionado;
 
@@ -103,6 +104,24 @@ export default function Visualizar() {
                   </object>
                 </div>
               </div>
+            )}
+            {revisoes.length === 0 ? (
+              <div className={styles.card}>
+                <h2>Revisões</h2>
+                <p className={styles.vazio}>
+                  Nenhuma revisão encontrada para este livro.
+                </p>
+              </div>
+            ) : (
+              revisoes.map((revisao) => (
+                <Link
+                  className={styles.card}
+                  key={revisao.id}
+                  to={`/revisao/${revisao.id}`}
+                >
+                  Ver Revisão: {revisao.nome || "Revisão"}
+                </Link>
+              ))
             )}
           </div>
 

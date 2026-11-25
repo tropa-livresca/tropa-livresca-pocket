@@ -44,6 +44,30 @@ export const useMeusLivros = () => {
     [],
   );
 
+  const buscarRevisaoLivro = useCallback(async (id) => {
+    setCarregando(true);
+    try {
+      const res = await apiFetch(
+        `/api/v1/clients/autopublicacao/revisao/${id}`,
+        {
+          method: "GET",
+        },
+      );
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data?.error || `Erro ${res.status}`);
+
+      const detalhe = data.data ?? data;
+      setLivroSelecionado(detalhe);
+      return detalhe;
+    } catch (error) {
+      console.error("Erro em buscarRevisaoLivro", error);
+      throw error;
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
   const buscarLivroById = useCallback(async (id) => {
     setCarregando(true);
     try {
@@ -123,6 +147,7 @@ export const useMeusLivros = () => {
     setLivroSelecionado,
     setLivros,
     buscarLivros,
+    buscarRevisaoLivro,
     buscarLivroById,
     atualizarEstado,
     deletarLivro,
