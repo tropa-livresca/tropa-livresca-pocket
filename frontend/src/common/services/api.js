@@ -1,3 +1,4 @@
+import { BACKEND_URL } from "../config/environment.js";
 
 export const apiFetch = async (endpoint, options = {}) => {
   const { skipAuthRedirect = false, ...fetchOptions } = options;
@@ -18,7 +19,7 @@ export const apiFetch = async (endpoint, options = {}) => {
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   ).replace(/\/$/, "");
 
-  let response = await fetch(caminhoEndpoint, fetchOptions);
+  let response = await fetch(`${BACKEND_URL}${caminhoEndpoint}`, fetchOptions);
 
   const ehRotaIgnorada =
     caminhoEndpoint.endsWith("/auth/refresh") ||
@@ -57,8 +58,11 @@ export const apiFetch = async (endpoint, options = {}) => {
           delete fetchOptions.headers["Content-Type"];
         }
 
-        response = await fetch(caminhoEndpoint, fetchOptions);
-
+        response = await fetch(
+          `${BACKEND_URL}${caminhoEndpoint}`,
+          fetchOptions,
+        );
+        
         return response;
       } else {
         const payload = await refreshResponse.json().catch(() => ({}));

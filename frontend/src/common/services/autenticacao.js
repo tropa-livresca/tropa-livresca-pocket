@@ -2,7 +2,6 @@ import pb from "./pocketbase.js";
 import { apiFetch } from "./api.js";
 
 export async function loginComGoogle() {
-  // Abre o popup imediatamente, durante o clique do usuário.
   const popup = window.open("", "oauth2-popup", "width=600,height=700");
 
   try {
@@ -15,7 +14,6 @@ export async function loginComGoogle() {
     const authData = await pb.collection("users_profile").authWithOAuth2({
       provider: "google",
 
-      // Personaliza a URL antes de redirecionar para o Google.
       urlCallback: (url) => {
         const authUrl = new URL(url);
 
