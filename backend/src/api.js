@@ -3,6 +3,9 @@ import express from "express";
 import cors from "cors";
 import path from "node:path";
 import fs from "node:fs";
+import dns from "node:dns";
+
+dns.setDefaultResultOrder("ipv4first");
 
 import routerClients from "./api/clients/index.js";
 import routerAdmin from "./api/admin/index.js";

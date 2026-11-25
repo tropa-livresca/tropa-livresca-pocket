@@ -59,7 +59,7 @@ export default function Footer() {
           <h3 id={styles.h3id}>ATENDIMENTO</h3>
 
           <p>
-            Telefone: <span className={styles.numero}>(14) 9967-6767</span>
+            Telefone: <span className={styles.numero}>(14) 3762 - 9967</span>
           </p>
           <p>
             Atendimento: Segunda à sexta, das{" "}
@@ -68,8 +68,8 @@ export default function Footer() {
           </p>
 
           <p>
-            Endereço: Rua Dr. David Gabriel{" "}
-            <span className={styles.numero}>667</span>- Taquarituba-SP
+            Endereço: Rua Luiz Benini, Aleixos{" "}
+            <span className={styles.numero}>248</span>- Taquarituba-SP
           </p>
         </div>
 

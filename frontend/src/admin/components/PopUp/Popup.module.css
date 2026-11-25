@@ -99,6 +99,114 @@
   min-width: 7rem;
 }
 
+.conteudo {
+  width: 100%;
+  margin: 12px 0 20px;
+  text-align: left;
+}
+
+.conteudo > p {
+  margin: 0;
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+.secaoCredenciais {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  background: #fffcf4;
+  border: 1px solid #e8dcc2;
+  border-radius: 10px;
+}
+
+.campoCredencial {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campoCredencial span {
+  color: #7a6a5b;
+  font-size: 0.82rem;
+}
+
+.campoCredencial strong {
+  color: #432c28;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.avisoEmail {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff3d6;
+  color: #795719;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.sucessoEmail {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #eaf5e9;
+  color: #286333;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.secaoCredenciais {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  background: #fffcf4;
+  border: 1px solid #e8dcc2;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.campoCredencial {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campoCredencial span {
+  color: #7a6a5b;
+  font-size: 0.82rem;
+}
+
+.campoCredencial strong {
+  color: #432c28;
+  font-size: 0.95rem;
+}
+
+.avisoEmail,
+.sucessoEmail {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.avisoEmail {
+  background: #fff3d6;
+  color: #795719;
+}
+
+.sucessoEmail {
+  background: #eaf5e9;
+  color: #286333;
+}
+
 @keyframes aparecer {
   from {
     opacity: 0;

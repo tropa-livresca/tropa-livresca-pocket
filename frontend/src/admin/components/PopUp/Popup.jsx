@@ -4,6 +4,7 @@ import { FaCheckCircle, FaTimesCircle, FaTimes } from "react-icons/fa";
 export default function Popup({
   tipo,
   mensagem,
+  conteudo,
   fechar,
   confirmar,
   textoConfirmar = "Confirmar",
@@ -20,7 +21,12 @@ export default function Popup({
         aria-modal="true"
         aria-labelledby="popup-titulo"
       >
-        <button className={styles.fechar} onClick={fechar} type="button">
+        <button
+          className={styles.fechar}
+          onClick={fechar}
+          type="button"
+          aria-label="Fechar"
+        >
           <FaTimes />
         </button>
 
@@ -32,7 +38,7 @@ export default function Popup({
           {ehConfirmacao ? "Confirmar ação" : sucesso ? "Sucesso!" : "Erro!"}
         </h3>
 
-        <p>{mensagem}</p>
+        <div className={styles.conteudo}>{conteudo || <p>{mensagem}</p>}</div>
 
         {ehConfirmacao ? (
           <div className={styles.acoes}>
@@ -43,6 +49,7 @@ export default function Popup({
             >
               {textoCancelar}
             </button>
+
             <button
               className={`${styles.btnOk} ${styles.btnConfirmar}`}
               onClick={() => {

@@ -242,21 +242,25 @@ export class UsuariosModel {
     }
   }
 
+  st;
   static async enviarEmail(dadosMail) {
-    const porta = Number(process.env.SMTP_PORT || 465);
+    const porta = Number.parseInt(process.env.SMTP_PORT || "465", 10);
 
     if (
       !process.env.SMTP_HOST ||
       !process.env.SMTP_USER ||
       !process.env.SMTP_PASS
     ) {
-      const erro = new Error("Configuração de SMTP incompleta no backend.");
-      erro.statusCode = 500;
-      throw erro;
+      return {
+        enviado: false,
+        motivo: "SMTP_NAO_CONFIGURADO",
+      };
     }
 
+    let transporte;
+
     try {
-      const transporte = nodemailer.createTransport({
+      transporte = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: porta,
         secure: porta === 465,
@@ -265,37 +269,41 @@ export class UsuariosModel {
           pass: process.env.SMTP_PASS,
         },
         family: 4,
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       });
 
-      return await transporte.sendMail({
+      const resultado = await transporte.sendMail({
         ...dadosMail,
         from: `"Administração Tropa Livresca" <${process.env.SMTP_USER}>`,
       });
+
+      return {
+        enviado: true,
+        messageId: resultado.messageId,
+        motivo: null,
+      };
     } catch (erro) {
-      console.error("[UsuariosModel:enviarEmail] Erro ao enviar email:", {
+      console.error("[UsuariosModel:enviarEmail] Falha no envio:", {
         message: erro?.message,
         code: erro?.code,
         command: erro?.command,
         responseCode: erro?.responseCode,
-        response: erro?.response,
       });
 
-      erro.statusCode = 500;
-      throw erro;
+      return {
+        enviado: false,
+        motivo: erro?.code || "FALHA_ENVIO",
+      };
+    } finally {
+      transporte?.close();
     }
   }
 
   static async promoverUsuario(usuarioId) {
     const pb = await criarClienteModel();
     const colecao = pb.collection(COLECAO_PERFIL);
-
-    let perfilAnterior;
-
-    try {
-      perfilAnterior = await colecao.getOne(usuarioId);
-    } catch (error) {
-      marcarErro(error);
-    }
 
     const senhaTemporaria = gerarSenhaTemporaria();
     const senhaAdminHash = await gerarSenha(senhaTemporaria);
@@ -310,12 +318,19 @@ export class UsuariosModel {
       });
     } catch (error) {
       marcarErro(error);
+      throw error;
     }
 
+    let resultadoEmail = {
+      enviado: false,
+      motivo: "FALHA_ENVIO",
+    };
+
     try {
-      await this.enviarEmail({
+      resultadoEmail = await this.enviarEmail({
         to: data.email,
         subject: "Promoção a Administrador",
+
         text: `Olá ${data.nome || ""},
 
 Parabéns! Você foi promovido a Administrador da Tropa Livresca.
@@ -340,9 +355,7 @@ Equipe Tropa Livresca`,
 
         <p>Sua senha temporária é:</p>
 
-        <p>
-          <strong>${senhaTemporaria}</strong>
-        </p>
+        <p><strong>${senhaTemporaria}</strong></p>
 
         <p>
           No primeiro acesso, será necessário cadastrar
@@ -356,31 +369,32 @@ Equipe Tropa Livresca`,
       `,
       });
     } catch (error) {
-      try {
-        await colecao.update(usuarioId, {
-          is_admin: perfilAnterior.is_admin,
-          is_master: perfilAnterior.is_master,
-          senha_admin: perfilAnterior.senha_admin || "",
-          primeiro_acesso: perfilAnterior.primeiro_acesso ?? false,
-        });
-      } catch (erroRollback) {
-        console.error(
-          "[UsuariosModel:promoverUsuario] Erro ao restaurar usuário:",
-          erroRollback,
-        );
-      }
+      console.error("Falha no envio do e-mail de promoção:", error);
 
-      error.statusCode = error.statusCode || 500;
-      throw error;
+      resultadoEmail = {
+        enviado: false,
+        motivo: error.code || "FALHA_ENVIO",
+      };
     }
 
     const { senha_admin, ...usuarioSemSenha } = data;
 
     return {
       ...usuarioSemSenha,
+
       nome: data.nome || "",
       sobrenome: data.sobrenome || "",
       email: data.email || "",
+
+      credenciais: {
+        usuario: data.email,
+        senhaTemporaria,
+      },
+
+      notificacao: {
+        emailEnviado: resultadoEmail?.enviado === true,
+        motivo: resultadoEmail?.motivo || null,
+      },
     };
   }
 
@@ -416,7 +430,7 @@ Equipe Tropa Livresca`,
       marcarErro(error);
     }
 
-    await this.enviarEmail({
+    const resultadoEmail = await this.enviarEmail({
       to: data.email,
       subject: "Remoção de Privilégios de Administrador",
 
@@ -431,12 +445,15 @@ Equipe Tropa Livresca`,
 
       html: `
       <p>Olá ${data.nome || ""},</p>
+
       <p>
         Lamentamos informar que seus privilégios de
         <strong>Administrador</strong> foram removidos
         da Tropa Livresca.
       </p>
+
       <p>Sua senha administrativa foi invalidada.</p>
+
       <p>
         Atenciosamente,<br />
         Equipe Tropa Livresca
@@ -448,9 +465,15 @@ Equipe Tropa Livresca`,
 
     return {
       ...usuarioSemSenha,
+
       nome: data.nome || "",
       sobrenome: data.sobrenome || "",
       email: data.email || "",
+
+      notificacao: {
+        emailEnviado: resultadoEmail.enviado,
+        motivo: resultadoEmail.motivo || null,
+      },
     };
   }
 }
