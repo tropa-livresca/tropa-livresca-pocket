@@ -47,3 +47,8 @@ Thumbs.db
 
 pocketbase/pb_data
 pocketbase/pb_data/
+
+# Executável principal fora da portabilidade
+/TropaLivresca.exe
+
+.git-rewrite
