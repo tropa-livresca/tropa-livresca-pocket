@@ -84,7 +84,7 @@ export class LojaService {
 
     const venda = await LojaModel.consultarVenda(vendaId);
 
-    if (venda.status_pagamento !== "pago")
+    if (venda.status_pagamento !== "Pago")
       error(400, "Só é possível enviar vendas pagas.");
     if (venda.status_entrega !== "Pendente")
       error(409, "Esta venda não está aguardando envio.");

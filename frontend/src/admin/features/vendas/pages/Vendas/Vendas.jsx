@@ -343,12 +343,12 @@ export default function Vendas() {
                       <td>
                         <span
                           className={`${styles.etiqueta} ${
-                            venda.status_pagamento === "pago"
+                            venda.status_pagamento === "Pago"
                               ? styles.ok
                               : styles.pendente
                           }`}
                         >
-                          {venda.status_pagamento === "pago"
+                          {venda.status_pagamento === "Pago"
                             ? "Pago"
                             : "Pendente"}
                         </span>
