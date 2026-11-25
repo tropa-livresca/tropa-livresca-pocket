@@ -20,21 +20,6 @@ function criarUrlPreview(arquivo, urlsTemporarias) {
   return "";
 }
 
-function mapearIdioma(idioma) {
-  if (!idioma) return "Não informado";
-
-  const dicionario = {
-    ingles: "Inglês",
-    portugues: "Português",
-    espanhol: "Espanhol",
-  };
-
-  return (
-    dicionario[idioma.toLowerCase()] ||
-    idioma.charAt(0).toUpperCase() + idioma.slice(1)
-  );
-}
-
 function exibirValor(valor) {
   return valor !== null && valor !== undefined && valor !== ""
     ? valor
@@ -181,9 +166,7 @@ export default function Confirmacao({
             <div className={styles.containergrid}>
               <div>
                 <label>Idioma:</label>
-                <div className={styles.liinput}>
-                  {mapearIdioma(detalhes.idioma)}
-                </div>
+                <div className={styles.liinput}>{detalhes.idioma}</div>
               </div>
 
               <div>

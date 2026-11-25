@@ -97,6 +97,13 @@ main {
   transform: translateY(-8px);
 }
 
+.semLivros {
+  margin: 4rem 0;
+  color: var(--cor-texto-muted);
+  text-align: center;
+  font-size: 1rem;
+}
+
 .autorinf img,
 .semfoto {
   width: 8.75rem;

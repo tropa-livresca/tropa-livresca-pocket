@@ -52,21 +52,6 @@ export default function ProdutoById() {
     buscarResumo(id);
   }, [id, buscarResumo]);
 
-  const mapearIdioma = (idioma) => {
-    if (!idioma) return "Não informado";
-
-    const dicionario = {
-      ingles: "Inglês",
-      portugues: "Português",
-      espanhol: "Espanhol",
-    };
-
-    return (
-      dicionario[idioma.toLowerCase()] ||
-      idioma.charAt(0).toUpperCase() + idioma.slice(1)
-    );
-  };
-
   useEffect(() => {
     if (id) {
       buscarLivroById(id);
@@ -122,6 +107,22 @@ export default function ProdutoById() {
     return <p className={styles.naoEncontrado}>Livro não encontrado.</p>;
   }
 
+  const formatarData = (data) => {
+    if (!data) return "";
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return "";
+    }
+
+    return dataConvertida.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+  
   const capaFrente = livro.capa?.frente;
 
   const formatarPreco = (valor) => {
@@ -198,7 +199,7 @@ export default function ProdutoById() {
 
             {livro.idioma && (
               <div className={styles.tags}>
-                <span>{mapearIdioma(livro.idioma)}</span>
+                <span>{livro.idioma || "Não informado"}</span>
               </div>
             )}
           </div>
@@ -245,9 +246,7 @@ export default function ProdutoById() {
               <div>
                 <strong>Data de publicação</strong>
                 <p className={styles.numero}>
-                  {livro.data_de_publicacao
-                    ? livro.data_de_publicacao.split("-").reverse().join("/")
-                    : "Não informado"}
+                  {formatarData(livro.data_de_publicacao)}
                 </p>
               </div>
             </div>
@@ -270,7 +269,7 @@ export default function ProdutoById() {
 
               <div>
                 <strong>Idioma</strong>
-                <p>{mapearIdioma(livro.idioma)}</p>
+                <p>{livro.idioma || "Não informado"}</p>
               </div>
             </div>
           </div>

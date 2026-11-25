@@ -26,6 +26,8 @@ export const usePerfil = () => {
     perfil,
     setPerfil,
     nome,
+    sobrenome,
+    setSobrenome,
     setNome,
     telefone,
     setTelefone,
@@ -125,6 +127,7 @@ export const usePerfil = () => {
     setEditando(false);
     if (perfil) {
       setNome(perfil.nome || "");
+      setSobrenome(perfil.sobrenome || "");
       setTelefone(perfil.telefone || "");
       setDescricao(perfil.descricao || "");
       setRedesSociais({
@@ -140,6 +143,7 @@ export const usePerfil = () => {
     perfil,
     setEditando,
     setNome,
+    setSobrenome,
     setTelefone,
     setDescricao,
     setRedesSociais,
@@ -154,6 +158,7 @@ export const usePerfil = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome,
+          sobrenome,
           telefone,
           descricao,
           redes_sociais: redesSociais,
@@ -177,6 +182,7 @@ export const usePerfil = () => {
     }
   }, [
     nome,
+    sobrenome,
     telefone,
     descricao,
     redesSociais,
@@ -188,6 +194,7 @@ export const usePerfil = () => {
   return {
     perfil,
     nome,
+    sobrenome,
     telefone,
     descricao,
     redesSociais,
@@ -195,6 +202,7 @@ export const usePerfil = () => {
     carregando,
     editando,
     setNome,
+    setSobrenome,
     setTelefone,
     setDescricao,
     setEditando,

@@ -24,6 +24,22 @@ export default function GerenciaLivros() {
   const itensPorPagina = 8;
   const totalPages = count ? Math.ceil(count / itensPorPagina) : 1;
 
+  const formatarData = (data) => {
+    if (!data) return "";
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return "";
+    }
+
+    return dataConvertida.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
   useEffect(() => {
     buscarLivros(paginaAtual, itensPorPagina, busca, filtro, ordem, "", estado);
   }, [paginaAtual, buscarLivros, filtro, ordem, estado]);
@@ -347,7 +363,7 @@ export default function GerenciaLivros() {
                         </div>
                       </td>
                       <td className={styles.numero}>
-                        {livro.data_de_publicacao}
+                        {formatarData(livro.data_de_publicacao)}
                       </td>
                       <td>
                         <span
@@ -381,7 +397,6 @@ export default function GerenciaLivros() {
                             className={`${styles.btnAcao} ${styles.btnVisualizar}`}
                           >
                             Ver Livro{" "}
-                            <span className={styles.numero3}>{livro.id}</span>
                           </Link>
 
                           {livro.estado === "em_revisao" && (

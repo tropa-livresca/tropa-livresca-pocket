@@ -1,4 +1,5 @@
-﻿import Input from "../../../../../common/components/Input/Input";
+﻿import { useState, useEffect } from "react";
+import Input from "../../../../../common/components/Input/Input";
 import styles from "./Orcamento.module.css";
 import { Link } from "react-router-dom";
 
@@ -19,6 +20,11 @@ export default function Orcamento({
 
   const custoMinimoFisico = numeroPaginas * CUSTO_POR_PAGINA_CENTAVOS;
   const custoMinimoDigital = CUSTO_MINIMO_DIGITAL_CENTAVOS;
+
+  const [valoresDigitados, setValoresDigitados] = useState({
+    valorLivroFisico: "",
+    valorLivroDigital: "",
+  });
 
   const converterParaCentavos = (valor) => {
     const limpo = String(valor ?? "")
@@ -58,25 +64,46 @@ export default function Orcamento({
     };
   };
 
+  useEffect(() => {
+    const sincronizarValor = (precoTotal, custoMinimo) => {
+      const total = converterParaCentavos(precoTotal);
+      const desejado = Math.max(0, total - custoMinimo);
+
+      return formatarMoeda(desejado);
+    };
+
+    setValoresDigitados({
+      valorLivroFisico: sincronizarValor(
+        orcamento.valorLivroFisico,
+        custoMinimoFisico,
+      ),
+      valorLivroDigital: sincronizarValor(
+        orcamento.valorLivroDigital,
+        custoMinimoDigital,
+      ),
+    });
+  }, [
+    orcamento.valorLivroFisico,
+    orcamento.valorLivroDigital,
+    custoMinimoFisico,
+    custoMinimoDigital,
+  ]);
+
   const atualizarPrecoTotal = (chave, valor, custoMinimo) => {
-    let valorValidado = valor.replace(/[^0-9.,]/g, "");
+    const valorValidado = valor.replace(/[^0-9.,]/g, "");
 
-    const indiceSeparador = valorValidado.search(/[.,]/);
+    setValoresDigitados((anterior) => ({
+      ...anterior,
+      [chave]: valorValidado,
+    }));
 
-    if (indiceSeparador !== -1) {
-      const parteInteira = valorValidado
-        .slice(0, indiceSeparador)
-        .replace(/[.,]/g, "");
+    const normalizado = valorValidado.replace(",", ".");
 
-      const parteDecimal = valorValidado
-        .slice(indiceSeparador + 1)
-        .replace(/[.,]/g, "")
-        .slice(0, 2);
-
-      valorValidado = `${parteInteira},${parteDecimal}`;
+    if (!/^\d*(\.\d{0,2})?$/.test(normalizado)) {
+      return;
     }
 
-    const valorDesejadoCentavos = converterParaCentavos(valorValidado);
+    const valorDesejadoCentavos = converterParaCentavos(normalizado);
 
     const precoTotalCentavos = custoMinimo + valorDesejadoCentavos;
 
@@ -157,7 +184,7 @@ export default function Orcamento({
               type="text"
               placeholder="0,00"
               className={styles.inputmodificado}
-              value={valoresFisico.valorDesejadoAutor}
+              value={valoresDigitados.valorLivroFisico}
               handleOnChange={(e) =>
                 atualizarPrecoTotal(
                   "valorLivroFisico",
@@ -191,7 +218,7 @@ export default function Orcamento({
               type="text"
               placeholder="0,00"
               className={styles.inputmodificado}
-              value={valoresDigital.valorDesejadoAutor}
+              value={valoresDigitados.valorLivroDigital}
               handleOnChange={(e) =>
                 atualizarPrecoTotal(
                   "valorLivroDigital",
