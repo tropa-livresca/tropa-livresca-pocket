@@ -1,16 +1,18 @@
 # Arquitetura do Sistema
 
-Este documento descreve a estrutura atual da aplicação Tropa Livresca e o fluxo entre o frontend, a API e os serviços externos.
+Este documento descreve a estrutura atual da aplicação Tropa Livresca, suas tecnologias e o fluxo de comunicação entre o frontend, a API e os serviços de infraestrutura.
 
 ## Tecnologias
 
-- Frontend: React 19, Vite 8 e React Router 7.
-- Backend: Node.js e Express 5, organizados em workspaces npm.
-- Persistência, autenticação e armazenamento: Supabase (PostgreSQL, Auth e Storage).
-- E-mail: Nodemailer.
-- Testes de integração da API: Jest, SWC e Supertest.
+- **Frontend:** React 19, Vite 8 e React Router 7.
+- **Backend:** Node.js 20 e Express 5, organizados em workspaces npm.
+- **Persistência, autenticação e armazenamento:** PocketBase, com banco de dados SQLite, gerenciamento de usuários, autenticação e arquivos.
+- **E-mail:** Nodemailer.
+- **Empacotamento do backend:** esbuild, Node.js SEA e postject.
+- **Execução portátil:** executáveis para Windows, com inicialização coordenada por arquivo BAT.
+- **Testes de integração da API:** Jest, SWC e Supertest, conforme a configuração do projeto.
 
-## Visão do sistema
+## Visão do Sistema
 
 ```mermaid
 flowchart LR
@@ -20,35 +22,46 @@ flowchart LR
     API --> R[Rotas e middlewares]
     R --> C[Controllers]
     C --> S[Services]
-    S --> M[Models]
-    M --> DB[Supabase]
+    S --> M[Models e SDK PocketBase]
+    M --> PB[PocketBase]
+    PB --> DB[(SQLite)]
+    PB --> ST[Armazenamento de arquivos]
     S --> E[Nodemailer]
+    E --> SMTP[Servidor SMTP]
 ```
 
-Os módulos funcionais do backend seguem esse fluxo em camadas quando aplicável: as rotas conectam endpoints a middlewares e controllers; controllers tratam o ciclo HTTP; services coordenam regras de negócio; e models concentram operações de dados. A infraestrutura compartilhada fica em `backend/src/api/common`.
+Os módulos funcionais do backend seguem uma arquitetura em camadas quando aplicável: as rotas conectam os endpoints aos middlewares e controllers; os controllers tratam o ciclo HTTP; os services coordenam as regras de negócio; e os models concentram as operações de acesso aos dados.
+
+A infraestrutura compartilhada fica em `backend/src/api/common`.
 
 ## Backend
 
-O ponto de entrada `backend/src/api.js` configura CORS com credenciais, parsers JSON e URL-encoded, leitura de cookies e o tratamento global de erros. Ele monta os grupos de rotas versionados:
+O ponto de entrada `backend/src/api.js` configura o servidor Express, incluindo CORS com credenciais, parsers JSON e URL-encoded, leitura de cookies, tratamento global de erros e disponibilização dos arquivos compilados do frontend no modo de produção.
 
-| Prefixo           | Responsabilidade                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| `/api/v1/clients` | Funcionalidades da área de clientes, como livros, perfil, endereços e loja.          |
-| `/api/v1/admin`   | Funcionalidades administrativas, incluindo livros, revisão, usuários e notificações. |
-| `/api/v1/auth`    | Autenticação e gerenciamento de sessão.                                              |
+A API organiza os grupos de rotas versionados:
 
-Os diretórios `backend/src/api/admin` e `backend/src/api/clients` agrupam os módulos de rotas por funcionalidade. Cada módulo pode conter arquivos `.route.js`, `.controller.js` e `.service.js`. Recursos compartilhados ficam em `backend/src/api/common`, dividido em `auth`, `config`, `middlewares`, `models` e `utils`.
+| Prefixo           | Responsabilidade                                                                      |
+| :---------------- | :------------------------------------------------------------------------------------ |
+| `/api/v1/clients` | Funcionalidades da área de clientes, como livros, perfil, endereços e loja.           |
+| `/api/v1/admin`   | Funcionalidades administrativas, incluindo livros, revisão, usuários e gerenciamento. |
+| `/api/v1/auth`    | Autenticação e gerenciamento de sessão.                                               |
+
+Os diretórios `backend/src/api/admin` e `backend/src/api/clients` agrupam os módulos de rotas por funcionalidade. Cada módulo pode conter arquivos `.route.js`, `.controller.js` e `.service.js`.
+
+Os recursos compartilhados ficam em `backend/src/api/common`, organizados em diretórios como `auth`, `config`, `middlewares`, `models` e `utils`.
+
+A comunicação com o PocketBase é realizada pelo SDK JavaScript, centralizado na infraestrutura compartilhada do backend. Os models e helpers responsáveis pela integração abstraem operações de consulta, autenticação e manipulação de arquivos.
 
 ## Frontend
 
-O ponto de entrada `frontend/src/main.jsx` renderiza a aplicação, e `App.jsx` fornece os contextos de autenticação e administração. O roteador em `frontend/src/common/routes/RoutesApp.jsx` encaminha as páginas para as áreas administrativa, de autenticação e de clientes.
+O ponto de entrada `frontend/src/main.jsx` renderiza a aplicação, enquanto `App.jsx` organiza os provedores de contexto e a estrutura principal.
 
-As funcionalidades são organizadas em `frontend/src/admin` e `frontend/src/clients`; elementos compartilhados, configuração e serviços ficam em `frontend/src/common`. O serviço `frontend/src/common/services/api.js` exporta `apiFetch`, usado para chamar a API com `credentials: "include"`. Em respostas 401, ele pode tentar renovar a sessão e redirecionar para a tela de login correspondente.
+O roteador em `frontend/src/common/routes/RoutesApp.jsx` encaminha as páginas para as áreas administrativa, de autenticação e de clientes.
 
-## Integração com serviços
+As funcionalidades são organizadas em `frontend/src/admin` e `frontend/src/clients`. Elementos compartilhados, configurações, contextos, hooks e serviços ficam em `frontend/src/common`.
 
-O backend utiliza os clientes do Supabase configurados em `backend/src/api/common/config` para acessar os serviços de dados. Middlewares compartilhados tratam autenticação e erros; módulos que recebem arquivos podem usar Multer e o armazenamento do Supabase. O Nodemailer é usado nos fluxos que precisam enviar e-mails.
+O serviço `frontend/src/common/services/api.js` disponibiliza `apiFetch`, responsável pelas requisições HTTP à API. As chamadas incluem credenciais por meio de `credentials: "include"`, permitindo o envio dos cookies de autenticação.
 
-## Testes de integração
+Na versão portátil, o frontend compilado é servido pelo próprio backend Express, permitindo que a interface e a API sejam acessadas pela mesma origem.
 
-Os testes HTTP ficam em `backend/tests/integration/routes`, organizados por área (`admin` e `clients`). Jest executa os testes no ambiente Node.js com transformação via SWC, e Supertest faz requisições às aplicações Express montadas para cada teste. Helpers, fixtures e mocks de serviços externos ficam nas pastas correspondentes de `backend/tests`.
+##
