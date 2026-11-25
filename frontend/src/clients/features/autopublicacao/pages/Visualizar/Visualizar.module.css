@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Jacques+Francois&display=swap");
+ @import url("https://fonts.googleapis.com/css2?family=Jacques+Francois&display=swap");
 
 .container {
   width: 100%;
@@ -105,7 +105,8 @@
 .btnSecondary {
   background: #67170c;
   color: #ede6b3;
-  border: 1px solid #67170c;
+  border:1px solid #67170c;
+  margin: 0;
 }
 
 .btnPrimary:hover,
@@ -148,10 +149,10 @@
 .card h2,
 .card2 h2 {
   margin: 0;
-  color: #67170c;
-  font-size: 1.3rem;
-  line-height: 1.2;
-  margin-top: 0;
+    color: #67170c;
+    font-size: 1.3rem;
+    line-height: 1.2;
+    margin-top: 0;
 }
 
 .card h2::after,
@@ -165,6 +166,25 @@
   border-radius: 999px;
 }
 
+.dvd{
+   margin: 0;
+    color: #67170c;
+    font-size: 1.3rem;
+    line-height: 1.2;
+    margin-top: 0;
+}
+
+.dvd::after{
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 2px;
+  margin-top: 0.7rem;
+  background: #d4b46a;
+  border-radius: 999px;
+  margin-bottom: 0.7rem;
+}
+
 .descricao {
   margin: 0.5rem 0 0rem;
   color: var(--cor-texto-muted);
@@ -174,6 +194,7 @@
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
+
 
 .pdfWrapper {
   width: 100%;
@@ -256,6 +277,7 @@
   text-align: right;
   overflow-wrap: anywhere;
 }
+ 
 
 .metaList {
   display: flex;
@@ -306,6 +328,7 @@
   text-align: right;
 }
 
+
 .capasContainer {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -329,13 +352,13 @@
 .capaBox img {
   display: block;
   width: 100%;
-  max-width: 13rem;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 2.2/ 3;
   object-fit: cover;
   border: 1px solid #e3d5ad;
   border-radius: 0.75rem;
   box-shadow: 0 4px 12px rgba(103, 23, 12, 0.08);
 }
+
 
 .loading,
 .error {
@@ -351,6 +374,7 @@
 .error {
   color: #67170c;
 }
+
 
 @media (max-width: 1000px) {
   .layoutGrid {

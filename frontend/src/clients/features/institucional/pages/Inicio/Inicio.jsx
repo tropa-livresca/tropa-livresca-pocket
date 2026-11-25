@@ -67,13 +67,12 @@ const intervaloCarrossel = 4000;
 
 const calcularLimites = () => {
   const largura = window.innerWidth;
-  if (largura >= 1600) return { livros: 5, autores: 4 };
+  if (largura >= 1600) return { livros: 4, autores: 4 };
   if (largura >= 1200) return { livros: 4, autores: 4 };
   if (largura >= 900) return { livros: 3, autores: 3 };
   if (largura >= 600) return { livros: 2, autores: 2 };
   return { livros: 1, autores: 1 };
 };
-
 const useLimitesPorTela = () => {
   const [limites, setLimites] = useState(calcularLimites);
 
