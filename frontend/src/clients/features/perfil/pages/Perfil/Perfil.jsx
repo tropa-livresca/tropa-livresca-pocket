@@ -230,7 +230,7 @@ export default function Perfil() {
                 Adicione apenas o nome de usuário.
               </p>
 
-              <div className={styles.inputs}>
+              <div className={styles.inputs2}>
                 <div>
                   <label>Instagram</label>
                   <Input

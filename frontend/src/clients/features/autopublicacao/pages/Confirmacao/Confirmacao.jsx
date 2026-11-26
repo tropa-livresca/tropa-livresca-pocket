@@ -214,37 +214,26 @@ export default function Confirmacao({
 
       <div className={styles.containerManuscrito}>
         <div className={styles.form}>
-          <div className={styles.manuscritoHeader}>
+          <div className={styles.tituloContainer}>
             <div>
               <h1 className={styles.titulo}>Manuscrito</h1>
 
               <p className={styles.manuscritoDescricao}>
                 Pré-visualização do arquivo enviado
               </p>
-
-              <button
-                type="button"
-                onClick={() => irParaEtapaEspecifica(2)}
-                className={styles.btnEditarDescricao}
-                title="Editar imagens da capa"
-                aria-label="Editar imagens da capa"
-                disabled={salvando}
-              >
-                <FaPen />
-                <span>Editar</span>
-              </button>
             </div>
-            <div
-              className={`${styles.statusArquivo} ${
-                previews.manuscrito
-                  ? styles.statusCarregado
-                  : styles.statusNaoEnviado
-              }`}
+
+            <button
+              type="button"
+              onClick={() => irParaEtapaEspecifica(2)}
+              className={styles.btnEditarDescricao}
+              title="Editar manuscrito"
+              aria-label="Editar manuscrito"
+              disabled={salvando}
             >
-              <span className={styles.statusPonto}></span>
-
-              {previews.manuscrito ? "Arquivo carregado" : "Não enviado"}
-            </div>
+              <FaPen />
+              <span>Editar</span>
+            </button>
           </div>
 
           {previews.manuscrito ? (

@@ -1,5 +1,61 @@
 @import url("https://fonts.googleapis.com/css2?family=Jacques+Francois&display=swap");
 
+
+.topo {
+  width: 100%;
+  padding: 3rem 6%;
+  background: #f7f0cfb1;
+  border-bottom: 2px solid #d4b46a;
+}
+
+.subcontainer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2rem;
+}
+
+.titulo {
+  margin: 0;
+  color: #67170c;
+  font-size: clamp(2rem, 4vw, 4rem) !important;
+  font-family: "Jacques Francois", serif;
+}
+
+.titulo::after {
+  content: "";
+  display: block;
+  width: 8rem;
+  height: 4px;
+  margin-top: 1rem;
+  background: #d4b46a;
+  border-radius: 999px;
+}
+
+.topo p {
+  color: var(--cor-texto-muted);
+  text-align: left;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+
+.btn {
+  display: grid;
+  place-items: center;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  background: #67170c;
+  color: #ede6b3;
+  font-family: inherit;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #ffbb33;
+}
+
 .filtros {
   width: 100%;
   display: flex;
@@ -8,7 +64,6 @@
   margin-bottom: 2.5rem;
 }
 .busca {
-  position:absolute;
   width: 100%;
   display: grid;
   grid-template-columns: 3rem minmax(0, 1fr) 12rem 12rem 12rem 12rem 6rem;
@@ -17,12 +72,12 @@
   padding: 0.4rem;
   background-color: #fffdf7;
   border-radius: 1.5rem;
+   box-shadow:
+    0 8px 20px rgba(103, 23, 12, 0.08),
+    0 2px 6px rgba(103, 23, 12, 0.05);
+  box-sizing: border-box;
 }
 
-.busca:first-child{
-  position:relative;
-  column-gap:0;
-}
 .busca svg {
   justify-self: center;
   color: #67170c;
@@ -35,6 +90,7 @@
   height: 3rem;
   border: none;
   outline: none;
+  margin-left:-10px;
   background: transparent;
   color: #67170c;
   font-family: inherit;
@@ -150,7 +206,7 @@
   font-size: 0.9rem;
   text-align: left;
   cursor: pointer;
-  transition: 0.25s;
+  transition: 0.3s;
 }
 
 .dropdownOpcoes button:hover {
@@ -158,10 +214,6 @@
   color: #ffbb33;
 }
 
-.opcaoAtiva {
-  background-color: #ffecc9 !important;
-  font-weight: 600;
-}
 
 .limpar {
   display: inline-flex;

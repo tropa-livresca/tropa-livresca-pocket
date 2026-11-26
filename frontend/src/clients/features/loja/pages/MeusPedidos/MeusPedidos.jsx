@@ -13,7 +13,7 @@ import base from "../Compra/Compra.module.css";
 import styles from "./MeusPedidos.module.css";
 import { useCompra } from "../../hooks/useCompra";
 import Carregando from "../../../../components/Carregando/Carregando";
-import DescricaoTela from "../../../../components/DescricaoTela/DescricaoTela";
+
 
 const LIMITE = 12;
 
@@ -198,10 +198,26 @@ export default function MeusPedidos() {
 
   return (
     <main>
-      <DescricaoTela
-        titulo="Meus pedidos"
-        descricao="Acompanhe suas compras na Tropa Livresca."
-      />
+       <header className={styles.topo}>
+        <div className={styles.subcontainer}>
+          <div>
+            <h1 className={styles.titulo}>Meus pedidos</h1>
+            <p>Acompanhe suas compras na Tropa Livresca.</p>
+          </div>
+
+           <button
+              type="button"
+              className={styles.limpar}
+              onClick={limparFiltros}
+              disabled={!possuiFiltros}
+            >
+              <FiX />
+              Limpar Filtros
+            </button>
+       
+        </div>
+      </header>
+
 
       <div className={base.container}>
         <section className={styles.filtros}>
@@ -279,15 +295,7 @@ export default function MeusPedidos() {
           <div className={styles.controles}>
             
 
-            <button
-              type="button"
-              className={styles.limpar}
-              onClick={limparFiltros}
-              disabled={!possuiFiltros}
-            >
-              <FiX />
-              Limpar
-            </button>
+            
           </div>
         </section>
 

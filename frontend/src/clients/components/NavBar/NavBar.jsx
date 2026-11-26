@@ -59,6 +59,9 @@ export default function NavBar() {
               <li>
                 <Link to="/sobreautopublicacao">Sobre a Autopublicação</Link>
               </li>
+              <li>
+                <Link to="/historia">Sobre Nós</Link>
+              </li>
             </ul>
           </li>
           <li className={styles.item}>
@@ -67,6 +70,9 @@ export default function NavBar() {
          <li className={styles.item}>
             <Link to="/loja">Loja</Link>
             <ul className={styles.subtema}>
+              <li>
+                <Link to="/loja">Loja</Link>
+              </li>
               <li>
                 <Link to="/bibliotecapessoal">Biblioteca Pessoal</Link>
               </li>
