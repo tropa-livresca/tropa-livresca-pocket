@@ -116,7 +116,7 @@ export default function Vendas() {
   };
 
   const renderAcoes = (venda) => {
-    const pago = venda.status_pagamento === "pago";
+    const pago = venda.status_pagamento === "Pago";
     const ocupado = emAndamento === venda.id;
     const botoes = [];
 
@@ -159,7 +159,7 @@ export default function Vendas() {
     if (venda.status_entrega === "A caminho") {
       botoes.push(
         <button
-          key="entregue"
+          key="Entregue"
           type="button"
           className={styles.botao}
           disabled={ocupado}
@@ -226,8 +226,8 @@ export default function Vendas() {
             }}
           >
             <option value="">Todos os pagamentos</option>
-            <option value="pago">Pago</option>
-            <option value="pendente">Pendente</option>
+            <option value="Pago">Pago</option>
+            <option value="Pendente">Pendente</option>
           </select>
 
           <select

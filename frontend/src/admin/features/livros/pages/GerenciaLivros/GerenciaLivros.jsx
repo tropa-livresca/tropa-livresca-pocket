@@ -287,9 +287,9 @@ export default function GerenciaLivros() {
 
                 <div
                   className={`${styles.opcao} ${
-                    estado === "Em revisão" ? styles.opcaoSelecionada : ""
+                    estado === "Em Revisão" ? styles.opcaoSelecionada : ""
                   }`}
-                  onClick={() => selecionarEstado("Em revisão")}
+                  onClick={() => selecionarEstado("Em Revisão")}
                 >
                   Para revisão
                 </div>
@@ -379,7 +379,7 @@ export default function GerenciaLivros() {
                           className={`${styles.badge} ${livro.estado === "Em Revisão" ? styles.badgeOn : styles.badgeOff}`}
                         >
                           {livro.estado === "Em Revisão"
-                            ? "Em revisão"
+                            ? "Em Revisão"
                             : "Revisto"}
                         </span>
                       </td>

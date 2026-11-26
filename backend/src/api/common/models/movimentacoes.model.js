@@ -101,7 +101,7 @@ export class MovimentacoesModel {
     try {
       const venda = await pb.collection("vendas").getOne(vendaId);
 
-      if (venda.status_pagamento !== "pago") {
+      if (venda.status_pagamento !== "Pago") {
         const error = new Error(
           "O repasse só pode ser autorizado para vendas pagas.",
         );
