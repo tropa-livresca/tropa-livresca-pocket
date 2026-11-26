@@ -354,13 +354,15 @@ export class RevisaoModel {
 
     try {
       const livro = await pb.collection(COLECAO_LIVROS).getOne(livroId, {
-        fields: "id,estado,ativo",
+        expand: RELACAO_PERFIL,
+        fields: `id,estado,ativo,${RELACAO_PERFIL},expand.${RELACAO_PERFIL}.id`,
       });
 
       return {
         id: livro.id,
         estado: livro.estado,
         ativo: livro.ativo,
+        fk_autor_id: livro[RELACAO_PERFIL],
       };
     } catch (error) {
       if (error.status === 404) return null;

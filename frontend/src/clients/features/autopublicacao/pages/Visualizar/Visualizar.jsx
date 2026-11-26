@@ -117,7 +117,7 @@ export default function Visualizar() {
                 <Link
                   className={styles.card}
                   key={revisao.id}
-                  to={`/revisao/${revisao.id}`}
+                  to={`/visualizar-revisao/${id}`}
                 >
                   Ver Revisão: {revisao.nome || "Revisão"}
                 </Link>

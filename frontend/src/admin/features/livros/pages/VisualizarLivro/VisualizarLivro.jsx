@@ -11,7 +11,7 @@ const ROTULO_ESTADO = {
   "Em Revisão": "Em Revisão",
   Publicado: "Publicado",
   Negado: "Negado",
-  Recall: "Corrigir",
+  "Para Correção": "Para Correção",
 };
 
 const formatarPreco = (valor) =>
