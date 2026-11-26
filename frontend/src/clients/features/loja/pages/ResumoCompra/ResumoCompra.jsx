@@ -148,7 +148,7 @@ export default function ResumoCompra() {
             )}
           </div>
 
-          <div className={styles.colunaLateral}>
+ <div className={styles.colunaLateral}>
             <aside className={base.resumo}>
               <h2>Resumo</h2>
 

@@ -229,7 +229,7 @@ export default function PagamentoCartao() {
                 onClick={() => setParcelamentoAberto((aberto) => !aberto)}
                 disabled={carregando}
               >
-                <span>
+                <span className={styles.numero}>
                   {parcelamento
                     ? opcoesParcelamento.find(
                         (opcao) => opcao.valor === parcelamento,
@@ -265,7 +265,7 @@ export default function PagamentoCartao() {
           </div>
 
           {parcelamento && (
-            <p>
+            <p className={styles.parcelamento34}>
               {parcelamento}x de {formatarPreco(total / Number(parcelamento))}
             </p>
           )}

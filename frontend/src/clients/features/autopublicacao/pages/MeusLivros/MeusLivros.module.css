@@ -357,27 +357,10 @@
   font-family: Arial, sans-serif;
   font-size: 0.75rem;
   text-transform: uppercase;
+  border:1px solid #e3d5ad;
+  color:#67170c;
 }
 
-.rascunho {
-  background: #c6f6d5;
-  color: brown;
-}
-
-.em_revisao {
-  background: #c6f6d5;
-  color: orange;
-}
-
-.publicado {
-  background: #c6f6d5;
-  color: green;
-}
-
-.negado {
-  background: #c6f6d5;
-  color: red;
-}
 
 .acoesColuna {
   display: flex;

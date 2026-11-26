@@ -242,11 +242,27 @@
   row-gap: 0;
 }
 
+/*
 .inputs div:last-child {
+  grid-column: 1 / -1;
+}*/
+
+.inputs > div {
+  display: grid;
+}
+
+.inputs2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  row-gap: 0;
+}
+
+.inputs2 div:last-child {
   grid-column: 1 / -1;
 }
 
-.inputs > div {
+.inputs2 > div {
   display: grid;
 }
 
@@ -310,6 +326,7 @@ textarea {
   gap: 1rem;
   align-items: center;
   cursor: pointer;
+    margin-bottom:0.7rem;
 }
 
 .carregar span {
@@ -450,6 +467,7 @@ textarea {
   gap: 1rem;
   width: 100%;
   margin: 0.3rem 0 0.5rem;
+  margin-bottom:1rem;
 }
 
 .dadosBancariosResumo > div {
