@@ -51,6 +51,18 @@
   font-size: 1.4rem;
 }
 
+.parcelamento34{
+ font-family: none;
+ margin-top: 0.5rem;
+ margin-bottom: 0.5rem;
+ color:#67170c;
+ background: #fff8d7 !important;
+    border: 1px solid #e2c77c !important;
+    border-radius: 1rem !important;
+    padding: 0.8rem !important;
+ font-size: 1rem;
+}
+
 .formTitulo span {
   color: var(--cor-texto-muted);
   font-size: 1rem;
@@ -110,18 +122,17 @@
   font-variant-numeric: lining-nums;
 }
 
-.erro {
-  width: 100%;
+
+.erro{
+   width: 100%;
   padding: 1rem;
   box-sizing: border-box;
-  background: #fffdf7;
-  border-radius: 1.5rem;
-  box-shadow:
-    0 8px 20px rgba(103, 23, 12, 0.08),
-    0 2px 6px rgba(103, 23, 12, 0.05);
+  border:1px solid red;
+  color:red;
+  border-radius:1rem;
 }
 
-.erro p {
+.erro p{
   font-size: 1rem;
   color: var(--cor-texto-muted);
 }
@@ -290,7 +301,7 @@
 }
 
 .opcaoSelecionada:hover {
-  border: 2px solid #67170c;
+  border:2px solid #67170c;
 }
 
 .opcaoSelecionada > span {
