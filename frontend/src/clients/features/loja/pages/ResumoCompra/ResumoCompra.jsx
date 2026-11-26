@@ -83,7 +83,7 @@ export default function ResumoCompra() {
       <div className={base.container}>
         <div className={base.conteudo}>
           <div className={base.colunaPrincipal}>
-            {!pago && (
+            {pago && (
               <section className={styles.confirmacao}>
                 <div className={styles.confirmacaoIcone}>
                   <FaCheckCircle />
