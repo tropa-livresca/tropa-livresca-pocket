@@ -22,11 +22,10 @@ const BACKEND_URL = isPortable
     : process.env.BACKEND_URL?.replace(/\/+$/, "") ||
       (isProduction ? null : `http://localhost:${BACKEND_PORT}`);
 
-const POCKETBASE_URL =
-  process.env.POCKETBASE_URL?.replace(/\/+$/, "") ||
-  (isPortable
-    ? `http://127.0.0.1:${POCKETBASE_PORT}`
-    : isCodespace
+const POCKETBASE_URL = isPortable
+  ? `http://127.0.0.1:${POCKETBASE_PORT}`
+  : process.env.POCKETBASE_URL?.replace(/\/+$/, "") ||
+    (isCodespace
       ? `https://${CODESPACE_NAME}-${POCKETBASE_PORT}.app.github.dev`
       : isProduction
         ? null
