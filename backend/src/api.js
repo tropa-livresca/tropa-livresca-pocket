@@ -32,7 +32,10 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
-
+app.use((req, res, next) => {
+  console.log(`[REQUISIÇÃO] ${req.method} ${req.originalUrl}`);
+  next();
+});
 // Rotas da API
 app.use("/api/v1/clients", routerClients);
 app.use("/api/v1/admin", routerAdmin);
@@ -59,10 +62,11 @@ if (fs.existsSync(frontendIndex)) {
 app.use(errorHandler);
 
 const PORT = Number(process.env.PORT || 3000);
-const HOST = process.env.HOST || "127.0.0.1";
+const HOST = process.env.HOST || "0.0.0.0";
 
 app.listen(PORT, HOST, () => {
-  console.log(`Servidor rodando em http://${HOST}:${PORT}`);
+  console.log(`Servidor iniciado na porta ${PORT}`);
+  console.log(`Host: ${HOST}`);
 });
 
 export default app;

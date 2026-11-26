@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -13,7 +12,7 @@ import base from "../Compra/Compra.module.css";
 import styles from "./MeusPedidos.module.css";
 import { useCompra } from "../../hooks/useCompra";
 import Carregando from "../../../../components/Carregando/Carregando";
-
+import Paginacao from "../../../../../common/components/Paginacao/Paginacao";
 
 const LIMITE = 12;
 
@@ -59,15 +58,8 @@ const resumoItens = (itens = []) =>
     .filter(Boolean)
     .join(", ");
 
-function DropdownFiltro({
-  valor,
-  opcoes,
-  aberto,
-  onToggle,
-  onSelecionar,
-}) {
-  const opcaoAtual =
-    opcoes.find((opcao) => opcao.valor === valor) || opcoes[0];
+function DropdownFiltro({ valor, opcoes, aberto, onToggle, onSelecionar }) {
+  const opcaoAtual = opcoes.find((opcao) => opcao.valor === valor) || opcoes[0];
 
   return (
     <div className={styles.dropdown}>
@@ -83,9 +75,7 @@ function DropdownFiltro({
           <strong>{opcaoAtual.rotulo}</strong>
         </span>
 
-        <FiChevronDown
-          className={aberto ? styles.setaAberta : ""}
-        />
+        <FiChevronDown className={aberto ? styles.setaAberta : ""} />
       </button>
 
       {aberto && (
@@ -94,9 +84,7 @@ function DropdownFiltro({
             <li key={opcao.valor || "todos"}>
               <button
                 type="button"
-                className={
-                  valor === opcao.valor ? styles.opcaoAtiva : ""
-                }
+                className={valor === opcao.valor ? styles.opcaoAtiva : ""}
                 onClick={() => onSelecionar(opcao.valor)}
               >
                 {opcao.rotulo}
@@ -187,14 +175,14 @@ export default function MeusPedidos() {
     setDropdownAberto(null);
   };
 
-  const totalPaginas = Number(meta.totalPages || 1);
+  const possuiFiltros = Boolean(
+  busca.trim() ||
+  statusPagamento ||
+  statusEntrega ||
+  periodo ||
+  ordem !== 'recentes'
+);
 
-  const possuiFiltros =
-    busca ||
-    statusPagamento ||
-    statusEntrega ||
-    periodo ||
-    ordem !== "recentes";
 
   return (
     <main>
@@ -240,9 +228,7 @@ export default function MeusPedidos() {
               opcoes={ORDENACOES}
               aberto={dropdownAberto === "ordem"}
               onToggle={() =>
-                setDropdownAberto(
-                  dropdownAberto === "ordem" ? null : "ordem",
-                )
+                setDropdownAberto(dropdownAberto === "ordem" ? null : "ordem")
               }
               onSelecionar={(valor) => alterarFiltro(setOrdem, valor)}
             />
@@ -256,9 +242,7 @@ export default function MeusPedidos() {
                   dropdownAberto === "pagamento" ? null : "pagamento",
                 )
               }
-              onSelecionar={(valor) =>
-                alterarFiltro(setStatusPagamento, valor)
-              }
+              onSelecionar={(valor) => alterarFiltro(setStatusPagamento, valor)}
             />
 
             <DropdownFiltro
@@ -270,9 +254,7 @@ export default function MeusPedidos() {
                   dropdownAberto === "entrega" ? null : "entrega",
                 )
               }
-              onSelecionar={(valor) =>
-                alterarFiltro(setStatusEntrega, valor)
-              }
+              onSelecionar={(valor) => alterarFiltro(setStatusEntrega, valor)}
             />
 
             <DropdownFiltro
@@ -288,8 +270,8 @@ export default function MeusPedidos() {
             />
 
             <button type="submit" className={styles.btnbuscar}>
-                          Buscar
-                        </button>
+              Buscar
+            </button>
           </div>
 
           <div className={styles.controles}>
@@ -323,16 +305,11 @@ export default function MeusPedidos() {
 
                 return (
                   <li key={pedido.id}>
-                    <Link
-                      to={`/pedido/${pedido.id}`}
-                      className={styles.pedido}
-                    >
+                    <Link to={`/pedido/${pedido.id}`} className={styles.pedido}>
                       <div className={styles.info}>
                         <strong>
                           Pedido{" "}
-                          <span className={styles.numero}>
-                            #{pedido.id}
-                          </span>
+                          <span className={styles.numero}>#{pedido.id}</span>
                         </strong>
 
                         <small>{formatarData(pedido.data)}</small>
@@ -367,29 +344,12 @@ export default function MeusPedidos() {
               })}
             </ul>
 
-            {totalPaginas > 1 && (
-              <div className={styles.paginacao}>
-                <button
-                  type="button"
-                  disabled={pagina <= 1}
-                  onClick={() => setPagina((atual) => atual - 1)}
-                >
-                  Anterior
-                </button>
-
-                <span>
-                  Página {pagina} de {totalPaginas}
-                </span>
-
-                <button
-                  type="button"
-                  disabled={pagina >= totalPaginas}
-                  onClick={() => setPagina((atual) => atual + 1)}
-                >
-                  Próxima
-                </button>
-              </div>
-            )}
+            <Paginacao
+              totalPaginas={meta?.totalPages}
+              paginaAtual={pagina}
+              onMudarPagina={setPagina}
+              totalItems={meta?.totalItems}
+            />
           </>
         )}
       </div>

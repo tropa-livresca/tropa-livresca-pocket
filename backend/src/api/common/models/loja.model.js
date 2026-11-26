@@ -227,15 +227,63 @@ export class LojaModel {
     }
   }
 
-  static async consultarVendas({ page = 1, limit = 12, ordem = "" }) {
+  static async consultarVendas({
+    page = 1,
+    limit = 10,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  }) {
     const pb = await criarClienteModel();
 
     try {
+      const filtros = [];
+      const parametros = {};
+
+      if (busca.trim()) {
+        filtros.push("id ~ {:busca}");
+        parametros.busca = busca.trim();
+      }
+
+      if (statusPagamento) {
+        filtros.push("status_pagamento = {:statusPagamento}");
+        parametros.statusPagamento = statusPagamento;
+      }
+
+      if (statusEntrega) {
+        filtros.push("status_entrega = {:statusEntrega}");
+        parametros.statusEntrega = statusEntrega;
+      }
+
+      if (dataInicio) {
+        filtros.push("data >= {:dataInicio}");
+        parametros.dataInicio = `${dataInicio} 00:00:00.000Z`;
+      }
+
+      if (dataFim) {
+        filtros.push("data <= {:dataFim}");
+        parametros.dataFim = `${dataFim} 23:59:59.999Z`;
+      }
+
+      const filtro =
+        filtros.length > 0 ? pb.filter(filtros.join(" && "), parametros) : "";
+
+      const ordenacoes = {
+        recentes: "-data",
+        antigos: "data",
+        maior_valor: "-total",
+        menor_valor: "total",
+      };
+
       const resultado = await getListPocketBase(pb.collection(COLECAO_VENDAS), {
         page,
         limit,
-        sort: ordem === "ascendente" ? "data" : "-data",
+        sort: ordenacoes[ordem] || "-data",
         expand: RELACAO_PERFIL,
+        ...(filtro && { filter: filtro }),
       });
 
       const data = await Promise.all(
@@ -257,7 +305,10 @@ export class LojaModel {
         }),
       );
 
-      return { data, count: resultado.totalItems };
+      return {
+        data,
+        count: resultado.totalItems,
+      };
     } catch (error) {
       marcarErro(error);
     }
@@ -359,7 +410,7 @@ export class LojaModel {
 
     try {
       venda = await pb.collection(COLECAO_VENDAS).update(vendaId, {
-        status_pagamento: "pago",
+        status_pagamento: "Pago",
       });
     } catch (error) {
       marcarErro(error);
@@ -424,7 +475,7 @@ export class LojaModel {
       marcarErro(error);
     }
 
-    if (venda.status_pagamento !== "pago") {
+    if (venda.status_pagamento !== "Pago") {
       const error = new Error(
         "Os livros digitais só podem ser enviados após a confirmação do pagamento.",
       );
@@ -588,9 +639,9 @@ export class LojaModel {
       throw error;
     }
 
-    if (venda.status_pagamento !== "pago") {
+    if (venda.status_pagamento !== "Pago") {
       const error = new Error(
-        "O e-mail só pode ser reenviado para pedidos pagos.",
+        "O e-mail só pode ser reenviado para pedidos Pagos.",
       );
 
       error.statusCode = 400;
@@ -770,7 +821,7 @@ export class LojaModel {
       const vendas = await buscarVendasPorId(
         pb,
         vendaIds,
-        "status_pagamento = 'pago'",
+        "status_pagamento = 'Pago'",
       );
 
       const pagas = new Set(vendas.map((venda) => venda.id));
@@ -779,7 +830,7 @@ export class LojaModel {
         .filter((item) => pagas.has(item[RELACAO_VENDA]))
         .map((item) => ({
           id: item.id,
-          vendas: { status_pagamento: "pago" },
+          vendas: { status_pagamento: "Pago" },
         }));
 
       return { data, count: data.length };
@@ -810,7 +861,7 @@ export class LojaModel {
       const vendas = await buscarVendasPorId(
         pb,
         [...new Set(itens.map((item) => item[RELACAO_VENDA]))],
-        "status_pagamento = 'pago'",
+        "status_pagamento = 'Pago'",
       );
 
       const vendaMap = new Map(vendas.map((venda) => [venda.id, venda]));
@@ -1004,7 +1055,7 @@ export class LojaModel {
     try {
       const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
         filter: pb.filter(
-          `${RELACAO_PERFIL} = {:userId} && status_pagamento = 'pago'`,
+          `${RELACAO_PERFIL} = {:userId} && status_pagamento = 'Pago'`,
           { userId },
         ),
       });
@@ -1108,7 +1159,7 @@ export class LojaModel {
     try {
       const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
         filter: pb.filter(
-          "data >= {:inicio} && data < {:fim} && status_pagamento = 'pago'",
+          "data >= {:inicio} && data < {:fim} && status_pagamento = 'Pago'",
           { inicio, fim },
         ),
       });

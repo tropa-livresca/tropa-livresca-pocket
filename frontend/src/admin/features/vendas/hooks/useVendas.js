@@ -16,38 +16,74 @@ export const useVendas = () => {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
-  const buscarVendas = useCallback(async (page = 1, limit = 10) => {
-    setCarregando(true);
-    setErro(null);
-    try {
-      const response = await apiFetch(
-        `/api/v1/admin/loja?page=${page}&limit=${limit}&ordem=descendente`,
-        { skipAuthRedirect: true },
-      );
+  const buscarVendas = useCallback(
+    async (
+      page = 1,
+      limit = 10,
+      busca = "",
+      statusPagamento = "",
+      statusEntrega = "",
+      dataInicio = "",
+      dataFim = "",
+      ordem = "recentes",
+    ) => {
+      setCarregando(true);
+      setErro(null);
 
-      if (!response.ok) {
-        throw new Error(
-          await lerErro(response, "Não foi possível carregar as vendas."),
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+          busca,
+          statusPagamento,
+          statusEntrega,
+          dataInicio,
+          dataFim,
+          ordem,
+        });
+
+        const response = await apiFetch(
+          `/api/v1/admin/loja?${params.toString()}`,
+          { skipAuthRedirect: true },
         );
+
+        if (!response.ok) {
+          throw new Error(
+            await lerErro(response, "Não foi possível carregar as vendas."),
+          );
+        }
+
+        const json = await response.json();
+
+        setVendas(json.data || []);
+        setMeta(json.meta || null);
+
+        return {
+          data: json.data || [],
+          meta: json.meta || null,
+        };
+      } catch (err) {
+        setErro(err.message);
+        setVendas([]);
+        setMeta(null);
+
+        return {
+          data: [],
+          meta: null,
+        };
+      } finally {
+        setCarregando(false);
       }
+    },
+    [],
+  );
 
-      const json = await response.json();
-      setVendas(json.data || []);
-      setMeta(json.meta || null);
-    } catch (err) {
-      setErro(err.message);
-      setVendas([]);
-    } finally {
-      setCarregando(false);
-    }
-  }, []);
-
-  // Executa uma ação e devolve a mensagem de erro, ou null se deu certo.
   const executar = async (endpoint, method, padrao) => {
     const response = await apiFetch(endpoint, {
       method,
       skipAuthRedirect: true,
     });
+
     return response.ok ? null : lerErro(response, padrao);
   };
 
