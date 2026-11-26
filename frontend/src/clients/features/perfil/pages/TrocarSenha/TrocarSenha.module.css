@@ -68,7 +68,6 @@
 .campo_grupo {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .campo_grupo label {

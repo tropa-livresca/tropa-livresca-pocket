@@ -97,7 +97,7 @@
 }
 
 .form input:not([type="checkbox"]):focus {
-  border: 2px solid #67170c;
+  border:2px solid #67170c;
 }
 
 .form input:not([type="checkbox"])::placeholder {
@@ -150,7 +150,8 @@
 .checkboxPrivacidade a {
   color: #67170c;
   font-weight: 600;
-  text-decoration: underline;
+ text-decoration: underline;
+
 }
 
 .checkboxPrivacidade a:hover {
@@ -166,6 +167,18 @@
 
 .erro {
   text-align: center;
+  border: 1px solid #e2c77c;
+    border-radius: 0.7rem;
+    background: #fff8d7;
+    color: #67170c;
+    padding: 0.8rem 1rem;
+    width: 90%;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+}
+
+.listaErros{
+  list-style: none;
 }
 
 .erro span {
@@ -173,7 +186,7 @@
   color: #67170c;
 }
 
-.span a {
+.span a{
   text-decoration: underline !important;
 }
 .inputSenha {

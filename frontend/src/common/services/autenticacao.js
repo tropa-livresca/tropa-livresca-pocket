@@ -24,9 +24,9 @@ export async function loginComGoogle() {
     });
 
     if (!authData?.token) {
-      throw new Error("A autenticação Google não retornou um token válido.");
+       throw new Error("A autenticação Google não retornou um token válido.");
     }
-
+            
     const response = await apiFetch("/api/v1/auth/session", {
       method: "POST",
       headers: {

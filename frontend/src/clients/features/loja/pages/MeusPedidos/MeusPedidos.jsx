@@ -1,6 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { FiArrowLeft, FiChevronRight, FiSearch, FiX } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiChevronRight,
+  FiChevronDown,
+  FiX,
+} from "react-icons/fi";
+
+import { FaSearch } from "react-icons/fa";
 import base from "../Compra/Compra.module.css";
 import styles from "./MeusPedidos.module.css";
 import { useCompra } from "../../hooks/useCompra";
@@ -9,6 +16,34 @@ import DescricaoTela from "../../../../components/DescricaoTela/DescricaoTela";
 import Paginacao from "../../../../../common/components/Paginacao/Paginacao";
 
 const LIMITE = 12;
+
+const ORDENACOES = [
+  { valor: "recentes", rotulo: "Mais recentes" },
+  { valor: "antigos", rotulo: "Mais antigos" },
+  { valor: "maior_valor", rotulo: "Maior valor" },
+  { valor: "menor_valor", rotulo: "Menor valor" },
+];
+
+const FILTROS_PAGAMENTO = [
+  { valor: "", rotulo: "Todos os pagamentos" },
+  { valor: "pago", rotulo: "Pago" },
+  { valor: "pendente", rotulo: "Pendente" },
+];
+
+const FILTROS_ENTREGA = [
+  { valor: "", rotulo: "Todas as entregas" },
+  { valor: "Pendente", rotulo: "Aguardando envio" },
+  { valor: "A caminho", rotulo: "Em trânsito" },
+  { valor: "Entregue", rotulo: "Entregue" },
+];
+
+const PERIODOS = [
+  { valor: "", rotulo: "Todo o período" },
+  { valor: "7", rotulo: "Últimos 7 dias" },
+  { valor: "30", rotulo: "Últimos 30 dias" },
+  { valor: "90", rotulo: "Últimos 90 dias" },
+  { valor: "ano", rotulo: "Este ano" },
+];
 
 const formatarPreco = (valor) =>
   `R$ ${Number(valor || 0)
@@ -24,6 +59,45 @@ const resumoItens = (itens = []) =>
     .filter(Boolean)
     .join(", ");
 
+function DropdownFiltro({ valor, opcoes, aberto, onToggle, onSelecionar }) {
+  const opcaoAtual = opcoes.find((opcao) => opcao.valor === valor) || opcoes[0];
+
+  return (
+    <div className={styles.dropdown}>
+      <button
+        type="button"
+        className={`${styles.dropdownBotao} ${
+          aberto ? styles.dropdownAberto : ""
+        }`}
+        onClick={onToggle}
+        aria-expanded={aberto}
+      >
+        <span className={styles.dropdownTexto}>
+          <strong>{opcaoAtual.rotulo}</strong>
+        </span>
+
+        <FiChevronDown className={aberto ? styles.setaAberta : ""} />
+      </button>
+
+      {aberto && (
+        <ul className={styles.dropdownOpcoes}>
+          {opcoes.map((opcao) => (
+            <li key={opcao.valor || "todos"}>
+              <button
+                type="button"
+                className={valor === opcao.valor ? styles.opcaoAtiva : ""}
+                onClick={() => onSelecionar(opcao.valor)}
+              >
+                {opcao.rotulo}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function MeusPedidos() {
   const { pedidos, buscarPedidos, carregando, erro } = useCompra();
 
@@ -34,6 +108,7 @@ export default function MeusPedidos() {
   const [ordem, setOrdem] = useState("recentes");
   const [pagina, setPagina] = useState(1);
   const [meta, setMeta] = useState({});
+  const [dropdownAberto, setDropdownAberto] = useState(null);
 
   const obterPeriodo = useCallback(() => {
     if (!periodo) return { dataInicio: "", dataFim: "" };
@@ -92,11 +167,13 @@ export default function MeusPedidos() {
     setPeriodo("");
     setOrdem("recentes");
     setPagina(1);
+    setDropdownAberto(null);
   };
 
   const alterarFiltro = (setter, valor) => {
     setter(valor);
     setPagina(1);
+    setDropdownAberto(null);
   };
 
   return (
@@ -109,66 +186,81 @@ export default function MeusPedidos() {
       <div className={base.container}>
         <section className={styles.filtros}>
           <div className={styles.busca}>
-            <FiSearch />
+            <FaSearch />
+
             <input
-              type="text"
-              placeholder="Pesquisar pelo ID do pedido..."
+              type="search"
+              placeholder="ID do pedido..."
               value={busca}
-              onChange={(e) => alterarFiltro(setBusca, e.target.value)}
+              onChange={(e) => {
+                setBusca(e.target.value);
+                setPagina(1);
+              }}
+              aria-label="ID do pedido"
             />
+
+            <DropdownFiltro
+              valor={ordem}
+              opcoes={ORDENACOES}
+              aberto={dropdownAberto === "ordem"}
+              onToggle={() =>
+                setDropdownAberto(dropdownAberto === "ordem" ? null : "ordem")
+              }
+              onSelecionar={(valor) => alterarFiltro(setOrdem, valor)}
+            />
+
+            <DropdownFiltro
+              valor={statusPagamento}
+              opcoes={FILTROS_PAGAMENTO}
+              aberto={dropdownAberto === "pagamento"}
+              onToggle={() =>
+                setDropdownAberto(
+                  dropdownAberto === "pagamento" ? null : "pagamento",
+                )
+              }
+              onSelecionar={(valor) => alterarFiltro(setStatusPagamento, valor)}
+            />
+
+            <DropdownFiltro
+              valor={statusEntrega}
+              opcoes={FILTROS_ENTREGA}
+              aberto={dropdownAberto === "entrega"}
+              onToggle={() =>
+                setDropdownAberto(
+                  dropdownAberto === "entrega" ? null : "entrega",
+                )
+              }
+              onSelecionar={(valor) => alterarFiltro(setStatusEntrega, valor)}
+            />
+
+            <DropdownFiltro
+              valor={periodo}
+              opcoes={PERIODOS}
+              aberto={dropdownAberto === "periodo"}
+              onToggle={() =>
+                setDropdownAberto(
+                  dropdownAberto === "periodo" ? null : "periodo",
+                )
+              }
+              onSelecionar={(valor) => alterarFiltro(setPeriodo, valor)}
+            />
+
+            <button type="submit" className={styles.btnbuscar}>
+              Buscar
+            </button>
           </div>
 
           <div className={styles.controles}>
-            <select
-              value={statusPagamento}
-              onChange={(e) =>
-                alterarFiltro(setStatusPagamento, e.target.value)
-              }
+            <button
+              type="button"
+              className={styles.limpar}
+              onClick={limparFiltros}
+              disabled={!possuiFiltros}
             >
-              <option value="">Todos os pagamentos</option>
-              <option value="pago">Pago</option>
-              <option value="pendente">Pendente</option>
-            </select>
-
-            <select
-              value={statusEntrega}
-              onChange={(e) => alterarFiltro(setStatusEntrega, e.target.value)}
-            >
-              <option value="">Todas as entregas</option>
-              <option value="Pendente">Aguardando envio</option>
-              <option value="A caminho">Em trânsito</option>
-              <option value="Entregue">Entregue</option>
-            </select>
-
-            <select
-              value={periodo}
-              onChange={(e) => alterarFiltro(setPeriodo, e.target.value)}
-            >
-              <option value="">Todo o período</option>
-              <option value="7">Últimos 7 dias</option>
-              <option value="30">Últimos 30 dias</option>
-              <option value="90">Últimos 90 dias</option>
-              <option value="ano">Este ano</option>
-            </select>
-
-            <select
-              value={ordem}
-              onChange={(e) => alterarFiltro(setOrdem, e.target.value)}
-            >
-              <option value="recentes">Mais recentes</option>
-              <option value="antigos">Mais antigos</option>
-              <option value="maior_valor">Maior valor</option>
-              <option value="menor_valor">Menor valor</option>
-            </select>
+              <FiX />
+              Limpar
+            </button>
           </div>
-
-          <button
-            type="button"
-            className={styles.limpar}
-            onClick={limparFiltros}
-          >
-            <FiX /> Limpar filtros
-          </button>
         </section>
 
         {carregando ? (
@@ -182,6 +274,7 @@ export default function MeusPedidos() {
                 ? "Nenhum pedido encontrado com os filtros selecionados."
                 : "Você ainda não fez nenhum pedido."}
             </p>
+
             <Link to="/loja" className={base.voltar}>
               <FiArrowLeft /> Ir para a Loja
             </Link>
@@ -200,7 +293,9 @@ export default function MeusPedidos() {
                           Pedido{" "}
                           <span className={styles.numero}>#{pedido.id}</span>
                         </strong>
+
                         <small>{formatarData(pedido.data)}</small>
+
                         <span className={styles.livros}>
                           {resumoItens(pedido.itens_venda)}
                         </span>

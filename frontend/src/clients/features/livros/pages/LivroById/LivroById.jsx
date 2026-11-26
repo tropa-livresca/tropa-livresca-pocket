@@ -162,6 +162,25 @@ export default function LivroById() {
                 <p>{livro.idioma || "Não informado"}</p>
               </div>
             </div>
+
+            {colaboradores?.map((colaborador, index) => (
+              <div
+                className={styles.informacao}
+                key={`${colaborador.nome}-${index}`}
+              >
+                <div className={styles.iconeInformacao}>
+                  <FaUsers />
+                </div>
+
+                <div>
+                  <strong>Colaborador(a)</strong>
+                  <p>
+                    {colaborador.nome} {colaborador.sobrenome} (
+                    {colaborador.funcao || "Colaborador"})
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -209,29 +228,6 @@ export default function LivroById() {
           </div>
         </aside>
       </section>
-
-      {colaboradores && colaboradores.length > 0 && (
-        <section className={styles.secaoColaboradores}>
-          <h2 className={styles.tituloSecao}>Relação dos colaboradores</h2>
-
-          <ul className={styles.listaColaboradores}>
-            {colaboradores.map((colaborador, index) => (
-              <li
-                className={styles.colaborador}
-                key={`${colaborador.nome}-${index}`}
-              >
-                <span className={styles.nomeColaborador}>
-                  {colaborador.nome} {colaborador.sobrenome}
-                </span>
-
-                <span className={styles.funcaoColaborador}>
-                  {colaborador.funcao}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </main>
   );
 }
