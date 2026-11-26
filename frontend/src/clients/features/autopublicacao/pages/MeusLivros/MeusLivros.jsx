@@ -243,7 +243,7 @@ export default function MeusLivros() {
                     Visualizar
                   </Link>
 
-                  {livro.revisao.id && (
+                  {livro.revisoes.id && (
                     <Link
                       to={`/visualizar-revisao/${livro.revisao.id}`}
                       className={`${styles.btnAcao} ${styles.btnVisualizar}`}
