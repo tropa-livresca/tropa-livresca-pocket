@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import Cabecalho from "../Cabecalho/Cabecalho";
 import NavBarLateral from "../NavBarLateral/NavBarLateral";
 import { useLoginAdmin } from "../../../common/features/autenticacao/hooks/useLoginAdmin";
-import { useAdmin } from "../../../common/hooks/useAdmin";
+import useAdmin from "../../../common/hooks/useAdmin";
 
 import styles from "./MainLayout.module.css";
 
