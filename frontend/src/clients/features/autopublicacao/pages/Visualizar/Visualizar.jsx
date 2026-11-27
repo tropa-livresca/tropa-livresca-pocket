@@ -89,38 +89,48 @@ export default function Visualizar() {
                     width="100%"
                     height="650px"
                   >
-                    <p className={styles.vazio}>
-                      Seu navegador não suporta a exibição de PDFs.{" "}
-                      <a
-                        href={manuscritoUrl}
-                        download
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.btnlivro}
-                      >
-                        Clique aqui para baixar o arquivo.
-                      </a>
-                    </p>
+                    <div className={styles.vaziodisplay}>
+                      <p className={styles.vazio}>
+                        Seu navegador não suporta a exibição de PDFs.{" "}
+                        <p className={styles.click}>
+                          <a
+                            href={manuscritoUrl}
+                            download
+                            target="_blank"
+                            rel="noreferrer"
+                            className={styles.btnlivro}
+                          >
+                            Clique aqui para baixar o arquivo.
+                          </a>
+                        </p>
+                      </p>
+                    </div>
                   </object>
                 </div>
               </div>
             )}
+
             {revisoes.length === 0 ? (
               <div className={styles.card}>
                 <h2>Revisões</h2>
-                <p className={styles.vazio}>
+                <p className={styles.vazio2}>
                   Nenhuma revisão encontrada para este livro.
                 </p>
               </div>
             ) : (
               revisoes.map((revisao) => (
-                <Link
-                  className={styles.card}
-                  key={revisao.id}
-                  to={`/visualizar-revisao/${id}`}
-                >
-                  Ver Revisão: {revisao.nome || "Revisão"}
-                </Link>
+                <div className={styles.card} key={revisao.id}>
+                  <div className={styles.revisaoInfo}>
+                    <h2>Nome da revisão: {revisao.nome || "Revisão"}</h2>
+
+                    <Link
+                      className={`${styles.btn} ${styles.btnPrimary} ${styles.btnRevisao}`}
+                      to={`/visualizar-revisao/${id}`}
+                    >
+                      Ver Revisão
+                    </Link>
+                  </div>
+                </div>
               ))
             )}
           </div>
@@ -154,6 +164,7 @@ export default function Visualizar() {
                   <span className={styles.autor}>Por: </span>
                   <strong>Autor</strong>
                 </li>
+
                 <li>
                   <span>Idioma:</span> <strong>{idioma}</strong>
                 </li>

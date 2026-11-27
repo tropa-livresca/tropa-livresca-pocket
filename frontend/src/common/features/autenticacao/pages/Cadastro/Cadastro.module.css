@@ -175,6 +175,7 @@
     width: 90%;
     margin: 0 auto;
     margin-bottom: 1rem;
+    margin-top: 0.4rem;
 }
 
 .listaErros{
@@ -200,7 +201,7 @@
 
 .voltar {
   position: absolute;
-  top: 14%;
+  top: 8.2rem;
   left: 5%;
   width: 3.3rem;
   height: 2.8rem;
