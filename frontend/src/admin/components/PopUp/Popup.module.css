@@ -92,7 +92,10 @@
 }
 
 .btnCancelar:hover {
-  background: #f5edcf;
+  background: #ffbb33;
+  border-color: #ffbb33;
+  color: #ede6b3;
+  transition: 0.3s;
 }
 
 .btnConfirmar {
@@ -126,55 +129,6 @@
   background: #fffcf4;
   border: 1px solid #e8dcc2;
   border-radius: 10px;
-}
-
-.campoCredencial {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.campoCredencial span {
-  color: #7a6a5b;
-  font-size: 0.82rem;
-}
-
-.campoCredencial strong {
-  color: #432c28;
-  font-size: 0.95rem;
-  overflow-wrap: anywhere;
-}
-
-.avisoEmail {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #fff3d6;
-  color: #795719;
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.sucessoEmail {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #eaf5e9;
-  color: #286333;
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.secaoCredenciais {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  margin-top: 16px;
-  background: #fffcf4;
-  border: 1px solid #e8dcc2;
-  border-radius: 10px;
-  overflow-wrap: anywhere;
 }
 
 .campoCredencial {

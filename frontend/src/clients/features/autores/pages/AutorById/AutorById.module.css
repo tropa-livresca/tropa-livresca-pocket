@@ -100,7 +100,7 @@
   color: var(--cor-texto-muted);
   font-size: 1.1rem;
   line-height: 1.85;
-  text-align: left;
+  text-align: justify;
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
