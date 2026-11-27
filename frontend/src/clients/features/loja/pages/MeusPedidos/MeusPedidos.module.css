@@ -290,6 +290,7 @@
   overflow-wrap: anywhere;
 }
 
+
 .numero {
   font-family: inherit;
   font-weight: 600;
@@ -308,6 +309,7 @@
   font-size: 1rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: none;
 }
 
 .status {
@@ -344,9 +346,19 @@
 
 .total {
   color: #67170c;
-  font-family: "Jacques Francois", serif;
+  font-family: none;
   font-size: 1.3rem;
   white-space: nowrap;
+}
+
+.numero{
+  font-family: none;
+}
+
+.numero2{
+  font-weight: normal;
+  font-family: none;
+  font-size: 1.1rem !important;
 }
 
 .seta {

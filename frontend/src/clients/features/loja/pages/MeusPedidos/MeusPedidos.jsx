@@ -312,7 +312,7 @@ export default function MeusPedidos() {
                           <span className={styles.numero}>#{pedido.id}</span>
                         </strong>
 
-                        <small>{formatarData(pedido.data)}</small>
+                        <small className={styles.numero2}>{formatarData(pedido.data)}</small>
 
                         <span className={styles.livros}>
                           {resumoItens(pedido.itens_venda)}

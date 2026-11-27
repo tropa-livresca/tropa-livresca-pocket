@@ -112,6 +112,11 @@
   line-height: 1.6;
 }
 
+.conteudo2{
+  display: flex;
+  align-items: center;
+}
+
 .secaoCredenciais {
   display: flex;
   flex-direction: column;

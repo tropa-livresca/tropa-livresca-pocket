@@ -450,6 +450,12 @@
   transition: 0.3s;
 }
 
+
+.revisar:hover{
+  background-color: #67170c !important;
+  border-color: #67170c;
+  color: #fffdf7 !important;
+}
 .revisar {
   text-decoration: none;
   padding: 0.5rem 0.85rem;

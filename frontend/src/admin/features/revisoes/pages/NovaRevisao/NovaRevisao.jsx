@@ -142,6 +142,7 @@ export default function NovaRevisao() {
                 width="100%"
                 height="650px"
               >
+                <div className={styles.oi2}>
                 <p>
                   Seu navegador não suporta a exibição de PDFs.{" "}
                   <a
@@ -153,6 +154,7 @@ export default function NovaRevisao() {
                     Clique aqui para baixar o arquivo.
                   </a>
                 </p>
+                </div>
               </object>
             ) : (
               <p>
