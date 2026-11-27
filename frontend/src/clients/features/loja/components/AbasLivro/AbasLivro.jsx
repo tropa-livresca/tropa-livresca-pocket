@@ -41,7 +41,8 @@ export default function AbasLivro({ livroId, descricao, autor, avaliacoes }) {
 
         {aba === "autor" && (
           <>
-            <p>
+          <div className={styles.conteudo2}>
+            <p className={styles.desc}>
               {autor?.descricao ||
                 `${autor?.nome || "O autor"} ainda não escreveu uma apresentação.`}
             </p>
@@ -50,6 +51,7 @@ export default function AbasLivro({ livroId, descricao, autor, avaliacoes }) {
                 Ver perfil completo do autor
               </Link>
             )}
+            </div>
           </>
         )}
 

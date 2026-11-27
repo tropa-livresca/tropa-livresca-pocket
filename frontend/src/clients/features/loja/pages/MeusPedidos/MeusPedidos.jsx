@@ -336,13 +336,16 @@ export default function MeusPedidos() {
                 );
               })}
             </ul>
-
-            <Paginacao
-              totalPaginas={meta?.totalPages}
-              paginaAtual={pagina}
-              onMudarPagina={setPagina}
-              totalItems={meta?.totalItems}
-            />
+            {meta?.totalPages > 1 && (
+  <div className={styles.Paginacaobb}>
+    <Paginacao
+      totalPaginas={meta?.totalPages}
+      paginaAtual={pagina}
+      onMudarPagina={setPagina}
+      totalItems={meta?.totalItems}
+    />
+  </div>
+)}
           </>
         )}
       </div>

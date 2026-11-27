@@ -328,7 +328,7 @@ export default function BibliotecaPessoal() {
 
                       <button
                         type="button"
-                        className={styles.btnlivro}
+                        className={styles.btndvd}
                         onClick={() => baixarLivroDigital(livro.id)}
                         disabled={carregando}
                       >

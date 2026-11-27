@@ -141,12 +141,21 @@
   background-color: #ffecc9;
 }
 
-.botaoBuscar,
-.botaoReenviar {
+.botaoBuscar {
   border: none;
   border-radius: 1.5rem;
   background-color: #67170c;
   color: #ede6b3;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.botaoReenviar {
+  border: none;
+  border-radius: 0.5rem;
+     background: #fff8d7;
+    color: #67170c;
+    border: 1px solid #e2c77c;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -158,8 +167,23 @@
 .botaoBuscar:hover,
 .botaoReenviar:hover:not(:disabled) {
   background-color: #ffbb33;
+  color:#ede6b3
 }
 
+.btndvd{
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #67170c;
+  color: #ede6b3;
+  cursor: pointer;
+  transition: 0.3s;
+    padding: 0.65rem 1rem;
+    margin-top: 0.5rem;
+}
+
+.btndvd:hover{
+  background-color: #ffbb33;
+}
 .filtros {
   grid-area: filtros;
   border-right: 1px solid #e3d5ad;
@@ -312,6 +336,7 @@
   font-family: "Jacques Francois", serif;
   font-size: 1.2rem;
   line-height: 1.3;
+  margin-top: 1rem;
 }
 
 .autor {

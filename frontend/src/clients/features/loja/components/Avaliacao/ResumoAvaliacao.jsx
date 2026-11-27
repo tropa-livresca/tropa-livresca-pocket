@@ -27,7 +27,7 @@ export default function ResumoAvaliacao({ media = 0, total = 0 }) {
         {media.toFixed(1).replace(".", ",")}
       </strong>
       <span className={styles.total}>
-        ({total} {total === 1 ? "avaliação" : "avaliações"})
+        <span className={styles.numero}>({total}</span> {total === 1 ? "avaliação" : "avaliações"})
       </span>
     </div>
   );

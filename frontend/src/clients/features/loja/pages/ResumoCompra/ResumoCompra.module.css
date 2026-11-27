@@ -113,6 +113,7 @@
   min-width: 0;
   text-align: left;
   width: 100%;
+
 }
 
 .confirmacaoTexto h3 {
@@ -142,6 +143,23 @@
   border-radius: 0.5rem;
   font-size: 0.85rem;
   cursor: pointer;
+}
+
+.botaoSecundario2 {
+  padding: 0.5rem;
+  margin: 0;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+   background: #fff8d7;
+  border: 1px solid #e2c77c;
+  color: #67170c;
+}
+
+.botaoSecundario2:hover {
+  background: #ffbb33;
+  color: #ede6b3;
+  transition: 0.3s;
 }
 
 .botaoPrimario {

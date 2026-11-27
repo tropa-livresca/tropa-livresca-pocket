@@ -410,8 +410,7 @@ export default function ProdutoById() {
 
           <div className={styles.beneficio}>
             <FaTruck />
-            <span>Envio imediato via e-mail</span>
-            <span>Entrega para todo o Brasil</span>
+            <span>Entrega para todo o Brasil e Envio imediato via e-mail</span>
           </div>
 
           <div className={styles.beneficio}>
