@@ -10,7 +10,6 @@ async function lerResposta(response, mensagemErro) {
   } catch {
     // Algumas respostas podem não conter JSON.
   }
-
   if (!response.ok) {
     const mensagem =
       resultado?.message ||
@@ -268,17 +267,23 @@ export const useRevisao = () => {
   }, []);
 
   const alterarEstadoLivro = useCallback(async (idLivro, novoEstado) => {
-    const response = await apiFetch(
-      `/api/v1/admin/revisao/estado-${novoEstado}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idLivro, novoEstado }),
-      },
-    );
+    const ROTAS_ESTADO = {
+      [LIVRO_ESTADO.PUBLICADO]: "publicado",
+      [LIVRO_ESTADO.NEGADO]: "negado",
+      [LIVRO_ESTADO.RECALL]: "recall",
+    };
 
+    const rota = ROTAS_ESTADO[novoEstado];
+
+    if (!rota) {
+      throw new Error("Estado de revisão inválido.");
+    }
+
+    const response = await apiFetch(`/api/v1/admin/revisao/estado-${rota}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idLivro, novoEstado }),
+    });
     return lerResposta(
       response,
       "A revisão foi salva, mas não foi possível atualizar o estado do livro",
