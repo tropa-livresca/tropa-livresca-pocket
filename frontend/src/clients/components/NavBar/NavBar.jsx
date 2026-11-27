@@ -71,6 +71,9 @@ export default function NavBar() {
             <Link to="/loja">Loja</Link>
             <ul className={styles.subtema}>
               <li>
+                <Link to="/carrinho">Carrinho</Link>
+              </li>
+              <li>
                 <Link to="/loja">Loja</Link>
               </li>
               <li>

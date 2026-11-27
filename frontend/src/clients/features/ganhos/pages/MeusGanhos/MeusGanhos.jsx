@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiArrowDownLeft, FiArrowUpRight } from "react-icons/fi";
+import { FiArrowDownLeft, FiArrowUpRight, FiChevronDown } from "react-icons/fi";
 import styles from "./MeusGanhos.module.css";
 import { useGanhos } from "../../hooks/useGanhos";
 import Carregando from "../../../../components/Carregando/Carregando";
@@ -13,6 +13,26 @@ const formatarPreco = (valor) =>
 
 const formatarData = (data) =>
   data ? new Date(data).toLocaleDateString("pt-BR") : "";
+
+const nomePeriodo = {
+  "": "Todo o período",
+  7: (
+    <>
+      Últimos <span className={styles.numero2}>7</span> dias
+    </>
+  ),
+  30: (
+    <>
+      Últimos <span className={styles.numero2}>30</span> dias
+    </>
+  ),
+  90: (
+    <>
+      Últimos <span className={styles.numero2}>90</span> dias
+    </>
+  ),
+  ano: "Este ano",
+};
 
 export default function MeusGanhos() {
   const { dadosBancarios, buscarDadosBancarios, solicitarSaque } =
@@ -40,12 +60,14 @@ export default function MeusGanhos() {
     extrato
       .filter((mov) => mov.tipo === tipo)
       .reduce((acc, mov) => acc + Number(mov.valor || 0), 0);
+
   const totalRecebido = somarMovimentacoes("entrada");
   const totalRetirado = somarMovimentacoes("saida");
 
   const existeConta = dadosBancarios && Object.keys(dadosBancarios).length > 0;
 
   const [periodo, setPeriodo] = useState("");
+  const [periodoAberto, setPeriodoAberto] = useState(false);
   const [pagina, setPagina] = useState(1);
 
   const LIMITE = 10;
@@ -152,6 +174,12 @@ export default function MeusGanhos() {
       conta: contaMascarada,
       titular: conta.nome_completo || "Titular não informado",
     };
+  };
+
+  const selecionarPeriodo = (valor) => {
+    setPeriodo(valor);
+    setPagina(1);
+    setPeriodoAberto(false);
   };
 
   return (
@@ -295,22 +323,35 @@ export default function MeusGanhos() {
               <strong className={styles.ex}>Extrato</strong>
 
               <div className={styles.filtrosExtrato}>
-                <label htmlFor="periodoExtrato">Filtrar por período</label>
+                <div className={styles.selectCustom}>
+                  <button
+                    type="button"
+                    className={styles.selectBotao}
+                    onClick={() => setPeriodoAberto(!periodoAberto)}
+                  >
+                    <span>{nomePeriodo[periodo]}</span>
+                    <FiChevronDown
+                      className={periodoAberto ? styles.iconeAberto : ""}
+                    />
+                  </button>
 
-                <select
-                  id="periodoExtrato"
-                  value={periodo}
-                  onChange={(e) => {
-                    setPeriodo(e.target.value);
-                    setPagina(1);
-                  }}
-                >
-                  <option value="">Todo o período</option>
-                  <option value="7">Últimos 7 dias</option>
-                  <option value="30">Últimos 30 dias</option>
-                  <option value="90">Últimos 90 dias</option>
-                  <option value="ano">Este ano</option>
-                </select>
+                  {periodoAberto && (
+                    <div className={styles.opcoes}>
+                      {["", "7", "30", "90", "ano"].map((valor) => (
+                        <button
+                          key={valor}
+                          type="button"
+                          className={`${styles.opcao} ${
+                            periodo === valor ? styles.opcaoSelecionada : ""
+                          }`}
+                          onClick={() => selecionarPeriodo(valor)}
+                        >
+                          {nomePeriodo[valor]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {extratoFiltrado.length === 0 ? (
@@ -431,7 +472,7 @@ export default function MeusGanhos() {
                       </button>
 
                       <span>
-                        Página {pagina} de {totalPaginas}
+                        Página <span className={styles.numero2}>{pagina}</span> de <span className={styles.numero2}>{totalPaginas}</span>
                       </span>
 
                       <button

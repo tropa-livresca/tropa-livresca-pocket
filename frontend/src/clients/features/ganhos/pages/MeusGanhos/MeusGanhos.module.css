@@ -37,6 +37,13 @@
   margin-bottom: 0.5rem;
 }
 
+.container {
+  width: 100%;
+  margin: auto;
+  padding: 3rem 6%;
+  box-sizing: border-box;
+}
+
 .cartoes {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -82,6 +89,10 @@
   font-weight: normal !important;
 }
 
+.numero2 {
+  font-family: none;
+}
+
 .des {
   display: block;
   color: var(--cor-texto-muted);
@@ -100,13 +111,61 @@
   font-weight: 600;
 }
 
-.numero2 {
-  font-family: none;
+.cartao {
+  padding: 1.8rem 2rem;
+  box-sizing: border-box;
+  background: #fffdf7;
+  border-radius: 1.5rem;
+  box-shadow:
+    0 8px 20px rgba(103, 23, 12, 0.08),
+    0 2px 6px rgba(103, 23, 12, 0.05);
 }
+
+.cartao h2 {
+  margin: 0 0 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #e3d5ad;
+  color: #67170c;
+  font-size: 1.3rem;
+}
+
+.cartao p {
+  color: var(--cor-texto-muted);
+  font-size: 1rem;
+  font-family: "Jacques Francois", serif;
+  text-align: left;
+  font-weight: normal !important;
+  margin-bottom: 1rem;
+}
+
+.cartao .aviso,
+.cartao .aviso1 {
+  margin: 0;
+  color: var(--cor-texto-muted);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.aviso a,
+.aviso1 a {
+  color: #67170c;
+  font-weight: 600;
+}
+
+.aviso a:hover,
+.aviso1 a:hover {
+  text-decoration: underline;
+}
+
 .label {
   color: #67170c;
   font-size: 1rem;
   font-family: "Jacques Francois", serif;
+}
+
+.labelDesabilitado {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .input {
@@ -136,6 +195,17 @@
   cursor: not-allowed;
   opacity: 0.6;
   background: #eee8c8;
+}
+
+.input::-webkit-inner-spin-button,
+.input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .saldo {
@@ -176,9 +246,110 @@
   pointer-events: none;
 }
 
+.erro {
+  margin: 1rem 0 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid red;
+  border-radius: 0.8rem;
+  color: red !important;
+}
+
+.filtrosExtrato {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+}
+
+.filtrosExtrato label {
+  color: var(--cor-texto-muted);
+  font-size: 0.95rem;
+}
+
+.selectCustom {
+  position: relative;
+  width: 14rem;
+  min-width: 0;
+}
+
+.selectBotao {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+ background-color: #fffdf7;
+  border: 1px solid #67170c;
+  color: #67170c;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.selectBotao:hover,
+.selectBotao:focus {
+   background-color: #ffecc9;
+   transition: 0.25s;
+}
+
+.selectBotao svg {
+  flex-shrink: 0;
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+  color: #67170c;
+}
+
+.iconeAberto {
+  transform: rotate(180deg);
+}
+
+.opcoes {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  width: 100%;
+  min-width: 100%;
+  padding: 0.2rem;
+  background: #fffdf7;
+  border-radius: 0.75rem;
+  box-shadow:
+    0 10px 25px rgba(103, 23, 12, 0.13),
+    0 3px 8px rgba(103, 23, 12, 0.07);
+}
+
+.opcao {
+  display: block;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #67170c;
+  font-family: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcao:hover {
+  background-color: #ffecc9;
+  color: #ffbb33;
+  transition: 0.3s;
+}
+
+
 .tabelaContainer {
   width: 100%;
   overflow-x: auto;
+    margin-top: 1.3rem;
   border: 1px solid #e3d5ad;
   border-radius: 0.9rem;
   scrollbar-width: thin;
@@ -240,10 +411,8 @@
   min-height: 55px;
 }
 
-.tabelaExtrato td strong.numero {
+.tabelaExtrato td:first-child strong {
   color: #67170c;
-  font-size: 0.9rem;
-  font-weight: 600;
 }
 
 .icone {
@@ -301,98 +470,39 @@
   color: red;
 }
 
-.container {
-  width: 100%;
-  margin: auto;
-  padding: 4rem 6%;
-  box-sizing: border-box;
-  justify-self: stretch;
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
-.erro {
-  margin: 1rem 0 0;
-  padding: 0.8rem 1rem;
-  border: 1px solid red;
-  border-radius: 0.8rem;
-  color: red !important;
-}
-
-.cartao {
-  padding: 1.8rem 2rem;
-  box-sizing: border-box;
-  background: #fffdf7;
-  border-radius: 1.5rem;
-  box-shadow:
-    0 8px 20px rgba(103, 23, 12, 0.08),
-    0 2px 6px rgba(103, 23, 12, 0.05);
-}
-
-.cartao h2 {
-  margin: 0 0 1rem;
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid #e3d5ad;
+.paginacao span {
   color: #67170c;
-  font-size: 1.3rem;
+  font-size: 0.9rem;
 }
 
-.cartao p {
-  color: var(--cor-texto-muted);
-  font-size: 1rem;
-  font-family: "Jacques Francois", serif;
-  text-align: left;
-  font-weight: normal !important;
-  margin-bottom: 1rem;
+.paginacao button {
+  padding: 0.65rem 1rem;
+  border: 1px solid #67170c;
+  border-radius: 0.7rem;
+  background: #67170c;
+  color: #ede6b3;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.cartao .aviso,
-.resumo .aviso {
-  margin: 0;
-  color: var(--cor-texto-muted);
-  line-height: 1.6;
-  font-size: 1rem;
+.paginacao button:hover:not(:disabled) {
+  background: #ffbb33;
+  border-color: #ffbb33;
 }
 
-.aviso a {
-  color: #67170c;
-  font-weight: 600;
-}
-
-.aviso a:hover {
-  text-decoration: underline;
-}
-
-.cartao .aviso1,
-.resumo .aviso1 {
-  margin: 0;
-  color: var(--cor-texto-muted);
-  line-height: 1.6;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
-.aviso1 a {
-  color: #67170c;
-  font-weight: 600;
-}
-
-.aviso1 a:hover {
-  text-decoration: underline;
-}
-
-.labelDesabilitado {
-  opacity: 0.5;
+.paginacao button:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
-}
-
-.input::-webkit-inner-spin-button,
-.input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.input {
-  -moz-appearance: textfield;
-  appearance: textfield;
 }
 
 @media (max-width: 900px) {
@@ -445,6 +555,10 @@
     gap: 1.2rem;
   }
 
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
   .cartaoResumo {
     min-height: 115px;
     padding: 1.2rem;
@@ -461,5 +575,18 @@
 
   .conteudo form button {
     font-size: 0.9rem;
+  }
+
+  .cartao {
+    padding: 1.2rem;
+  }
+
+  .filtrosExtrato {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .selectCustom {
+    width: 100%;
   }
 }
