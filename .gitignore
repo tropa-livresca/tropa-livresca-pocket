@@ -22,7 +22,9 @@ dist/
 dist-ssr/
 build/
 coverage/
-
+# PocketBase - dados locais e credenciais
+**/pb_data/
+**/pb_data/**
 # Runtime/cache files
 .cache/
 .vite/
