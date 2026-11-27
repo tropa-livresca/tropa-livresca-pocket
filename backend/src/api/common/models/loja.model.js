@@ -126,7 +126,11 @@ function mapearVenda(pb, venda) {
   };
 }
 
-async function buscarItensVenda(pb, vendaIds, { expandLivros = false } = {}) {
+async function buscarItensVenda(
+  pb,
+  vendaIds,
+  { expandLivros = false, requestKey } = {},
+) {
   if (!vendaIds.length) return [];
 
   return pb.collection(COLECAO_ITENS).getFullList({
@@ -134,6 +138,7 @@ async function buscarItensVenda(pb, vendaIds, { expandLivros = false } = {}) {
     expand: expandLivros
       ? `${RELACAO_LIVRO_ITEM},${RELACAO_LIVRO_ITEM}.${RELACAO_PERFIL}`
       : "",
+    ...(requestKey !== undefined && { requestKey }),
   });
 }
 
@@ -304,91 +309,101 @@ export class LojaModel {
   }
 
   static async consultarVendas({
-    page = 1,
-    limit = 10,
-    busca = "",
-    statusPagamento = "",
-    statusEntrega = "",
-    dataInicio = "",
-    dataFim = "",
-    ordem = "recentes",
-  }) {
-    const pb = await criarClienteModel();
+  page = 1,
+  limit = 10,
+  busca = "",
+  statusPagamento = "",
+  statusEntrega = "",
+  dataInicio = "",
+  dataFim = "",
+  ordem = "recentes",
+}) {
+  const pb = await criarClienteModel();
 
-    try {
-      const filtros = [];
-      const parametros = {};
+  try {
+    const filtros = [];
+    const parametros = {};
 
-      if (busca.trim()) {
-        filtros.push("id ~ {:busca}");
-        parametros.busca = busca.trim();
-      }
+    if (busca.trim()) {
+      filtros.push("id ~ {:busca}");
+      parametros.busca = busca.trim();
+    }
 
-      if (statusPagamento) {
-        filtros.push("status_pagamento = {:statusPagamento}");
-        parametros.statusPagamento = statusPagamento;
-      }
+    if (statusPagamento) {
+      filtros.push("status_pagamento = {:statusPagamento}");
+      parametros.statusPagamento = statusPagamento;
+    }
 
-      if (statusEntrega) {
-        filtros.push("status_entrega = {:statusEntrega}");
-        parametros.statusEntrega = statusEntrega;
-      }
+    if (statusEntrega) {
+      filtros.push("status_entrega = {:statusEntrega}");
+      parametros.statusEntrega = statusEntrega;
+    }
 
-      if (dataInicio) {
-        filtros.push("data >= {:dataInicio}");
-        parametros.dataInicio = `${dataInicio} 00:00:00.000Z`;
-      }
+    if (dataInicio) {
+      filtros.push("data >= {:dataInicio}");
+      parametros.dataInicio = `${dataInicio} 00:00:00.000Z`;
+    }
 
-      if (dataFim) {
-        filtros.push("data <= {:dataFim}");
-        parametros.dataFim = `${dataFim} 23:59:59.999Z`;
-      }
+    if (dataFim) {
+      filtros.push("data <= {:dataFim}");
+      parametros.dataFim = `${dataFim} 23:59:59.999Z`;
+    }
 
-      const filtro =
-        filtros.length > 0 ? pb.filter(filtros.join(" && "), parametros) : "";
+    const filtro =
+      filtros.length > 0
+        ? pb.filter(filtros.join(" && "), parametros)
+        : "";
 
-      const ordenacoes = {
-        recentes: "-data",
-        antigos: "data",
-        maior_valor: "-total",
-        menor_valor: "total",
-      };
+    const ordenacoes = {
+      recentes: "-data",
+      antigos: "data",
+      maior_valor: "-total",
+      menor_valor: "total",
+    };
 
-      const resultado = await getListPocketBase(pb.collection(COLECAO_VENDAS), {
+    const resultado = await getListPocketBase(
+      pb.collection(COLECAO_VENDAS),
+      {
         page,
         limit,
         sort: ordenacoes[ordem] || "-data",
         expand: RELACAO_PERFIL,
         ...(filtro && { filter: filtro }),
-      });
+      },
+    );
 
-      const data = await Promise.all(
-        resultado.items.map(async (record) => {
-          const [itens, movimentacoes] = await Promise.all([
-            buscarItensVenda(pb, [record.id], { expandLivros: true }),
-            pb.collection(COLECAO_MOVIMENTACOES).getFullList({
-              filter: pb.filter(`${RELACAO_VENDA} = {:id}`, {
-                id: record.id,
-              }),
+    const data = await Promise.all(
+      resultado.items.map(async (record) => {
+        const [itens, movimentacoes] = await Promise.all([
+          buscarItensVenda(pb, [record.id], {
+            expandLivros: true,
+            requestKey: null,
+          }),
+
+          pb.collection(COLECAO_MOVIMENTACOES).getFullList({
+            filter: pb.filter(`${RELACAO_VENDA} = {:id}`, {
+              id: record.id,
             }),
-          ]);
+            requestKey: null,
+          }),
+        ]);
 
-          return {
-            ...mapearVenda(pb, record),
-            itens_venda: itens.map((item) => mapearItemVenda(pb, item)),
-            movimentacoes_financeiras: movimentacoes,
-          };
-        }),
-      );
+        return {
+          ...mapearVenda(pb, record),
+          itens_venda: itens.map((item) => mapearItemVenda(pb, item)),
+          movimentacoes_financeiras: movimentacoes,
+        };
+      }),
+    );
 
-      return {
-        data,
-        count: resultado.totalItems,
-      };
-    } catch (error) {
-      marcarErro(error);
-    }
+    return {
+      data,
+      count: resultado.totalItems,
+    };
+  } catch (error) {
+    marcarErro(error);
   }
+}
 
   static async consultarVenda(vendaId) {
     const pb = await criarClienteModel();
