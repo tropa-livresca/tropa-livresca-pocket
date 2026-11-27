@@ -1,3 +1,4 @@
+
 # Dependencies
 node_modules/
 .vite_cache/
@@ -33,6 +34,17 @@ temp/
 backend/src/uploads/*
 !backend/src/uploads/.gitkeep
 
+# PocketBase - Dados locais e arquivos temporários
+pocketbase/pb_data/
+pocketbase/pb_migrations/
+pocketbase/logs/
+pocketbase/*.log
+pocketbase/.DS_Store
+
+# PocketBase - Backups
+pocketbase/backups/
+pocketbase/*.zip
+
 # Editor and OS files
 .vscode/*
 !.vscode/extensions.json
@@ -44,9 +56,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
-
-pocketbase/pb_data
-pocketbase/pb_data/
 
 # Executável principal fora da portabilidade
 /TropaLivresca.exe
