@@ -19,6 +19,13 @@ router.get(
   checkAuth,
   LojaController.buscarBibliotecaPessoal,
 );
+
+router.get(
+  "/bibliotecapessoal/:livroId/download",
+  checkAuth,
+  LojaController.baixarLivroDigital,
+);
+
 router.get("/:id", LojaController.buscarLivroById);
 
 router.patch("/status/:id", checkAuth, LojaController.mudarStatusPagamento);

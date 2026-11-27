@@ -48,6 +48,16 @@ export class LojaService {
     };
   }
 
+  static async baixarLivroDigital(livroId, usuarioId) {
+    if (!usuarioId) errorUsuarioId();
+
+    if (!livroId || typeof livroId !== "string") {
+      error(400, "Identificador do livro inválido.");
+    }
+
+    return LojaModel.baixarLivroDigital(livroId, usuarioId);
+  }
+
   static async buscarLivros({
     page = 1,
     limit = 12,
