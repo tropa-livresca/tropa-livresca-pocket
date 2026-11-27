@@ -65,6 +65,11 @@ export default function ProdutoById() {
     }
   }, [signed, authCarregando, BuscarEnderecoPrincipal]);
 
+  const handleContinuarComprando = () => {
+    setModalCarrinho(false);
+    navigate("/loja");
+  };
+
   useEffect(() => {
     let ativo = true;
 
@@ -452,7 +457,7 @@ export default function ProdutoById() {
             <button
               type="button"
               className={`${modalStyles.botao} ${modalStyles.botaoSecundario}`}
-              onClick={() => setModalCarrinho(false)}
+              onClick={handleContinuarComprando}
             >
               Continuar comprando
             </button>
