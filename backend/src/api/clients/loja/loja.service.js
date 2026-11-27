@@ -195,7 +195,7 @@ export class LojaService {
 
       const opcoesFrete = await LojaModel.calcularFretePrazo(
         usuarioId,
-        itensFisicos.map((item) => ({ tipo: "fisico", quantidade: item.qtd })),
+        itensFisicos.map((item) => ({ tipo: "Físico", quantidade: item.qtd })),
       );
       frete = Math.min(...opcoesFrete.map((opcao) => opcao.preco));
     }

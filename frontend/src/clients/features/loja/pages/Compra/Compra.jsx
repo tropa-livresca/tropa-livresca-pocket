@@ -20,7 +20,7 @@ export default function Compra() {
   const [enderecoEscolhido, setEnderecoId] = useState(null);
   const [pedido, setPedido] = useState(null);
 
-  const temFisico = itens.some((item) => item.tipo === "fisico");
+  const temFisico = itens.some((item) => item.tipo === "Físico");
 
   useEffect(() => {
     if (temFisico) BuscarEnderecos();
@@ -77,7 +77,7 @@ export default function Compra() {
                     <div>
                       <strong>{item.titulo}</strong>
                       <small>
-                        {item.tipo === "fisico" ? "Físico" : "Digital"} ·{" "}
+                        {item.tipo === "Físico" ? "Físico" : "Digital"} ·{" "}
                         {item.quantidade}x
                       </small>
                     </div>
@@ -129,7 +129,7 @@ export default function Compra() {
                 <h2>Entrega digital</h2>
                 <p className={styles.aviso}>
                   Após o pagamento, o e-book é enviado para o e-mail da sua
-                  conta.
+                  conta e está disponível para download em Biblioteca.
                 </p>
               </section>
             )}

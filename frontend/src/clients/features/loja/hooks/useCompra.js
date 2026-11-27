@@ -22,7 +22,7 @@ export const useCompra = () => {
     try {
       const itens = itensCarrinho.map((item) => ({
         livroId: String(item.id ?? "").trim(),
-        fisico: item.tipo === "fisico",
+        fisico: item.tipo === "Físico",
         qtd: Number(item.quantidade) || 1,
       }));
 

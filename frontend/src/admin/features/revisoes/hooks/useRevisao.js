@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { apiFetch } from "../../../../common/services/api.js";
 import { LIVRO_ESTADO } from "../../../../common/config/livroEstados.js";
+import {useNavigate} from "react-router-dom";
 
 async function lerResposta(response, mensagemErro) {
   let resultado = null;
@@ -24,9 +25,6 @@ async function lerResposta(response, mensagemErro) {
   return resultado;
 }
 
-/**
- * Aceita tanto respostas diretas quanto respostas envelopadas em "data".
- */
 function extrairDados(resultado) {
   return resultado?.data ?? resultado;
 }
@@ -44,6 +42,8 @@ export const useRevisao = () => {
   const [apontamento, setApontamento] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   const validarCamposTexto = useCallback(() => {
     return (
@@ -340,6 +340,7 @@ export const useRevisao = () => {
           return resultadoEstado;
         }
 
+        navigate("/livros/revisoes");
         return revisao;
       } catch (err) {
         const mensagem = revisaoSalva
@@ -417,6 +418,7 @@ export const useRevisao = () => {
           return resultadoEstado;
         }
 
+        navigate("/livros/revisoes");
         return revisao;
       } catch (err) {
         const mensagem = revisaoSalva

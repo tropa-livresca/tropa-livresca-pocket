@@ -5,7 +5,6 @@ import { FaCheckCircle } from "react-icons/fa";
 import DescricaoTela from "../../../../components/DescricaoTela/DescricaoTela";
 import base from "../Compra/Compra.module.css";
 import styles from "./ResumoCompra.module.css";
-
 import { useCompra } from "../../hooks/useCompra";
 import Carregando from "../../../../components/Carregando/Carregando";
 
@@ -107,13 +106,19 @@ export default function ResumoCompra() {
 
                   <div className={styles.acoes}>
                     {temDigital && (
-                      <button
-                        className={styles.botaoSecundario}
-                        type="button"
-                        onClick={() => reenviarEmailLivrosDigitais(pedido.id)}
-                      >
-                        Reenviar Email
-                      </button>
+                      <>
+                        <button
+                          className={styles.botaoSecundario}
+                          type="button"
+                          onClick={() => reenviarEmailLivrosDigitais(pedido.id)}
+                        >
+                          Reenviar Email
+                        </button>
+
+                        Ou baixar o livro em:
+
+                        <Link to = "/bibliotecapessoal">Biblioteca Pessoal</Link>
+                      </>
                     )}
 
                     <button

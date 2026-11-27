@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -126,7 +125,7 @@ export default function ProdutoById() {
       year: "numeric",
     });
   };
-  
+
   const capaFrente = livro.capa?.frente;
 
   const formatarPreco = (valor) => {
@@ -139,10 +138,10 @@ export default function ProdutoById() {
   const temDigital = Number(livro.preco_digital) > 0;
 
   const formato =
-    formatoEscolhido || (temFisico ? "fisico" : temDigital ? "digital" : null);
+    formatoEscolhido || (temFisico ? "Físico" : temDigital ? "Digital" : null);
 
   const precoAtual =
-    formato === "fisico" ? livro.preco_fisico : livro.preco_digital;
+    formato === "Físico" ? livro.preco_fisico : livro.preco_digital;
 
   const escolherFormato = (novoFormato) => {
     setFormato(novoFormato);
@@ -166,7 +165,7 @@ export default function ProdutoById() {
       capa: capaFrente,
       preco: Number(precoAtual),
       tipo: formato,
-      quantidade: formato === "fisico" ? qtd : 1,
+      quantidade: formato === "Físico" ? qtd : 1,
     });
 
     setAdicionado(true);
@@ -275,7 +274,10 @@ export default function ProdutoById() {
             </div>
 
             {colaboradores?.map((colaborador, index) => (
-              <div className={styles.informacao} key={`${colaborador.nome}-${index}`}>
+              <div
+                className={styles.informacao}
+                key={`${colaborador.nome}-${index}`}
+              >
                 <div className={styles.iconeInformacao}>
                   <FaUsers />
                 </div>
@@ -310,9 +312,9 @@ export default function ProdutoById() {
                   <button
                     type="button"
                     className={`${styles.formato} ${
-                      formato === "fisico" ? styles.formatoAtivo : ""
+                      formato === "Físico" ? styles.formatoAtivo : ""
                     }`}
-                    onClick={() => escolherFormato("fisico")}
+                    onClick={() => escolherFormato("Físico")}
                   >
                     <span>Físico</span>
                     <strong className={styles.numero}>
@@ -325,9 +327,9 @@ export default function ProdutoById() {
                   <button
                     type="button"
                     className={`${styles.formato} ${
-                      formato === "digital" ? styles.formatoAtivo : ""
+                      formato === "Digital" ? styles.formatoAtivo : ""
                     }`}
-                    onClick={() => escolherFormato("digital")}
+                    onClick={() => escolherFormato("Digital")}
                   >
                     <span>E-book</span>
                     <strong className={styles.numero}>
@@ -343,7 +345,7 @@ export default function ProdutoById() {
                 </span>
               </div>
 
-              {formato === "fisico" && (
+              {formato === "Físico" && (
                 <label className={styles.quantidade}>
                   Quantidade
                   <input
@@ -377,7 +379,7 @@ export default function ProdutoById() {
                 </p>
               )}
 
-              {livroDigitalComprado && formato === "digital" ? (
+              {livroDigitalComprado && formato === "Digital" ? (
                 <Link to="/bibliotecapessoal" className={styles.btnCarrinho}>
                   Acessar biblioteca pessoal
                 </Link>
@@ -388,7 +390,7 @@ export default function ProdutoById() {
                   onClick={handleAdicionarCarrinho}
                   disabled={
                     verificandoCompra ||
-                    (erroVerificacaoCompra && formato === "digital")
+                    (erroVerificacaoCompra && formato === "Digital")
                   }
                 >
                   <FaShoppingCart />

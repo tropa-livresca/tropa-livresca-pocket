@@ -2,6 +2,7 @@ import styles from "./Carrinho.module.css";
 import { FiTrash2, FiMinus, FiPlus, FiArrowLeft } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useCarrinho } from "../../hooks/useCarrinho";
+import { useEndereco } from "../../../perfil/hooks/useEndereco";
 
 import { useEffect, useState } from "react";
 
@@ -20,6 +21,8 @@ export default function Carrinho() {
     adicionarItem,
   } = useCarrinho();
 
+  const { enderecos = [], BuscarEnderecos } = useEndereco();
+
   const [modDeEntrega, setModDeEntrega] = useState("");
   const [erro, setErro] = useState("");
 
@@ -31,7 +34,7 @@ export default function Carrinho() {
 
   const handleConcluirCompra = () => {
     if (modDeEntrega == "" && frete != null) {
-      setErro("selecione uma modalide de entrega");
+      setErro("Selecione uma modalide de entrega");
     } else {
       if (modDeEntrega == "sedex") {
         navigate("/checkout/" + frete.precoSedex + "/sedex");
@@ -114,7 +117,7 @@ export default function Carrinho() {
                           >
                             Formato:{" "}
                             <strong>
-                              {item.tipo === "fisico" ? "Físico" : "E-book"}
+                              {item.tipo === "Físico" ? "Físico" : "E-book"}
                             </strong>
                           </small>
                         )}
@@ -125,7 +128,7 @@ export default function Carrinho() {
                       R$ {Number(item.preco).toFixed(2).replace(".", ",")}
                     </strong>
 
-                    {item.tipo == "fisico" ? (
+                    {item.tipo == "Físico" ? (
                       <div className={styles.quantidade}>
                         <div className={styles.redondo}>
                           <button
@@ -210,7 +213,7 @@ export default function Carrinho() {
                     <input
                       type="radio"
                       value="sedex"
-                      name="madalidade"
+                      name="modalidade"
                       checked={modDeEntrega == "sedex"}
                       onChange={(e) =>
                         setModDeEntrega(e.target.checked ? "sedex" : "")
@@ -226,7 +229,7 @@ export default function Carrinho() {
                     <input
                       type="radio"
                       value="pac"
-                      name="madalidade"
+                      name="modalidade"
                       checked={modDeEntrega == "pac"}
                       onChange={(e) =>
                         setModDeEntrega(e.target.checked ? "pac" : "")
@@ -239,7 +242,7 @@ export default function Carrinho() {
                   </div>
                 </>
               ) : (
-                <div>livro digital</div>
+                <div>Livro Digital</div>
               )}
             </div>
 

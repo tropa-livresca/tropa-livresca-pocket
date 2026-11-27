@@ -24,7 +24,7 @@ export default function Pagamento() {
   const [pedido] = useState(null);
   const [formaPagamento, setFormaPagamento] = useState("");
 
-  const temFisico = itens.some((item) => item.tipo === "fisico");
+  const temFisico = itens.some((item) => item.tipo === "Físico");
   const precoTotal = Number(valorSubtotal) + Number(frete);
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function Pagamento() {
                   <strong>{item.titulo}</strong>
                   <span>
                     {item.autor ||
-                      (item.tipo === "fisico" ? "Livro físico" : "E-book")}
+                      (item.tipo === "Físico" ? "Livro físico" : "E-book")}
                   </span>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function Pagamento() {
 
         <div className={styles.checkout}>
           <div className={styles.colunaEsquerda}>
-            {itens.some((item) => item.tipo !== "fisico") && (
+            {itens.some((item) => item.tipo !== "Físico") && (
               <section className={styles.card}>
                 <div className={styles.tituloCard1}>
                   <div>
