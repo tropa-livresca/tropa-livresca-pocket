@@ -25,17 +25,23 @@ const generos = [
 ];
 
 const idiomas = [
-  { valor: "português", rotulo: "Português" },
-  { valor: "inglês", rotulo: "Inglês" },
-  { valor: "espanhol", rotulo: "Espanhol" },
+  { valor: "Português", rotulo: "Português" },
+  { valor: "Inglês", rotulo: "Inglês" },
+  { valor: "Espanhol", rotulo: "Espanhol" },
 ];
 
 const formatarData = (data) =>
   data ? new Date(data).toLocaleDateString("pt-BR") : "";
 
 export default function BibliotecaPessoal() {
-  const { livros, meta, buscarMeusLivros, carregando, erro } =
-    useBibliotecaPessoal();
+  const {
+    livros,
+    meta,
+    buscarMeusLivros,
+    baixarLivroDigital,
+    carregando,
+    erro,
+  } = useBibliotecaPessoal();
   const { reenviarEmailLivrosDigitais, carregando: reenviando } = useCompra();
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [filtro, setFiltro] = useState("");
@@ -110,7 +116,7 @@ export default function BibliotecaPessoal() {
   };
 
   return (
-   <main>
+    <main>
       <DescricaoTela
         titulo="Biblioteca Pessoal"
         descricao="Aqui você pode acessar os livros digitais que comprou e reenviar o e-mail de acesso."
@@ -127,8 +133,8 @@ export default function BibliotecaPessoal() {
           <aside className={styles.filtros}>
             <section>
               <div className={styles.oi2}>
-              <h1>Gênero</h1>
-            </div>
+                <h1>Gênero</h1>
+              </div>
               <ul>
                 <li
                   className={categoria === "" ? styles.filtroAtivo : ""}
@@ -149,9 +155,9 @@ export default function BibliotecaPessoal() {
             </section>
 
             <section className={styles.filtroIdioma}>
-               <div className={styles.oi2}>
-              <h1>Idioma</h1>
-            </div>
+              <div className={styles.oi2}>
+                <h1>Idioma</h1>
+              </div>
               <ul>
                 <li
                   className={idioma === "" ? styles.filtroAtivo : ""}
@@ -306,7 +312,10 @@ export default function BibliotecaPessoal() {
                       </Link>
                       <p className={styles.autor}>{autor}</p>
                       <small>
-                        Comprado em <span className={styles.numero}>{formatarData(livro.dataCompra)}</span>
+                        Comprado em{" "}
+                        <span className={styles.numero}>
+                          {formatarData(livro.dataCompra)}
+                        </span>
                       </small>
                       <button
                         type="button"
@@ -315,6 +324,15 @@ export default function BibliotecaPessoal() {
                         disabled={reenviando}
                       >
                         {reenviando ? "Reenviando..." : "Reenviar e-mail"}
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.btnlivro}
+                        onClick={() => baixarLivroDigital(livro.id)}
+                        disabled={carregando}
+                      >
+                        {carregando ? "Baixando..." : "Baixar livro"}
                       </button>
                     </div>
                   </article>

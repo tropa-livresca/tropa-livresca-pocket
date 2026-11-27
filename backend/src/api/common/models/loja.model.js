@@ -207,6 +207,82 @@ export class LojaModel {
     }
   }
 
+  static async baixarLivroDigital(livroId, usuarioId) {
+    const pb = await criarClienteModel();
+
+    try {
+      const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
+        filter: pb.filter(
+          `${RELACAO_PERFIL} = {:usuarioId} && status_pagamento = 'Pago'`,
+          { usuarioId },
+        ),
+        fields: "id",
+      });
+
+      if (!vendas.length) {
+        const error = new Error("Livro não encontrado na sua biblioteca.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const itens = await buscarItensVenda(
+        pb,
+        vendas.map((venda) => venda.id),
+        { expandLivros: true },
+      );
+
+      const item = itens.find(
+        (registro) =>
+          registro[RELACAO_LIVRO_ITEM] === String(livroId) &&
+          registro.fisico === false,
+      );
+
+      if (!item) {
+        const error = new Error(
+          "Este livro digital não foi encontrado na sua biblioteca.",
+        );
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const livro = item.expand?.[RELACAO_LIVRO_ITEM];
+
+      if (!livro) {
+        const error = new Error("Livro não encontrado.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const nomesArquivos = Array.isArray(livro.manuscrito)
+        ? livro.manuscrito
+        : [livro.manuscrito];
+
+      const arquivos = nomesArquivos
+        .filter((nome) => typeof nome === "string" && nome.trim())
+        .map((nome, index) => ({
+          nome: nome.split("/").pop(),
+          url: pb.files.getURL(livro, nome),
+          numero: index + 1,
+        }));
+
+      if (!arquivos.length) {
+        const error = new Error(
+          "O arquivo digital deste livro não está disponível.",
+        );
+        error.statusCode = 404;
+        throw error;
+      }
+
+      return {
+        titulo: livro.titulo || "Livro digital",
+        arquivos,
+      };
+    } catch (error) {
+      if (error.statusCode) throw error;
+      marcarErro(error);
+    }
+  }
+
   static async buscarLivroById(id) {
     const pb = await criarClienteModel();
 
@@ -922,7 +998,7 @@ export class LojaModel {
     let possuiProdutoFisico = false;
 
     produtos.forEach((produto) => {
-      if (produto.tipo?.toLowerCase() === "fisico") {
+      if (produto.tipo?.toLowerCase() === "Físico") {
         possuiProdutoFisico = true;
         pesoTotalKg += (produto.quantidade || 1) * 0.4;
       }

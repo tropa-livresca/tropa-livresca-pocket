@@ -2,7 +2,7 @@ import styles from "./Carrinho.module.css";
 import { FiTrash2, FiMinus, FiPlus, FiArrowLeft } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useCarrinho } from "../../hooks/useCarrinho";
-
+import { useEndereco } from "../../../perfil/hooks/useEndereco";
 import { useEffect, useState } from "react";
 
 export default function Carrinho() {
@@ -10,8 +10,6 @@ export default function Carrinho() {
 
   const {
     limparCarrinho,
-    valorSubtotal,
-    valorTotal,
     calcularFrete,
     frete,
     itens,
@@ -20,27 +18,126 @@ export default function Carrinho() {
     adicionarItem,
   } = useCarrinho();
 
+  const { enderecos = [], BuscarEnderecos } = useEndereco();
+
   const [modDeEntrega, setModDeEntrega] = useState("");
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    if (itens.length != 0) {
-      calcularFrete(itens);
+  // Verifica se existem livros físicos no carrinho.
+  const possuiLivroFisico = itens.some((item) => item.tipo === "Físico");
+
+  // Verifica se o usuário possui pelo menos um endereço.
+  const possuiEndereco = enderecos.length > 0;
+
+  const precisaCadastrarEndereco = possuiLivroFisico && !possuiEndereco;
+
+  // Valida os preços e as quantidades dos produtos.
+  const carrinhoValido = itens.every((item) => {
+    const preco = Number(item.preco);
+    const quantidade = Number(item.quantidade);
+
+    return (
+      Number.isFinite(preco) &&
+      preco >= 0 &&
+      Number.isInteger(quantidade) &&
+      quantidade > 0
+    );
+  });
+
+  // Calcula o subtotal sem permitir valores inválidos.
+  const subtotalSeguro = itens.reduce((total, item) => {
+    const preco = Number(item.preco);
+    const quantidade = Number(item.quantidade);
+
+    if (
+      !Number.isFinite(preco) ||
+      preco < 0 ||
+      !Number.isInteger(quantidade) ||
+      quantidade <= 0
+    ) {
+      return total;
     }
-  }, [itens]);
+
+    return total + preco * quantidade;
+  }, 0);
+
+  // Obtém o valor da modalidade selecionada.
+  const freteEscolhido =
+    modDeEntrega === "sedex"
+      ? Number(frete?.precoSedex)
+      : modDeEntrega === "pac"
+        ? Number(frete?.precoPac)
+        : 0;
+
+  // Valida a disponibilidade e o valor do frete.
+  const freteValido =
+    !possuiLivroFisico ||
+    (frete !== null &&
+      (modDeEntrega === "sedex" || modDeEntrega === "pac") &&
+      Number.isFinite(freteEscolhido) &&
+      freteEscolhido >= 0);
+
+  const totalFinal = subtotalSeguro + freteEscolhido;
+
+  const totalValido =
+    carrinhoValido &&
+    Number.isFinite(totalFinal) &&
+    totalFinal >= 0 &&
+    freteValido;
+
+  // Busca os endereços cadastrados.
+  useEffect(() => {
+    BuscarEnderecos();
+  }, [BuscarEnderecos]);
+
+  // Calcula o frete quando houver livros físicos.
+  useEffect(() => {
+    if (possuiLivroFisico) {
+      calcularFrete(itens);
+    } else {
+      setModDeEntrega("");
+    }
+  }, [itens, calcularFrete, possuiLivroFisico]);
 
   const handleConcluirCompra = () => {
-    if (modDeEntrega == "" && frete != null) {
-      setErro("selecione uma modalide de entrega");
-    } else {
-      if (modDeEntrega == "sedex") {
-        navigate("/checkout/" + frete.precoSedex + "/sedex");
-      } else if (modDeEntrega == "pac") {
-        navigate("/checkout/" + frete.precoPac + "/pac");
-      } else {
-        navigate("/checkout/0/digital");
-      }
+    setErro("");
+
+    if (itens.length === 0) {
+      setErro("Seu carrinho está vazio.");
+      return;
     }
+
+    if (!carrinhoValido) {
+      setErro("Existem produtos com preços ou quantidades inválidos.");
+      return;
+    }
+
+    if (precisaCadastrarEndereco) {
+      setErro("Cadastre um endereço para continuar a compra.");
+      return;
+    }
+
+    if (possuiLivroFisico && !frete) {
+      setErro("Não foi possível calcular o frete.");
+      return;
+    }
+
+    if (possuiLivroFisico && !modDeEntrega) {
+      setErro("Selecione uma modalidade de entrega.");
+      return;
+    }
+
+    if (!totalValido) {
+      setErro("Não foi possível calcular o valor total da compra.");
+      return;
+    }
+
+    if (possuiLivroFisico) {
+      navigate(`/checkout/${freteEscolhido}/${modDeEntrega}`);
+      return;
+    }
+
+    navigate("/checkout/0/digital");
   };
 
   return (
@@ -55,13 +152,20 @@ export default function Carrinho() {
           {itens.length === 0 ? (
             <section
               className={styles.listaProdutos2}
-              style={{ textAlign: "center", padding: "40px 0" }}
+              style={{
+                textAlign: "center",
+                padding: "40px 0",
+              }}
             >
               <p>Seu carrinho está vazio no momento.</p>
+
               <Link
                 to="/loja"
                 className={styles.continuar2}
-                style={{ justifyContent: "center", marginTop: "20px" }}
+                style={{
+                  justifyContent: "center",
+                  marginTop: "20px",
+                }}
               >
                 <FiArrowLeft /> Voltar para a Loja
               </Link>
@@ -78,7 +182,17 @@ export default function Carrinho() {
 
               {itens.map((item) => {
                 const itemChave = `${item.id}-${item.tipo || "unico"}`;
-                const totalItem = item.preco * item.quantidade;
+
+                const preco = Number(item.preco);
+                const quantidade = Number(item.quantidade);
+
+                const totalItem =
+                  Number.isFinite(preco) &&
+                  Number.isInteger(quantidade) &&
+                  preco >= 0 &&
+                  quantidade > 0
+                    ? preco * quantidade
+                    : null;
 
                 return (
                   <div key={itemChave} className={styles.produto}>
@@ -101,9 +215,11 @@ export default function Carrinho() {
                         >
                           {item.titulo}
                         </Link>
+
                         <p className={styles.autor}>
                           {item.autor || "Autor Desconhecido"}
                         </p>
+
                         {item.tipo && (
                           <small
                             style={{
@@ -114,7 +230,7 @@ export default function Carrinho() {
                           >
                             Formato:{" "}
                             <strong>
-                              {item.tipo === "fisico" ? "Físico" : "E-book"}
+                              {item.tipo === "Físico" ? "Físico" : "E-book"}
                             </strong>
                           </small>
                         )}
@@ -122,10 +238,12 @@ export default function Carrinho() {
                     </div>
 
                     <strong className={styles.preco}>
-                      R$ {Number(item.preco).toFixed(2).replace(".", ",")}
+                      {Number.isFinite(preco) && preco >= 0
+                        ? `R$ ${preco.toFixed(2).replace(".", ",")}`
+                        : "—"}
                     </strong>
 
-                    {item.tipo == "fisico" ? (
+                    {item.tipo === "Físico" ? (
                       <div className={styles.quantidade}>
                         <div className={styles.redondo}>
                           <button
@@ -142,7 +260,10 @@ export default function Carrinho() {
                           <button
                             type="button"
                             onClick={() =>
-                              adicionarItem({ ...item, quantidade: 1 })
+                              adicionarItem({
+                                ...item,
+                                quantidade: 1,
+                              })
                             }
                           >
                             <FiPlus />
@@ -166,7 +287,9 @@ export default function Carrinho() {
                     )}
 
                     <strong className={styles.totalProduto}>
-                      R$ {totalItem.toFixed(2).replace(".", ",")}
+                      {totalItem !== null
+                        ? `R$ ${totalItem.toFixed(2).replace(".", ",")}`
+                        : "—"}
                     </strong>
 
                     <button
@@ -197,78 +320,109 @@ export default function Carrinho() {
 
             <div className={styles.subtotal}>
               <span className={styles.sub}>Subtotal</span>
+
               <strong>
-                R$ {Number(valorSubtotal).toFixed(2).replace(".", ",")}
+                {carrinhoValido
+                  ? `R$ ${subtotalSeguro.toFixed(2).replace(".", ",")}`
+                  : "—"}
               </strong>
             </div>
 
             <div className={styles.cep}>
               <span className={styles.sub}>Frete</span>
-              {frete != null ? (
-                <>
-                  <div>
-                    <input
-                      type="radio"
-                      value="sedex"
-                      name="madalidade"
-                      checked={modDeEntrega == "sedex"}
-                      onChange={(e) =>
-                        setModDeEntrega(e.target.checked ? "sedex" : "")
-                      }
-                    ></input>
-                    <h5>Sedex</h5>
-                    <strong>
-                      R$ {Number(frete.precoSedex).toFixed(2).replace(".", ",")}
-                    </strong>
-                  </div>
 
-                  <div>
-                    <input
-                      type="radio"
-                      value="pac"
-                      name="madalidade"
-                      checked={modDeEntrega == "pac"}
-                      onChange={(e) =>
-                        setModDeEntrega(e.target.checked ? "pac" : "")
-                      }
-                    ></input>
-                    <h5>Pac</h5>
-                    <strong>
-                      R$ {Number(frete.precoPac).toFixed(2).replace(".", ",")}
-                    </strong>
-                  </div>
-                </>
+              {possuiLivroFisico ? (
+                frete !== null ? (
+                  <>
+                    <div>
+                      <input
+                        type="radio"
+                        value="sedex"
+                        name="modalidade"
+                        checked={modDeEntrega === "sedex"}
+                        onChange={() => {
+                          setModDeEntrega("sedex");
+                          setErro("");
+                        }}
+                      />
+
+                      <h5>Sedex</h5>
+
+                      <strong>
+                        {Number.isFinite(Number(frete.precoSedex))
+                          ? `R$ ${Number(frete.precoSedex).toFixed(2).replace(".", ",")}`
+                          : "Indisponível"}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <input
+                        type="radio"
+                        value="pac"
+                        name="modalidade"
+                        checked={modDeEntrega === "pac"}
+                        onChange={() => {
+                          setModDeEntrega("pac");
+                          setErro("");
+                        }}
+                      />
+
+                      <h5>PAC</h5>
+
+                      <strong>
+                        {Number.isFinite(Number(frete.precoPac))
+                          ? `R$ ${Number(frete.precoPac).toFixed(2).replace(".", ",")}`
+                          : "Indisponível"}
+                      </strong>
+                    </div>
+                  </>
+                ) : (
+                  <p>
+                    {precisaCadastrarEndereco
+                      ? "Cadastre um endereço para calcular o frete."
+                      : "Calculando frete..."}
+                  </p>
+                )
               ) : (
-                <div>livro digital</div>
+                <div>Livro Digital</div>
               )}
             </div>
 
             <div className={styles.Total}>
               <span className={styles.sub}>Total</span>
+
               <strong>
-                R${" "}
-                {modDeEntrega == "sedex"
-                  ? Number(valorTotal + frete.precoSedex)
-                      .toFixed(2)
-                      .replace(".", ",")
-                  : modDeEntrega == "pac"
-                    ? Number(valorTotal + frete.precoPac)
-                        .toFixed(2)
-                        .replace(".", ",")
-                    : Number(valorTotal).toFixed(2).replace(".", ",")}
+                {totalValido
+                  ? `R$ ${totalFinal.toFixed(2).replace(".", ",")}`
+                  : "—"}
               </strong>
             </div>
 
-            <button
-              type="button"
-              className={styles.finalizar}
-              disabled={itens.length === 0}
-              onClick={handleConcluirCompra}
-            >
-              Concluir minha compra
-            </button>
+            {precisaCadastrarEndereco && (
+              <div className={styles.enderecoObrigatorio}>
+                <p>
+                  Para comprar livros físicos, você precisa cadastrar um
+                  endereço de entrega.
+                </p>
 
-            <h5>{erro}</h5>
+                <Link to="/perfil/endereco" className={styles.finalizar}>
+                  Cadastrar endereço
+                </Link>
+              </div>
+            )}
+
+            {possuiLivroFisico && possuiEndereco && (
+              <button
+                type="button"
+                className={styles.finalizar}
+                disabled={itens.length === 0 || !carrinhoValido || !totalValido}
+                onClick={handleConcluirCompra}
+              >
+                Concluir minha compra
+              </button>
+            )}
+
+            {erro && <h5>{erro}</h5>}
 
             <Link to="/loja" className={styles.continuar}>
               <FiArrowLeft />

@@ -8,7 +8,8 @@ node_modules/
 .env.*
 !.env.example
 config.toml
-
+# Arquivos locais de portabilidade
+portabilidade/
 # Logs
 logs/
 *.log

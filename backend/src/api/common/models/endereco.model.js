@@ -1,7 +1,32 @@
-import {  criarClienteModel, marcarErro } from "./pocketbase.helpers.js";
+import { criarClienteModel, marcarErro } from "./pocketbase.helpers.js";
 
 const COLECAO = "enderecos";
 const RELACAO_PERFIL = "fk_user_profile_id";
+
+function normalizar(valor) {
+  return String(valor ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function enderecosIguais(enderecoA, enderecoB) {
+  const campos = [
+    "cep",
+    "logradouro",
+    "numero",
+    "complemento",
+    "bairro",
+    "cidade",
+    "estado",
+  ];
+
+  return campos.every(
+    (campo) => normalizar(enderecoA[campo]) === normalizar(enderecoB[campo]),
+  );
+}
 
 async function buscarEnderecos(userId, filtros = {}) {
   const pb = await criarClienteModel();
@@ -79,10 +104,25 @@ export class EnderecoModel {
     }
 
     try {
+      if (endereco.principal && dadosAtualizados.principal === false) {
+        const enderecosAtivos = await buscarEnderecos(userId, {
+          ativo: true,
+        });
+
+        if (enderecosAtivos.length === 1) {
+          const error = new Error(
+            "O único endereço cadastrado deve permanecer como principal.",
+          );
+          error.statusCode = 400;
+          throw error;
+        }
+      }
+
       return {
         data: await pb.collection(COLECAO).update(id, dadosAtualizados),
       };
     } catch (error) {
+      if (error.statusCode) throw error;
       marcarErro(error);
     }
   }
@@ -103,16 +143,37 @@ export class EnderecoModel {
       throw error;
     }
 
-    const dados = {
-      ...dadosEndereco,
-      [RELACAO_PERFIL]: userId,
-    };
-
     try {
+      const enderecosExistentes = await buscarEnderecos(userId);
+
+      const enderecoDuplicado = enderecosExistentes.some((endereco) =>
+        enderecosIguais(endereco, dadosEndereco),
+      );
+
+      if (enderecoDuplicado) {
+        const error = new Error(
+          "Este endereço já está cadastrado na sua conta.",
+        );
+
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const enderecosAtivos = enderecosExistentes.filter(
+        (endereco) => endereco.ativo,
+      );
+
+      const dados = {
+        ...dadosEndereco,
+        [RELACAO_PERFIL]: userId,
+        principal: enderecosAtivos.length === 0,
+      };
+
       const endereco = await pb.collection(COLECAO).create(dados);
 
       return { data: endereco };
     } catch (error) {
+      if (error.statusCode) throw error;
       marcarErro(error, 400);
     }
   }
@@ -122,22 +183,20 @@ export class EnderecoModel {
     const colecao = pb.collection(COLECAO);
 
     try {
-      const endereco = await buscarEndereco(userId, id);
+      const endereco = await buscarEndereco(userId, id, true);
 
       if (!endereco) {
-        const error = new Error("Endereço não encontrado.");
+        const error = new Error("Endereço ativo não encontrado.");
         error.statusCode = 404;
         throw error;
       }
 
-      const enderecos = await colecao.getFullList({
-        filter: pb.filter("fk_user_profile_id = {:userId}", {
-          userId,
-        }),
+      const enderecos = await buscarEnderecos(userId, {
+        ativo: true,
       });
 
       for (const item of enderecos) {
-        if (item.principal && item.id !== id) {
+        if (item.id !== id && item.principal) {
           await colecao.update(item.id, {
             principal: false,
           });

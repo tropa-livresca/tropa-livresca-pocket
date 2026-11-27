@@ -327,7 +327,7 @@ export default function Vendas() {
                               <span className={styles.numero}>{item.qtd}x</span>{" "}
                               {item.livros?.titulo || "Livro"}{" "}
                               <span className={styles.etiquetaMini}>
-                                {item.fisico ? "físico" : "e-book"}
+                                {item.fisico ? "Físico" : "E-book"}
                               </span>
                             </li>
                           ))}

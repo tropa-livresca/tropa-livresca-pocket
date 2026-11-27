@@ -32,6 +32,28 @@ export class LojaController {
     }
   }
 
+  static async baixarLivroDigital(req, res, next) {
+    try {
+      const usuarioId = req.user?.id;
+      const livroId = String(req.params.livroId ?? "").trim();
+
+      if (!livroId) {
+        return res.status(400).json({
+          mensagem: "Identificador do livro inválido.",
+        });
+      }
+
+      const resultado = await LojaService.baixarLivroDigital(
+        livroId,
+        usuarioId,
+      );
+
+      return res.status(200).json({ resultado });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async buscarLivros(req, res, next) {
     try {
       const {
