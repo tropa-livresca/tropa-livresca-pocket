@@ -237,7 +237,7 @@ body {
 .menuDropdown {
   position: absolute;
   top: 115%;
-  right: -30%;
+  right: -3rem;
   width: 170px;
   background-color: #fff8e8;
   border: 1px solid #d4c07a;
@@ -417,6 +417,7 @@ body {
 
   .list {
     gap: 3.4rem;
+    margin-right: 2rem;
   }
 
   .item a {

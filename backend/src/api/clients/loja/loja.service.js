@@ -199,7 +199,7 @@ export class LojaService {
       endereco_entrega: enderecoEntrega,
       total,
       data: new Date().toISOString(),
-      status_pagamento: "pendente",
+      status_pagamento: "Pendente",
       status_entrega: itensFisicos.length > 0 ? "Pendente" : "Não se aplica",
     };
 
@@ -309,7 +309,7 @@ export class LojaService {
 
     const venda = await LojaService.consultarVenda(vendaId, usuario?.id);
 
-    if (venda.status_pagamento === "pago")
+    if (venda.status_pagamento === "Pago")
       error(409, "Esta venda já foi paga.");
 
     return LojaModel.mudarStatusPagamento(vendaId, usuario.email);

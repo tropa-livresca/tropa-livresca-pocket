@@ -71,7 +71,7 @@ export class AvaliacaoModel {
     try {
       const vendas = await pb.collection("vendas").getFullList({
         filter: pb.filter(
-          "fk_user_profile_id = {:usuarioId} && status_pagamento = 'pago'",
+          "fk_user_profile_id = {:usuarioId} && status_pagamento = 'Pago'",
           { usuarioId },
         ),
         fields: "id",
@@ -106,9 +106,9 @@ export class AvaliacaoModel {
   static async salvarAvaliacao(usuarioId, livroId, qtdEstrelas) {
     const pb = await criarClienteModel();
 
-    const existente = await buscarAvaliacao(pb, usuarioId, livroId);
-
     try {
+      const existente = await buscarAvaliacao(pb, usuarioId, livroId);
+
       const dados = {
         qtd_estrelas: qtdEstrelas,
       };
@@ -117,6 +117,7 @@ export class AvaliacaoModel {
         ? await pb.collection(COLECAO).update(existente.id, dados)
         : await pb.collection(COLECAO).create({
             ...dados,
+            data_criacao: new Date().toISOString().slice(0, 10),
             fk_livros_id: livroId,
             fk_user_profile_id: usuarioId,
           });
@@ -127,6 +128,7 @@ export class AvaliacaoModel {
       };
     } catch (error) {
       marcarErro(error);
+      throw error;
     }
   }
 }

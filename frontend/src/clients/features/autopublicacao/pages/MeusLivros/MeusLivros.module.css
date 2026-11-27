@@ -414,10 +414,19 @@
 
 .textoPublicado {
   padding: 0.6rem 1.2rem;
-  border: 1px solid #c6dfc9;
+  border: 1px solid green;
   border-radius: 0.6rem;
   background: #e9f5e9;
-  color: #67170c;
+  color: green;
+  font-size: 0.85rem;
+}
+
+.textoNegado {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid red;
+  border-radius: 0.6rem;
+  background: #e9f5e9;
+  color: red;
   font-size: 0.85rem;
 }
 

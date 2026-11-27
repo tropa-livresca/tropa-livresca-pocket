@@ -25,8 +25,8 @@ const ORDENACOES = [
 
 const FILTROS_PAGAMENTO = [
   { valor: "", rotulo: "Todos os pagamentos" },
-  { valor: "pago", rotulo: "Pago" },
-  { valor: "pendente", rotulo: "Pendente" },
+  { valor: "Pago", rotulo: "Pago" },
+  { valor: "Pendente", rotulo: "Pendente" },
 ];
 
 const FILTROS_ENTREGA = [
@@ -176,36 +176,33 @@ export default function MeusPedidos() {
   };
 
   const possuiFiltros = Boolean(
-  busca.trim() ||
-  statusPagamento ||
-  statusEntrega ||
-  periodo ||
-  ordem !== 'recentes'
-);
-
+    busca.trim() ||
+    statusPagamento ||
+    statusEntrega ||
+    periodo ||
+    ordem !== "recentes",
+  );
 
   return (
     <main>
-       <header className={styles.topo}>
+      <header className={styles.topo}>
         <div className={styles.subcontainer}>
           <div>
             <h1 className={styles.titulo}>Meus pedidos</h1>
             <p>Acompanhe suas compras na Tropa Livresca.</p>
           </div>
 
-           <button
-              type="button"
-              className={styles.limpar}
-              onClick={limparFiltros}
-              disabled={!possuiFiltros}
-            >
-              <FiX />
-              Limpar Filtros
-            </button>
-       
+          <button
+            type="button"
+            className={styles.limpar}
+            onClick={limparFiltros}
+            disabled={!possuiFiltros}
+          >
+            <FiX />
+            Limpar Filtros
+          </button>
         </div>
       </header>
-
 
       <div className={base.container}>
         <section className={styles.filtros}>
@@ -274,11 +271,7 @@ export default function MeusPedidos() {
             </button>
           </div>
 
-          <div className={styles.controles}>
-            
-
-            
-          </div>
+          <div className={styles.controles}></div>
         </section>
 
         {carregando ? (
@@ -301,7 +294,7 @@ export default function MeusPedidos() {
           <>
             <ul className={styles.lista}>
               {pedidos.map((pedido) => {
-                const pago = pedido.status_pagamento === "pago";
+                const pago = pedido.status_pagamento === "Pago";
 
                 return (
                   <li key={pedido.id}>

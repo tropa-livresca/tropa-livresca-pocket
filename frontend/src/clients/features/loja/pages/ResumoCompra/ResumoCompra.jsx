@@ -60,7 +60,7 @@ export default function ResumoCompra() {
 
   const frete = Number(pedido.total || 0) - totalItens;
   const temDigital = itens.some((item) => !item.fisico);
-  const pago = pedido.status_pagamento === "pago";
+  const pago = pedido.status_pagamento === "Pago";
   const endereco = pedido.endereco_entrega;
 
   return (
@@ -148,7 +148,7 @@ export default function ResumoCompra() {
             )}
           </div>
 
- <div className={styles.colunaLateral}>
+          <div className={styles.colunaLateral}>
             <aside className={base.resumo}>
               <h2>Resumo</h2>
 

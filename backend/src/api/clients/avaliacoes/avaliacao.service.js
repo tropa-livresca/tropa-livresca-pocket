@@ -2,8 +2,12 @@ import { AvaliacaoModel } from "../../common/models/avaliacao.model.js";
 import { error, errorUsuarioId } from "../../common/utils/error.js";
 
 const validarLivroId = (livroId) => {
-  const id = Number(livroId);
-  if (!Number.isInteger(id) || id <= 0) error(400, "Livro inválido.");
+  const id = String(livroId ?? "").trim();
+
+  if (!/^[a-zA-Z0-9]{15}$/.test(id)) {
+    error(400, "Livro inválido.");
+  }
+
   return id;
 };
 

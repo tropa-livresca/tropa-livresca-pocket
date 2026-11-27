@@ -8,10 +8,10 @@ import Popup from "../../../../components/PopUp/Popup";
 
 const ROTULO_ESTADO = {
   Rascunho: "Rascunho",
-  "Em Revisão": "Em revisão",
+  "Em Revisão": "Em Revisão",
   Publicado: "Publicado",
   Negado: "Negado",
-  Recall: "Corrigir",
+  "Para Correção": "Para Correção",
 };
 
 const formatarPreco = (valor) =>

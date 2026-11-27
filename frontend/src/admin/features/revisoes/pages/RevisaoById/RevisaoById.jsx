@@ -124,7 +124,7 @@ export default function RevisaoById() {
 
               {livroRevisado?.id && (
                 <Link
-                  to={`/admin/livros/visualizar/${livroRevisado.id}`}
+                  to={`/admin/livros/detalhes/${livroRevisado.id}`}
                   className={styles.linkLivro}
                 >
                   <FaBook /> Ver livro relacionado
@@ -192,32 +192,34 @@ export default function RevisaoById() {
                   </label>
                 )}
 
-                {typeof manuscrito === "string" && manuscrito && !removerArquivo && (
-                  <div className={styles.arquivoBox}>
-                    <span>Arquivo atual anexado ao sistema</span>
+                {typeof manuscrito === "string" &&
+                  manuscrito &&
+                  !removerArquivo && (
+                    <div className={styles.arquivoBox}>
+                      <span>Arquivo atual anexado ao sistema</span>
 
-                    <a
-                      href={manuscrito}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={styles.linkArquivo}
-                    >
-                      Visualizar arquivo <FaExternalLinkAlt size={12} />
-                    </a>
-                    {isEdicao && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setManuscrito(null);
-                          setRemoverArquivo(true);
-                        }}
-                        className={styles.botaoLimpar}
+                      <a
+                        href={manuscrito}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.linkArquivo}
                       >
-                        <FaTimes /> Remover anexo
-                      </button>
-                    )}
-                  </div>
-                )}
+                        Visualizar arquivo <FaExternalLinkAlt size={12} />
+                      </a>
+                      {isEdicao && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setManuscrito(null);
+                            setRemoverArquivo(true);
+                          }}
+                          className={styles.botaoLimpar}
+                        >
+                          <FaTimes /> Remover anexo
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                 {manuscrito instanceof File && (
                   <p className={styles.arquivocarregado}>

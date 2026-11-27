@@ -40,7 +40,7 @@ export default function Cadastro() {
   const location = useLocation();
 
   return (
-     <div className={styles.container}>
+    <div className={styles.container}>
       <div className={styles.lesquerdo}>
         <img src={logo} alt="Tropa Livresca" width="100" />
       </div>
@@ -154,18 +154,18 @@ export default function Cadastro() {
             </div>
 
             {error && (
-  <div className={styles.erro}>
-    {Array.isArray(error) ? (
-      <ul className={styles.listaErros}>
-        {error.map((err, index) => (
-          <li key={index}>{err}</li>
-        ))}
-      </ul>
-    ) : (
-      <span className={styles.span}>{error}</span>
-    )}
-  </div>
-)}
+              <div className={styles.erro}>
+                {Array.isArray(error) ? (
+                  <ul className={styles.listaErros}>
+                    {error.map((err, index) => (
+                      <li key={index}>{err}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span className={styles.span}>{error}</span>
+                )}
+              </div>
+            )}
 
             <span className={styles.span}>
               Já tem cadastro?{" "}
@@ -174,7 +174,7 @@ export default function Cadastro() {
               </Link>
             </span>
 
-            <SubmitButton text="CADASTRAR" disabled={!privacidade} />
+            <SubmitButton text="Cadastrar" disabled={!privacidade} />
           </form>
         </div>
       </div>

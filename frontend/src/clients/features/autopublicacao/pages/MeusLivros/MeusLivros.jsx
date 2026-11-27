@@ -41,7 +41,7 @@ const FILTROS_ESTADO = [
   [LIVRO_ESTADO.EM_REVISAO, "Em Revisão"],
   [LIVRO_ESTADO.PUBLICADO, "Publicados"],
   [LIVRO_ESTADO.NEGADO, "Negados"],
-  [LIVRO_ESTADO.RECALL, "Corrigir"],
+  [LIVRO_ESTADO.RECALL, "Para Correção"],
 ];
 
 export default function MeusLivros() {
@@ -275,6 +275,10 @@ export default function MeusLivros() {
 
                   {livro.estado === LIVRO_ESTADO.PUBLICADO && (
                     <span className={styles.textoPublicado}>Publicado</span>
+                  )}
+
+                  {livro.estado === LIVRO_ESTADO.NEGADO && (
+                    <span className={styles.textoNegado}>Negado</span>
                   )}
 
                   {livro.estado === LIVRO_ESTADO.RASCUNHO && (

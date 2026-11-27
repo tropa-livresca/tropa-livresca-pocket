@@ -1,219 +1,180 @@
-# Modelo de dados PocketBase
+# Tropa Livresca — Dicionário de Dados
 
-O modelo de dados da Tropa Livresca foi adaptado do PostgreSQL/Supabase para o PocketBase. Os registros são armazenados em um banco SQLite, e cada registro possui um identificador textual (`id`) gerado automaticamente pelo PocketBase.
+Este documento apresenta as tabelas da plataforma Tropa Livresca e seus respectivos campos, com tipo de dado, indicação de autoincremento, chave estrangeira (FK), chave primária (PK) e descrição.
 
-O PocketBase também gerencia os arquivos enviados à aplicação, como imagens de perfil, capas, manuscritos e documentos de revisão.
+**Critérios utilizados**
 
-## Collections principais
+- **Autoincremento:** os identificadores `varchar(15)` foram considerados não autoincrementais. O esquema informa que são identificadores textuais, não sequenciais.
+- **PK:** indica a chave primária da tabela.
+- **FK:** indica uma referência a outra tabela, conforme os relacionamentos fornecidos.
+- **Descrições:** foram elaboradas com base nos nomes dos campos. Quando o esquema não especifica a finalidade exata, a descrição é indicativa.
 
-| Collection                  | Tipo | Finalidade                                               |
-| --------------------------- | ---- | -------------------------------------------------------- |
-| `users_profile`             | Auth | Autenticação, perfil, contato e privilégios dos usuários |
-| `livros`                    | Base | Livros e metadados editoriais                            |
-| `vendas`                    | Base | Pedidos e informações de pagamento e entrega             |
-| `itens_venda`               | Base | Livros e quantidades associados às vendas                |
-| `avaliacoes`                | Base | Avaliações dos livros                                    |
-| `movimentacoes_financeiras` | Base | Registro de movimentações financeiras                    |
-| `enderecos`                 | Base | Endereços dos usuários                                   |
-| `revisoes`                  | Base | Registros de revisão dos livros                          |
+---
 
-Além dessas collections, o PocketBase mantém collections internas de autenticação, como `_superusers`, `_authOrigins`, `_externalAuths`, `_mfas` e `_otps`. Elas são gerenciadas pelo próprio sistema e não fazem parte do modelo funcional da aplicação.
+## 1. Tabela `users_profile`
 
-## Identificadores
+Armazena os dados dos perfis de usuários, incluindo informações de cadastro, administração e dados associados à conta.
 
-O PocketBase utiliza identificadores textuais para os registros. Nas collections do projeto, o campo `id` é gerado automaticamente e possui 15 caracteres.
+| Nome              | Tipo          | Autoincremento |  FK |  PK | Descrição                                                       |
+| ----------------- | ------------- | -------------: | --: | --: | --------------------------------------------------------------- |
+| `id`              | `varchar(15)` |            Não | Não | Sim | Identificador único do perfil do usuário.                       |
+| `email`           | `varchar`     |            Não | Não | Não | Endereço de e-mail do usuário. Campo único e obrigatório.       |
+| `emailVisibility` | `boolean`     |            Não | Não | Não | Indica se o e-mail pode ser exibido publicamente.               |
+| `verified`        | `boolean`     |            Não | Não | Não | Indica se o endereço de e-mail foi verificado.                  |
+| `nome`            | `text`        |            Não | Não | Não | Nome do usuário.                                                |
+| `sobrenome`       | `text`        |            Não | Não | Não | Sobrenome do usuário.                                           |
+| `descricao`       | `text`        |            Não | Não | Não | Descrição ou apresentação do perfil.                            |
+| `redes_sociais`   | `json`        |            Não | Não | Não | Dados das redes sociais associadas ao perfil.                   |
+| `is_admin`        | `boolean`     |            Não | Não | Não | Indica se o usuário possui perfil administrativo.               |
+| `senha_admin`     | `text`        |            Não | Não | Não | Campo relacionado à senha de acesso administrativo.             |
+| `primeiro_acesso` | `boolean`     |            Não | Não | Não | Indica se o usuário está realizando o primeiro acesso.          |
+| `is_master`       | `boolean`     |            Não | Não | Não | Indica se o usuário possui nível de administrador master.       |
+| `dados_bancarios` | `json`        |            Não | Não | Não | Armazena os dados bancários associados ao usuário.              |
+| `imagem`          | `file`        |            Não | Não | Não | Arquivo de imagem associado ao perfil, como a imagem de perfil. |
+| `telefone`        | `text`        |            Não | Não | Não | Número de telefone do usuário.                                  |
+| `created`         | `timestamp`   |            Não | Não | Não | Data e horário de criação do registro.                          |
+| `updated`         | `timestamp`   |            Não | Não | Não | Data e horário da última atualização do registro.               |
 
-Os identificadores anteriores do PostgreSQL não são convertidos automaticamente para os novos IDs do PocketBase.
+## 2. Tabela `avaliacoes`
 
-Em uma eventual importação de dados existentes:
+Armazena as avaliações relacionadas aos livros e aos usuários que as realizaram.
 
-1. Preserve os identificadores antigos em campos auxiliares, caso seja necessário manter a rastreabilidade.
-2. Importe primeiro os registros de usuários.
-3. Importe os registros das demais collections.
-4. Atualize os campos de relação (`relation`) para utilizar os novos IDs gerados pelo PocketBase.
+| Nome                 | Tipo          | Autoincremento |                       FK |  PK | Descrição                                        |
+| -------------------- | ------------- | -------------: | -----------------------: | --: | ------------------------------------------------ |
+| `id`                 | `varchar(15)` |            Não |                      Não | Sim | Identificador único da avaliação.                |
+| `data_criacao`       | `date`        |            Não |                      Não | Não | Data de criação da avaliação. Campo obrigatório. |
+| `qtd_estrelas`       | `decimal`     |            Não |                      Não | Não | Quantidade de estrelas atribuída à avaliação.    |
+| `fk_livros_id`       | `varchar(15)` |            Não |        Sim — `livros.id` | Não | Identifica o livro relacionado à avaliação.      |
+| `fk_user_profile_id` | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o usuário que realizou a avaliação.   |
 
-## `users_profile`
-
-É a collection de autenticação nativa da aplicação. Além dos campos de autenticação gerenciados pelo PocketBase, contém informações de perfil e controle de acesso.
-
-| Campo             | Tipo     | Uso                                           |
-| ----------------- | -------- | --------------------------------------------- |
-| `id`              | text     | Identificador do registro                     |
-| `email`           | email    | E-mail de autenticação                        |
-| `password`        | password | Senha de autenticação                         |
-| `tokenKey`        | text     | Chave interna de autenticação                 |
-| `emailVisibility` | bool     | Visibilidade do e-mail                        |
-| `verified`        | bool     | Indica se o e-mail foi verificado             |
-| `nome`            | text     | Nome                                          |
-| `sobrenome`       | text     | Sobrenome                                     |
-| `telefone`        | text     | Contato                                       |
-| `imagem`          | file     | Imagem do perfil                              |
-| `descricao`       | text     | Descrição do perfil                           |
-| `redes_sociais`   | json     | Redes sociais                                 |
-| `is_admin`        | bool     | Indica acesso administrativo                  |
-| `senha_admin`     | text     | Campo relacionado à credencial administrativa |
-| `primeiro_acesso` | bool     | Indica primeiro acesso                        |
-| `is_master`       | bool     | Indica privilégio de administrador master     |
-| `dados_bancarios` | json     | Dados bancários                               |
-| `created`         | autodate | Data de criação                               |
-| `updated`         | autodate | Data da última atualização                    |
-
-**Observação:** `email`, `password`, `tokenKey`, `emailVisibility` e `verified` são campos próprios da collection de autenticação do PocketBase. Não existe uma collection separada `users` relacionada a `users_profile` no esquema atual.
-
-## `livros`
-
-Armazena os dados editoriais, comerciais e os arquivos associados aos livros.
-
-| Campo                    | Tipo     | Uso                                    |
-| ------------------------ | -------- | -------------------------------------- |
-| `direitos_de_publicacao` | bool     | Declaração dos direitos de publicação  |
-| `data_de_publicacao`     | date     | Data de publicação                     |
-| `preco_digital`          | number   | Preço da versão digital                |
-| `preco_fisico`           | number   | Preço da versão física                 |
-| `titulo`                 | text     | Título                                 |
-| `subtitulo`              | text     | Subtítulo                              |
-| `descricao`              | text     | Descrição do livro                     |
-| `ativo`                  | bool     | Situação de ativação                   |
-| `estado`                 | text     | Estado do livro no fluxo de publicação |
-| `idioma`                 | text     | Idioma                                 |
-| `colaboradores`          | json     | Informações dos colaboradores          |
-| `categoria`              | text     | Categoria literária                    |
-| `ISBN`                   | text     | Código ISBN                            |
-| `numero_paginas`         | number   | Quantidade de páginas                  |
-| `manuscrito`             | file     | Arquivo PDF do manuscrito              |
-| `capa_frente`            | file     | Imagem da capa frontal                 |
-| `capa_verso`             | file     | Imagem da capa traseira                |
-| `fk_user_profile_id`     | relation | Relação com `users_profile`            |
-
-## `vendas`
-
-Armazena os pedidos realizados na loja.
-
-| Campo                | Tipo     | Uso                                    |
-| -------------------- | -------- | -------------------------------------- |
-| `data`               | date     | Data da venda                          |
-| `total`              | number   | Valor total                            |
-| `metodo_pagamento`   | number   | Identificador do método de pagamento   |
-| `status_pagamento`   | text     | Situação do pagamento                  |
-| `endereco_entrega`   | json     | Cópia dos dados do endereço de entrega |
-| `status_entrega`     | text     | Situação da entrega                    |
-| `fk_user_profile_id` | relation | Relação com `users_profile`            |
-
-## `itens_venda`
-
-Registra os livros incluídos em cada venda.
-
-| Campo                | Tipo     | Uso                                          |
-| -------------------- | -------- | -------------------------------------------- |
-| `qtd`                | number   | Quantidade                                   |
-| `subtotal`           | number   | Subtotal do item                             |
-| `fisico`             | bool     | Indica se o item corresponde à versão física |
-| `preco_unitario`     | number   | Preço unitário                               |
-| `fk_livros_itens_id` | relation | Relação com `livros`                         |
-| `fk_vendas_id`       | relation | Relação com `vendas`                         |
-
-## `avaliacoes`
-
-Armazena as avaliações realizadas pelos usuários.
-
-| Campo                | Tipo     | Uso                         |
-| -------------------- | -------- | --------------------------- |
-| `data_criacao`       | date     | Data da avaliação           |
-| `qtd_estrelas`       | number   | Quantidade de estrelas      |
-| `fk_livros_id`       | relation | Relação com `livros`        |
-| `fk_user_profile_id` | relation | Relação com `users_profile` |
-
-## `movimentacoes_financeiras`
-
-Registra as movimentações financeiras associadas aos usuários e, quando aplicável, às vendas.
-
-| Campo                | Tipo     | Uso                          |
-| -------------------- | -------- | ---------------------------- |
-| `data`               | date     | Data da movimentação         |
-| `tipo`               | text     | Tipo de movimentação         |
-| `valor`              | number   | Valor movimentado            |
-| `descricao`          | text     | Descrição                    |
-| `status`             | text     | Situação da movimentação     |
-| `dados_bancarios`    | json     | Dados bancários relacionados |
-| `fk_user_profile_id` | relation | Relação com `users_profile`  |
-| `fk_vendas_id`       | relation | Relação com `vendas`         |
-
-## `enderecos`
+## 3. Tabela `enderecos`
 
 Armazena os endereços cadastrados pelos usuários.
 
-| Campo                | Tipo     | Uso                              |
-| -------------------- | -------- | -------------------------------- |
-| `estado`             | text     | Estado                           |
-| `bairro`             | text     | Bairro                           |
-| `rua`                | text     | Logradouro                       |
-| `num`                | number   | Número                           |
-| `cep`                | text     | CEP                              |
-| `cidade`             | text     | Cidade                           |
-| `complemento`        | text     | Complemento                      |
-| `pais`               | text     | País                             |
-| `ativo`              | bool     | Indica se o endereço está ativo  |
-| `principal`          | bool     | Indica se é o endereço principal |
-| `fk_user_profile_id` | relation | Relação com `users_profile`      |
+| Nome                 | Tipo          | Autoincremento |                       FK |  PK | Descrição                                          |
+| -------------------- | ------------- | -------------: | -----------------------: | --: | -------------------------------------------------- |
+| `id`                 | `varchar(15)` |            Não |                      Não | Sim | Identificador único do endereço.                   |
+| `estado`             | `text`        |            Não |                      Não | Não | Estado do endereço. Campo obrigatório.             |
+| `bairro`             | `text`        |            Não |                      Não | Não | Bairro do endereço. Campo obrigatório.             |
+| `rua`                | `text`        |            Não |                      Não | Não | Nome da rua ou logradouro. Campo obrigatório.      |
+| `num`                | `decimal`     |            Não |                      Não | Não | Número do endereço. Campo obrigatório.             |
+| `cep`                | `text`        |            Não |                      Não | Não | Código de Endereçamento Postal. Campo obrigatório. |
+| `cidade`             | `text`        |            Não |                      Não | Não | Cidade do endereço. Campo obrigatório.             |
+| `complemento`        | `text`        |            Não |                      Não | Não | Complemento do endereço, quando houver.            |
+| `pais`               | `text`        |            Não |                      Não | Não | País do endereço.                                  |
+| `ativo`              | `boolean`     |            Não |                      Não | Não | Indica se o endereço está ativo.                   |
+| `principal`          | `boolean`     |            Não |                      Não | Não | Indica se o endereço está marcado como principal.  |
+| `fk_user_profile_id` | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o usuário proprietário do endereço.     |
 
-## `revisoes`
+## 4. Tabela `itens_venda`
 
-Armazena os registros de revisão dos livros.
+Armazena os livros e as respectivas quantidades e valores que compõem cada venda.
 
-| Campo                | Tipo     | Uso                                       |
-| -------------------- | -------- | ----------------------------------------- |
-| `apontamento`        | text     | Observações da revisão                    |
-| `nome`               | text     | Nome associado à revisão                  |
-| `completado`         | bool     | Indica se a revisão foi concluída         |
-| `fk_livro_id`        | relation | Relação com `livros`                      |
-| `fk_user_profile_id` | relation | Relação com `users_profile`               |
-| `arquivo`            | file     | Arquivo PDF associado à revisão           |
-| `data_criacao`       | autodate | Data de criação ou atualização automática |
+| Nome                 | Tipo          | Autoincremento |                FK |  PK | Descrição                                                          |
+| -------------------- | ------------- | -------------: | ----------------: | --: | ------------------------------------------------------------------ |
+| `id`                 | `varchar(15)` |            Não |               Não | Sim | Identificador único do item da venda.                              |
+| `qtd`                | `decimal`     |            Não |               Não | Não | Quantidade do livro no item da venda. Campo obrigatório.           |
+| `subtotal`           | `decimal`     |            Não |               Não | Não | Valor total do item, considerando a quantidade. Campo obrigatório. |
+| `fisico`             | `boolean`     |            Não |               Não | Não | Indica se o item corresponde à versão física do livro.             |
+| `preco_unitario`     | `decimal`     |            Não |               Não | Não | Preço de uma unidade do livro. Campo obrigatório.                  |
+| `fk_livros_itens_id` | `varchar(15)` |            Não | Sim — `livros.id` | Não | Identifica o livro incluído no item da venda.                      |
+| `fk_vendas_id`       | `varchar(15)` |            Não | Sim — `vendas.id` | Não | Identifica a venda à qual o item pertence.                         |
 
-## Armazenamento de arquivos
+## 5. Tabela `livros`
 
-Os arquivos não são armazenados em uma collection funcional chamada `storage_files`. O gerenciamento é realizado pelo próprio sistema de arquivos do PocketBase.
+Armazena as informações dos livros cadastrados na plataforma, incluindo dados editoriais, preços, arquivos e vínculo com o usuário responsável.
 
-Os campos do tipo `file` presentes nas collections permitem anexar e recuperar arquivos vinculados aos registros.
+| Nome                     | Tipo          | Autoincremento |                       FK |  PK | Descrição                                                            |
+| ------------------------ | ------------- | -------------: | -----------------------: | --: | -------------------------------------------------------------------- |
+| `id`                     | `varchar(15)` |            Não |                      Não | Sim | Identificador único do livro.                                        |
+| `direitos_de_publicacao` | `boolean`     |            Não |                      Não | Não | Indica a declaração relacionada aos direitos de publicação do livro. |
+| `data_de_publicacao`     | `date`        |            Não |                      Não | Não | Data de publicação do livro. Campo obrigatório.                      |
+| `preco_digital`          | `decimal`     |            Não |                      Não | Não | Preço de venda da versão digital. Campo obrigatório.                 |
+| `preco_fisico`           | `decimal`     |            Não |                      Não | Não | Preço de venda da versão física. Campo obrigatório.                  |
+| `titulo`                 | `text`        |            Não |                      Não | Não | Título do livro. Campo obrigatório.                                  |
+| `subtitulo`              | `text`        |            Não |                      Não | Não | Subtítulo do livro. Campo obrigatório.                               |
+| `descricao`              | `text`        |            Não |                      Não | Não | Descrição ou sinopse do livro. Campo obrigatório.                    |
+| `ativo`                  | `boolean`     |            Não |                      Não | Não | Indica se o cadastro do livro está ativo.                            |
+| `estado`                 | `text`        |            Não |                      Não | Não | Estado ou situação atual do livro na plataforma. Campo obrigatório.  |
+| `idioma`                 | `text`        |            Não |                      Não | Não | Idioma em que o livro foi escrito. Campo obrigatório.                |
+| `colaboradores`          | `json`        |            Não |                      Não | Não | Dados dos colaboradores associados à produção do livro.              |
+| `categoria`              | `text`        |            Não |                      Não | Não | Categoria ou gênero literário do livro.                              |
+| `ISBN`                   | `text`        |            Não |                      Não | Não | Número ISBN (International Standard Book Number) do livro.           |
+| `numero_paginas`         | `decimal`     |            Não |                      Não | Não | Quantidade de páginas do livro.                                      |
+| `manuscrito`             | `file`        |            Não |                      Não | Não | Arquivo do manuscrito do livro.                                      |
+| `capa_frente`            | `file`        |            Não |                      Não | Não | Arquivo da capa frontal do livro.                                    |
+| `capa_verso`             | `file`        |            Não |                      Não | Não | Arquivo da capa traseira do livro.                                   |
+| `fk_user_profile_id`     | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o usuário responsável pelo cadastro do livro.             |
 
-No esquema atual, os principais campos de arquivo são:
+## 6. Tabela `movimentacoes_financeiras`
 
-- `users_profile.imagem`: imagem do perfil.
-- `livros.manuscrito`: manuscrito em PDF.
-- `livros.capa_frente`: imagem da capa frontal.
-- `livros.capa_verso`: imagem da capa traseira.
-- `revisoes.arquivo`: documento PDF da revisão.
+Registra as movimentações financeiras associadas aos usuários e, quando aplicável, às vendas.
 
-Os arquivos e seus registros são mantidos pelo PocketBase dentro da estrutura de dados da aplicação.
+| Nome                 | Tipo          | Autoincremento |                       FK |  PK | Descrição                                                       |
+| -------------------- | ------------- | -------------: | -----------------------: | --: | --------------------------------------------------------------- |
+| `id`                 | `varchar(15)` |            Não |                      Não | Sim | Identificador único da movimentação financeira.                 |
+| `data`               | `date`        |            Não |                      Não | Não | Data da movimentação financeira. Campo obrigatório.             |
+| `tipo`               | `text`        |            Não |                      Não | Não | Tipo da movimentação, como entrada ou saída. Campo obrigatório. |
+| `valor`              | `decimal`     |            Não |                      Não | Não | Valor financeiro movimentado. Campo obrigatório.                |
+| `descricao`          | `text`        |            Não |                      Não | Não | Descrição da movimentação. Campo obrigatório.                   |
+| `status`             | `text`        |            Não |                      Não | Não | Situação atual da movimentação. Campo obrigatório.              |
+| `fk_vendas_id`       | `varchar(15)` |            Não |        Sim — `vendas.id` | Não | Identifica a venda relacionada à movimentação, quando houver.   |
+| `dados_bancarios`    | `json`        |            Não |                      Não | Não | Dados bancários associados à movimentação, quando aplicáveis.   |
+| `fk_user_profile_id` | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o usuário ao qual a movimentação está vinculada.     |
 
-## Relações entre as collections
+## 7. Tabela `revisoes`
 
-As relações são estabelecidas por campos do tipo `relation`, que armazenam os IDs dos registros relacionados.
+Armazena os registros de revisão dos livros, incluindo apontamentos, arquivos e identificação dos usuários envolvidos.
 
-```text
-users_profile --> livros
-users_profile --> vendas
-users_profile --> avaliacoes
-users_profile --> movimentacoes_financeiras
-users_profile --> enderecos
-users_profile --> revisoes
+| Nome                 | Tipo          | Autoincremento |                       FK |  PK | Descrição                                                      |
+| -------------------- | ------------- | -------------: | -----------------------: | --: | -------------------------------------------------------------- |
+| `id`                 | `varchar(15)` |            Não |                      Não | Sim | Identificador único da revisão.                                |
+| `apontamento`        | `text`        |            Não |                      Não | Não | Apontamentos ou observações feitos durante a revisão.          |
+| `nome`               | `text`        |            Não |                      Não | Não | Nome associado ao registro de revisão.                         |
+| `completado`         | `boolean`     |            Não |                      Não | Não | Indica se a revisão foi concluída.                             |
+| `fk_livro_id`        | `varchar(15)` |            Não |        Sim — `livros.id` | Não | Identifica o livro que está sendo revisado. Campo obrigatório. |
+| `fk_user_profile_id` | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o usuário associado à revisão.                      |
+| `arquivo`            | `file`        |            Não |                      Não | Não | Arquivo associado ao registro de revisão.                      |
+| `fk_autor_id`        | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o autor relacionado à revisão. Campo obrigatório.   |
+| `data_criacao`       | `timestamp`   |            Não |                      Não | Não | Data e horário de criação do registro de revisão.              |
 
-livros --> itens_venda
-livros --> avaliacoes
-livros --> revisoes
+## 8. Tabela `vendas`
 
-vendas --> itens_venda
-vendas --> movimentacoes_financeiras
-```
+Armazena os dados gerais das vendas realizadas na plataforma.
 
-A collection `users_profile` é a própria collection de autenticação. Portanto, não existe uma relação adicional entre `users` e `users_profile`.
+| Nome                 | Tipo          | Autoincremento |                       FK |  PK | Descrição                                                                                          |
+| -------------------- | ------------- | -------------: | -----------------------: | --: | -------------------------------------------------------------------------------------------------- |
+| `id`                 | `varchar(15)` |            Não |                      Não | Sim | Identificador único da venda.                                                                      |
+| `data`               | `date`        |            Não |                      Não | Não | Data da venda. Campo obrigatório.                                                                  |
+| `total`              | `decimal`     |            Não |                      Não | Não | Valor total da venda. Campo obrigatório.                                                           |
+| `metodo_pagamento`   | `decimal`     |            Não |                      Não | Não | Código ou valor associado ao método de pagamento, conforme definido no esquema. Campo obrigatório. |
+| `status_pagamento`   | `text`        |            Não |                      Não | Não | Situação do pagamento da venda. Campo obrigatório.                                                 |
+| `endereco_entrega`   | `json`        |            Não |                      Não | Não | Dados do endereço de entrega registrados na venda.                                                 |
+| `status_entrega`     | `text`        |            Não |                      Não | Não | Situação da entrega da venda. Campo obrigatório.                                                   |
+| `fk_user_profile_id` | `varchar(15)` |            Não | Sim — `users_profile.id` | Não | Identifica o usuário associado à venda.                                                            |
 
-## Backup
+---
 
-O diretório `pb_data` contém os dados necessários para a persistência da aplicação, incluindo o banco SQLite e os arquivos armazenados.
+## Relacionamentos entre as tabelas
 
-Para realizar um backup manual, interrompa o servidor PocketBase antes de copiar o diretório. Como alternativa, utilize o recurso de backup disponibilizado pelo próprio PocketBase.
+| Tabela de origem            | Campo FK             | Tabela de destino | Campo referenciado |
+| --------------------------- | -------------------- | ----------------- | ------------------ |
+| `avaliacoes`                | `fk_livros_id`       | `livros`          | `id`               |
+| `avaliacoes`                | `fk_user_profile_id` | `users_profile`   | `id`               |
+| `enderecos`                 | `fk_user_profile_id` | `users_profile`   | `id`               |
+| `itens_venda`               | `fk_livros_itens_id` | `livros`          | `id`               |
+| `itens_venda`               | `fk_vendas_id`       | `vendas`          | `id`               |
+| `movimentacoes_financeiras` | `fk_vendas_id`       | `vendas`          | `id`               |
+| `movimentacoes_financeiras` | `fk_user_profile_id` | `users_profile`   | `id`               |
+| `revisoes`                  | `fk_livro_id`        | `livros`          | `id`               |
+| `revisoes`                  | `fk_user_profile_id` | `users_profile`   | `id`               |
+| `revisoes`                  | `fk_autor_id`        | `users_profile`   | `id`               |
+| `vendas`                    | `fk_user_profile_id` | `users_profile`   | `id`               |
 
-Não copie somente o arquivo `data.db`: os arquivos auxiliares e o diretório de armazenamento de arquivos também fazem parte dos dados da aplicação.
+## Observações
 
-Em ambientes portáteis, mantenha uma cópia de segurança completa de `pb_data` antes de realizar alterações importantes ou atualizações.
+1. Os campos `id` foram definidos como chaves primárias (`PK`) e são do tipo `varchar(15)`. Portanto, não foram classificados como autoincrementais.
+2. Os campos iniciados por `fk_` foram classificados como chaves estrangeiras (`FK`) de acordo com os relacionamentos fornecidos.
+3. Os campos marcados como obrigatórios no esquema original foram identificados nas descrições.
+4. Os campos `file` representam arquivos armazenados pelo PocketBase.
+5. As descrições são documentais e não substituem as regras de validação, permissões ou configurações existentes nas coleções do PocketBase.

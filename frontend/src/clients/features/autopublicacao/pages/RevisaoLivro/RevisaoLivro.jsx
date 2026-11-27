@@ -72,7 +72,7 @@ export default function RevisaoLivro() {
             ) : (
               revisoes.map((revisao) => (
                 <div className={styles.card} key={revisao.id}>
-                  <h2>"Revisão"</h2>
+                  <h2>Revisão</h2>
 
                   <p className={styles.descricao}>
                     {revisao.apontamento || "Nenhuma descrição informada."}
@@ -80,26 +80,28 @@ export default function RevisaoLivro() {
 
                   {revisao.arquivoUrl && (
                     <div className={styles.pdfWrapper}>
-                      <h3>Arquivo da Revisão</h3>
-
                       <object
                         data={revisao.arquivoUrl}
                         type="application/pdf"
                         width="100%"
                         height="650px"
                       >
-                        <p className={styles.vazio}>
-                          Seu navegador não suporta a exibição de PDFs.{" "}
-                          <a
-                            href={revisao.arquivoUrl}
-                            download
-                            target="_blank"
-                            rel="noreferrer"
-                            className={styles.btnlivro}
-                          >
-                            Clique aqui para baixar o arquivo.
-                          </a>
-                        </p>
+                        <div className={styles.vaziodisplay}>
+                          <p className={styles.vazio}>
+                            Seu navegador não suporta a exibição de PDFs.{" "}
+                            <p className={styles.click}>
+                              <a
+                                href={revisao.arquivoUrl}
+                                download
+                                target="_blank"
+                                rel="noreferrer"
+                                className={styles.btnlivro}
+                              >
+                                Clique aqui para baixar o arquivo.
+                              </a>
+                            </p>
+                          </p>
+                        </div>
                       </object>
                     </div>
                   )}

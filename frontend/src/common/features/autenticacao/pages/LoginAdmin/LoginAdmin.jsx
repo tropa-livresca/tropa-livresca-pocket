@@ -88,7 +88,7 @@ export default function LoginAdmin() {
             </div>
 
             <SubmitButton
-              text={loading ? "CARREGANDO..." : "ENTRAR"}
+              text={loading ? "Carregando..." : "Entrar"}
               id={styles.btn}
               disabled={loading}
             />
