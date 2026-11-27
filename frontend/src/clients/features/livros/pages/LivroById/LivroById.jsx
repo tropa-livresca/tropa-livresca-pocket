@@ -26,23 +26,24 @@ export default function LivroById() {
     buscarResumo(id);
   }, [id, buscarResumo]);
 
-  const mapearIdioma = (idioma) => {
-    if (!idioma) return "Não informado";
-
-    const dicionario = {
-      ingles: "Inglês",
-      portugues: "Português",
-      espanhol: "Espanhol",
-    };
-
-    return (
-      dicionario[idioma.toLowerCase()] ||
-      idioma.charAt(0).toUpperCase() + idioma.slice(1)
-    );
-  };
-
   const { autor, colaboradores, livro, BuscarDetalhesLivro, carregando } =
     useLivros();
+
+  const formatarData = (data) => {
+    if (!data) return "";
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return "";
+    }
+
+    return dataConvertida.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -86,7 +87,7 @@ export default function LivroById() {
             <ResumoAvaliacao media={resumo.media} total={resumo.total} />
 
             <div className={styles.tags}>
-              {livro.idioma && <span>{mapearIdioma(livro.idioma)}</span>}
+              {livro.idioma && <span>{livro.idioma}</span>}
               {livro.categoria && <span>{livro.categoria}</span>}
             </div>
           </div>
@@ -135,9 +136,7 @@ export default function LivroById() {
               <div>
                 <strong>Data de publicação</strong>
                 <p className={styles.numero}>
-                  {livro.data_de_publicacao
-                    ? livro.data_de_publicacao.split("-").reverse().join("/")
-                    : "Não informado"}
+                  {formatarData(livro.data_de_publicacao)}
                 </p>
               </div>
             </div>
@@ -160,9 +159,28 @@ export default function LivroById() {
 
               <div>
                 <strong>Idioma</strong>
-                <p>{mapearIdioma(livro.idioma)}</p>
+                <p>{livro.idioma || "Não informado"}</p>
               </div>
             </div>
+
+            {colaboradores?.map((colaborador, index) => (
+              <div
+                className={styles.informacao}
+                key={`${colaborador.nome}-${index}`}
+              >
+                <div className={styles.iconeInformacao}>
+                  <FaUsers />
+                </div>
+
+                <div>
+                  <strong>Colaborador(a)</strong>
+                  <p>
+                    {colaborador.nome} {colaborador.sobrenome} (
+                    {colaborador.funcao || "Colaborador"})
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -210,29 +228,6 @@ export default function LivroById() {
           </div>
         </aside>
       </section>
-
-      {colaboradores && colaboradores.length > 0 && (
-        <section className={styles.secaoColaboradores}>
-          <h2 className={styles.tituloSecao}>Relação dos colaboradores</h2>
-
-          <ul className={styles.listaColaboradores}>
-            {colaboradores.map((colaborador, index) => (
-              <li
-                className={styles.colaborador}
-                key={`${colaborador.nome}-${index}`}
-              >
-                <span className={styles.nomeColaborador}>
-                  {colaborador.nome} {colaborador.sobrenome}
-                </span>
-
-                <span className={styles.funcaoColaborador}>
-                  {colaborador.funcao}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </main>
   );
 }

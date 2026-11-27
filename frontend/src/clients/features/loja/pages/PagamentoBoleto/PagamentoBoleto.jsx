@@ -349,12 +349,12 @@ export default function PagamentoBoleto() {
         state: {
           pedido: {
             ...pedido,
-            status_pagamento: "pago",
+            status_pagamento: "Pago",
           },
           frete,
           formaPagamento: "boleto",
           pagamentoDemonstrativo: true,
-          statusPagamento: "pago",
+          statusPagamento: "Pago",
           referenciaBoleto: referencia,
           vencimentoBoleto: vencimento.toISOString(),
         },
@@ -372,7 +372,7 @@ export default function PagamentoBoleto() {
     }
   }
 
-  const pagamentoConfirmado = location.state?.statusPagamento === "pago";
+  const pagamentoConfirmado = location.state?.statusPagamento === "Pago";
 
   return (
     <main className={styles.container}>

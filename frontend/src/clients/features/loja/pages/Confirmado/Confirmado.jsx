@@ -1,7 +1,9 @@
 import styles from "./Confirmado.module.css";
 import { FaCheckCircle } from "react-icons/fa";
-
+import { usePerfil } from "../../../perfil/hooks/usePerfil";
 export default function Confirmado() {
+  const { perfil } = usePerfil();
+
   return (
     <div className={styles.container}>
       <div className={styles.popup}>
@@ -13,7 +15,8 @@ export default function Confirmado() {
           <h3>Pagamento confirmado!</h3>
 
           <p>
-            Obrigado pela sua compra, David Balls. <br />O pagamento do pedido
+            Obrigado pela sua compra, {perfil?.nome} {perfil?.sobrenome}! <br />
+            O pagamento do pedido
             <span className={styles.numero}> #6767</span> foi aprovado com
             sucesso.
           </p>

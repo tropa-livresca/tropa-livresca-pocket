@@ -1,3 +1,4 @@
+
 # Dependencies
 node_modules/
 .vite_cache/
@@ -7,7 +8,8 @@ node_modules/
 .env.*
 !.env.example
 config.toml
-
+# Arquivos locais de portabilidade
+portabilidade/
 # Logs
 logs/
 *.log
@@ -21,7 +23,9 @@ dist/
 dist-ssr/
 build/
 coverage/
-
+# PocketBase - dados locais e credenciais
+**/pb_data/
+**/pb_data/**
 # Runtime/cache files
 .cache/
 .vite/
@@ -32,6 +36,17 @@ temp/
 # Uploads do Backend
 backend/src/uploads/*
 !backend/src/uploads/.gitkeep
+
+# PocketBase - Dados locais e arquivos temporários
+pocketbase/pb_data/
+pocketbase/pb_migrations/
+pocketbase/logs/
+pocketbase/*.log
+pocketbase/.DS_Store
+
+# PocketBase - Backups
+pocketbase/backups/
+pocketbase/*.zip
 
 # Editor and OS files
 .vscode/*
@@ -45,5 +60,7 @@ Thumbs.db
 *.sln
 *.sw?
 
-pocketbase/pb_data
-pocketbase/pb_data/
+# Executável principal fora da portabilidade
+/TropaLivresca.exe
+
+.git-rewrite

@@ -19,6 +19,7 @@ import Historia from "../institucional/pages/Historia/Historia";
 import Autores from "../autores/pages/Autores/Autores";
 import AutorById from "../autores/pages/AutorById/AutorById";
 import MeusLivros from "../autopublicacao/pages/MeusLivros/MeusLivros";
+import RevisaoLivro from "../autopublicacao/pages/RevisaoLivro/RevisaoLivro";
 import EditarLivro from "../autopublicacao/pages/EditarLivro/EditarLivro";
 import Livros from "../livros/pages/Livros/Livros";
 import Visualizar from "../autopublicacao/pages/Visualizar/Visualizar";
@@ -165,6 +166,10 @@ const RoutesClients = () => {
             <Route
               path="/editar-livro/:id"
               element={<Private Item={EditarLivro} />}
+            />
+            <Route
+              path="/visualizar-revisao/:id"
+              element={<Private Item={RevisaoLivro} />}
             />
             |
             <Route

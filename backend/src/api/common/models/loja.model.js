@@ -207,6 +207,82 @@ export class LojaModel {
     }
   }
 
+  static async baixarLivroDigital(livroId, usuarioId) {
+    const pb = await criarClienteModel();
+
+    try {
+      const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
+        filter: pb.filter(
+          `${RELACAO_PERFIL} = {:usuarioId} && status_pagamento = 'Pago'`,
+          { usuarioId },
+        ),
+        fields: "id",
+      });
+
+      if (!vendas.length) {
+        const error = new Error("Livro não encontrado na sua biblioteca.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const itens = await buscarItensVenda(
+        pb,
+        vendas.map((venda) => venda.id),
+        { expandLivros: true },
+      );
+
+      const item = itens.find(
+        (registro) =>
+          registro[RELACAO_LIVRO_ITEM] === String(livroId) &&
+          registro.fisico === false,
+      );
+
+      if (!item) {
+        const error = new Error(
+          "Este livro digital não foi encontrado na sua biblioteca.",
+        );
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const livro = item.expand?.[RELACAO_LIVRO_ITEM];
+
+      if (!livro) {
+        const error = new Error("Livro não encontrado.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const nomesArquivos = Array.isArray(livro.manuscrito)
+        ? livro.manuscrito
+        : [livro.manuscrito];
+
+      const arquivos = nomesArquivos
+        .filter((nome) => typeof nome === "string" && nome.trim())
+        .map((nome, index) => ({
+          nome: nome.split("/").pop(),
+          url: pb.files.getURL(livro, nome),
+          numero: index + 1,
+        }));
+
+      if (!arquivos.length) {
+        const error = new Error(
+          "O arquivo digital deste livro não está disponível.",
+        );
+        error.statusCode = 404;
+        throw error;
+      }
+
+      return {
+        titulo: livro.titulo || "Livro digital",
+        arquivos,
+      };
+    } catch (error) {
+      if (error.statusCode) throw error;
+      marcarErro(error);
+    }
+  }
+
   static async buscarLivroById(id) {
     const pb = await criarClienteModel();
 
@@ -227,15 +303,63 @@ export class LojaModel {
     }
   }
 
-  static async consultarVendas({ page = 1, limit = 12, ordem = "" }) {
+  static async consultarVendas({
+    page = 1,
+    limit = 10,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  }) {
     const pb = await criarClienteModel();
 
     try {
+      const filtros = [];
+      const parametros = {};
+
+      if (busca.trim()) {
+        filtros.push("id ~ {:busca}");
+        parametros.busca = busca.trim();
+      }
+
+      if (statusPagamento) {
+        filtros.push("status_pagamento = {:statusPagamento}");
+        parametros.statusPagamento = statusPagamento;
+      }
+
+      if (statusEntrega) {
+        filtros.push("status_entrega = {:statusEntrega}");
+        parametros.statusEntrega = statusEntrega;
+      }
+
+      if (dataInicio) {
+        filtros.push("data >= {:dataInicio}");
+        parametros.dataInicio = `${dataInicio} 00:00:00.000Z`;
+      }
+
+      if (dataFim) {
+        filtros.push("data <= {:dataFim}");
+        parametros.dataFim = `${dataFim} 23:59:59.999Z`;
+      }
+
+      const filtro =
+        filtros.length > 0 ? pb.filter(filtros.join(" && "), parametros) : "";
+
+      const ordenacoes = {
+        recentes: "-data",
+        antigos: "data",
+        maior_valor: "-total",
+        menor_valor: "total",
+      };
+
       const resultado = await getListPocketBase(pb.collection(COLECAO_VENDAS), {
         page,
         limit,
-        sort: ordem === "ascendente" ? "data" : "-data",
+        sort: ordenacoes[ordem] || "-data",
         expand: RELACAO_PERFIL,
+        ...(filtro && { filter: filtro }),
       });
 
       const data = await Promise.all(
@@ -257,7 +381,10 @@ export class LojaModel {
         }),
       );
 
-      return { data, count: resultado.totalItems };
+      return {
+        data,
+        count: resultado.totalItems,
+      };
     } catch (error) {
       marcarErro(error);
     }
@@ -354,28 +481,57 @@ export class LojaModel {
 
   static async mudarStatusPagamento(vendaId, usuarioEmail) {
     const pb = await criarClienteModel();
+
     let venda;
 
     try {
-      venda = await pb
-        .collection(COLECAO_VENDAS)
-        .update(vendaId, { status_pagamento: "pago" });
+      venda = await pb.collection(COLECAO_VENDAS).update(vendaId, {
+        status_pagamento: "Pago",
+      });
     } catch (error) {
       marcarErro(error);
     }
 
+    let notificacao = {
+      emailEnviado: false,
+      motivo: "EMAIL_NAO_INFORMADO",
+      quantidadeEnviada: 0,
+      quantidadeFalhas: 0,
+    };
+
     if (usuarioEmail) {
       try {
-        await this.enviarEbookAposPagamento(vendaId, usuarioEmail);
-      } catch (erroEmail) {
-        console.error(
-          `Falha no envio inicial dos e-books da venda ${vendaId}:`,
-          erroEmail,
+        const resultado = await this.enviarEbookAposPagamento(
+          vendaId,
+          usuarioEmail,
         );
+
+        notificacao = {
+          emailEnviado: resultado.sucesso,
+          motivo: resultado.falhas[0]?.motivo || null,
+          quantidadeEnviada: resultado.quantidadeEnviada,
+          quantidadeFalhas: resultado.quantidadeFalhas,
+          falhas: resultado.falhas,
+        };
+      } catch (error) {
+        console.error(
+          `[LojaModel:mudarStatusPagamento] Falha na notificação da venda ${vendaId}:`,
+          error,
+        );
+
+        notificacao = {
+          emailEnviado: false,
+          motivo: "FALHA_PROCESSAMENTO",
+          quantidadeEnviada: 0,
+          quantidadeFalhas: 0,
+        };
       }
     }
 
-    return venda;
+    return {
+      ...venda,
+      notificacao,
+    };
   }
 
   static async enviarEbookAposPagamento(vendaId, usuarioEmail) {
@@ -386,6 +542,7 @@ export class LojaModel {
     }
 
     const pb = await criarClienteModel();
+
     let venda;
 
     try {
@@ -394,88 +551,147 @@ export class LojaModel {
       marcarErro(error);
     }
 
-    if (venda.status_pagamento !== "pago") {
+    if (venda.status_pagamento !== "Pago") {
       const error = new Error(
         "Os livros digitais só podem ser enviados após a confirmação do pagamento.",
       );
+
       error.statusCode = 400;
       throw error;
     }
 
-    const itens = await buscarItensVenda(pb, [vendaId], { expandLivros: true });
+    const itens = await buscarItensVenda(pb, [vendaId], {
+      expandLivros: true,
+    });
+
     const digitais = itens.filter((item) => !item.fisico);
 
     if (!digitais.length) {
       const error = new Error(
         "Este pedido não possui livros digitais para enviar.",
       );
+
       error.statusCode = 400;
       throw error;
     }
 
     let quantidadeEnviada = 0;
+    const falhas = [];
 
     for (const item of digitais) {
       const livro = item.expand?.[RELACAO_LIVRO_ITEM];
 
-      const nomesArquivos = Array.isArray(livro?.manuscrito)
-        ? livro.manuscrito
-        : [livro?.manuscrito];
+      try {
+        if (!livro) {
+          throw new Error("Livro não encontrado.");
+        }
 
-      const links = nomesArquivos
-        .filter((nome) => typeof nome === "string" && nome.length > 0)
-        .map((nome) => pb.files.getURL(livro, nome));
+        const nomesArquivos = Array.isArray(livro.manuscrito)
+          ? livro.manuscrito
+          : [livro.manuscrito];
 
-      if (!links.length) {
-        throw new Error(
-          `O arquivo digital de "${livro?.titulo || "um livro"}" não está disponível.`,
+        const links = nomesArquivos
+          .filter((nome) => typeof nome === "string" && nome.length > 0)
+          .map((nome) => pb.files.getURL(livro, nome));
+
+        if (!links.length) {
+          throw new Error(
+            `O arquivo digital de "${livro.titulo || "um livro"}" não está disponível.`,
+          );
+        }
+
+        const titulo = String(livro.titulo || "Livro digital");
+
+        const tituloSeguro = titulo.replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
         );
+
+        const linksSeguros = links.map((link, index) => {
+          const linkSeguro = link
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;");
+
+          return {
+            text: `Arquivo ${index + 1}: ${link}`,
+            html: `<a href="${linkSeguro}" style="display:inline-block;margin:4px;padding:12px 20px;background:#4F46E5;color:#fff;text-decoration:none;border-radius:6px;">Acessar arquivo ${index + 1}</a>`,
+          };
+        });
+
+        const resultadoEmail = await this.dispararEmailcomLivroDigital({
+          to: usuarioEmail,
+          subject: `Seu livro digital: ${titulo}`,
+
+          text: [
+            "Olá!",
+            "Este é o acesso ao livro digital adquirido na Tropa Livresca.",
+            `Livro: ${titulo}`,
+            ...linksSeguros.map((arquivo) => arquivo.text),
+          ].join("\n\n"),
+
+          html: `
+          <div style="font-family: Arial, sans-serif; padding: 24px; color: #333;">
+            <h2>Seu livro digital está disponível!</h2>
+
+            <p>Olá! Obrigado por comprar na Tropa Livresca.</p>
+
+            <p>
+              Você adquiriu a versão digital de
+              <strong>${tituloSeguro}</strong>.
+            </p>
+
+            <p>Utilize os botões abaixo para acessar os arquivos:</p>
+
+            ${linksSeguros.map((arquivo) => arquivo.html).join("")}
+
+            <p style="margin-top:20px;font-size:13px;color:#666;">
+              Guarde este e-mail para consultar o acesso novamente.
+            </p>
+          </div>
+        `,
+        });
+
+        if (!resultadoEmail.enviado) {
+          falhas.push({
+            livro: titulo,
+            motivo: resultadoEmail.motivo,
+          });
+
+          continue;
+        }
+
+        quantidadeEnviada++;
+      } catch (error) {
+        console.error(
+          `[LojaModel:enviarEbookAposPagamento] Falha no livro ${livro?.titulo || item.id}:`,
+          error,
+        );
+
+        falhas.push({
+          livro: livro?.titulo || "Livro digital",
+          motivo: "ERRO_PROCESSAMENTO",
+        });
       }
-
-      const titulo = String(livro.titulo || "Livro digital");
-
-      const tituloSeguro = titulo.replace(
-        /[&<>"']/g,
-        (c) =>
-          ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;",
-          })[c],
-      );
-
-      const linksSeguros = links.map((link, index) => {
-        const linkSeguro = link.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-
-        return {
-          text: `Arquivo ${index + 1}: ${link}`,
-          html: `<a href="${linkSeguro}" style="display:inline-block;margin:4px;padding:12px 20px;background:#4F46E5;color:#fff;text-decoration:none;border-radius:6px;">Acessar arquivo ${index + 1}</a>`,
-        };
-      });
-
-      await this.dispararEmailcomLivroDigital({
-        from: `"Tropa Livresca" <${process.env.SMTP_USER}>`,
-        to: usuarioEmail,
-        subject: `Seu livro digital: ${titulo}`,
-        text: [
-          "Olá!",
-          "Este é o acesso ao livro digital adquirido na Tropa Livresca.",
-          `Livro: ${titulo}`,
-          ...linksSeguros.map((arquivo) => arquivo.text),
-        ].join("\n\n"),
-        html: `<div style="font-family: Arial, sans-serif; padding: 24px; color: #333;"><h2>Seu livro digital está disponível!</h2><p>Olá! Obrigado por comprar na Tropa Livresca.</p><p>Você adquiriu a versão digital de <strong>${tituloSeguro}</strong>.</p><p>Utilize os botões abaixo para acessar os arquivos:</p>${linksSeguros.map((arquivo) => arquivo.html).join("")}<p style="margin-top:20px;font-size:13px;color:#666;">Guarde este e-mail para consultar o acesso novamente.</p></div>`,
-      });
-
-      quantidadeEnviada++;
     }
 
-    return { sucesso: true, quantidadeEnviada };
+    return {
+      sucesso: falhas.length === 0,
+      quantidadeEnviada,
+      quantidadeFalhas: falhas.length,
+      falhas,
+    };
   }
 
   static async reenviarEmailLivrosDigitais(vendaId, usuarioId, usuarioEmail) {
     const pb = await criarClienteModel();
+
     let venda;
 
     try {
@@ -494,14 +710,16 @@ export class LojaModel {
       const error = new Error(
         "Você não tem permissão para reenviar os livros deste pedido.",
       );
+
       error.statusCode = 403;
       throw error;
     }
 
-    if (venda.status_pagamento !== "pago") {
+    if (venda.status_pagamento !== "Pago") {
       const error = new Error(
-        "O e-mail só pode ser reenviado para pedidos pagos.",
+        "O e-mail só pode ser reenviado para pedidos Pagos.",
       );
+
       error.statusCode = 400;
       throw error;
     }
@@ -512,32 +730,152 @@ export class LojaModel {
     );
 
     return {
-      mensagem: `E-mail reenviado com sucesso! ${resultado.quantidadeEnviada} livro(s) digital(is) enviado(s).`,
+      mensagem: resultado.sucesso
+        ? "Todos os livros digitais foram enviados."
+        : "O envio foi realizado parcialmente ou não foi possível enviar os e-mails.",
+
+      emailEnviado: resultado.sucesso,
       quantidadeEnviada: resultado.quantidadeEnviada,
+      quantidadeFalhas: resultado.quantidadeFalhas,
+      falhas: resultado.falhas,
     };
   }
 
-  static async buscarHistoricoVendasUsuario(usuarioId) {
+  static async buscarHistoricoVendasUsuario({
+    usuarioId,
+    page = 1,
+    limit = 12,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  } = {}) {
     const pb = await criarClienteModel();
 
     try {
       const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
-        filter: pb.filter(`${RELACAO_PERFIL} = {:usuarioId}`, { usuarioId }),
+        filter: pb.filter(`${RELACAO_PERFIL} = {:usuarioId}`, {
+          usuarioId,
+        }),
         sort: "-data",
       });
 
-      const data = await Promise.all(
-        vendas.map(async (venda) => ({
-          ...venda,
-          itens_venda: (
-            await buscarItensVenda(pb, [venda.id], {
-              expandLivros: true,
-            })
-          ).map((item) => mapearItemVenda(pb, item)),
-        })),
+      if (!vendas.length) {
+        return {
+          data: [],
+          count: 0,
+          meta: {
+            totalItems: 0,
+            page: 1,
+            limit,
+            totalPages: 0,
+          },
+        };
+      }
+
+      const itens = await buscarItensVenda(
+        pb,
+        vendas.map((venda) => venda.id),
+        { expandLivros: true },
       );
 
-      return { data, count: data.length };
+      const itensPorVenda = new Map();
+
+      for (const item of itens) {
+        const vendaId = item[RELACAO_VENDA];
+
+        if (!itensPorVenda.has(vendaId)) {
+          itensPorVenda.set(vendaId, []);
+        }
+
+        itensPorVenda.get(vendaId).push(mapearItemVenda(pb, item));
+      }
+
+      const termo = String(busca).trim().toLowerCase();
+
+      let resultado = vendas.map((venda) => ({
+        ...venda,
+        itens_venda: itensPorVenda.get(venda.id) ?? [],
+      }));
+
+      if (termo) {
+        resultado = resultado.filter((venda) => {
+          const encontrouId = venda.id.toLowerCase().includes(termo);
+
+          const encontrouLivro = venda.itens_venda.some((item) =>
+            String(item.livros?.titulo || "")
+              .toLowerCase()
+              .includes(termo),
+          );
+
+          return encontrouId || encontrouLivro;
+        });
+      }
+
+      if (statusPagamento) {
+        resultado = resultado.filter(
+          (venda) => venda.status_pagamento === statusPagamento,
+        );
+      }
+
+      if (statusEntrega) {
+        resultado = resultado.filter(
+          (venda) => venda.status_entrega === statusEntrega,
+        );
+      }
+
+      if (dataInicio) {
+        const inicio = new Date(`${dataInicio}T00:00:00`).getTime();
+
+        resultado = resultado.filter(
+          (venda) => new Date(venda.data).getTime() >= inicio,
+        );
+      }
+
+      if (dataFim) {
+        const fim = new Date(`${dataFim}T23:59:59.999`).getTime();
+
+        resultado = resultado.filter(
+          (venda) => new Date(venda.data).getTime() <= fim,
+        );
+      }
+
+      resultado.sort((a, b) => {
+        switch (ordem) {
+          case "antigos":
+            return new Date(a.data) - new Date(b.data);
+
+          case "maior_valor":
+            return Number(b.total || 0) - Number(a.total || 0);
+
+          case "menor_valor":
+            return Number(a.total || 0) - Number(b.total || 0);
+
+          case "recentes":
+          default:
+            return new Date(b.data) - new Date(a.data);
+        }
+      });
+
+      const pagina = Math.max(1, Number(page) || 1);
+      const limite = Math.max(1, Number(limit) || 12);
+
+      const count = resultado.length;
+      const totalPages = Math.ceil(count / limite);
+      const inicio = (pagina - 1) * limite;
+
+      return {
+        data: resultado.slice(inicio, inicio + limite),
+        count,
+        meta: {
+          totalItems: count,
+          page: pagina,
+          limit: limite,
+          totalPages,
+        },
+      };
     } catch (error) {
       marcarErro(error);
     }
@@ -559,7 +897,7 @@ export class LojaModel {
       const vendas = await buscarVendasPorId(
         pb,
         vendaIds,
-        "status_pagamento = 'pago'",
+        "status_pagamento = 'Pago'",
       );
 
       const pagas = new Set(vendas.map((venda) => venda.id));
@@ -568,7 +906,7 @@ export class LojaModel {
         .filter((item) => pagas.has(item[RELACAO_VENDA]))
         .map((item) => ({
           id: item.id,
-          vendas: { status_pagamento: "pago" },
+          vendas: { status_pagamento: "Pago" },
         }));
 
       return { data, count: data.length };
@@ -599,7 +937,7 @@ export class LojaModel {
       const vendas = await buscarVendasPorId(
         pb,
         [...new Set(itens.map((item) => item[RELACAO_VENDA]))],
-        "status_pagamento = 'pago'",
+        "status_pagamento = 'Pago'",
       );
 
       const vendaMap = new Map(vendas.map((venda) => [venda.id, venda]));
@@ -632,126 +970,157 @@ export class LojaModel {
   static async calcularFretePrazo(userId, produtos) {
     const pb = await criarClienteModel();
 
-    const enderecos = await pb.collection("enderecos").getFullList({
-      filter: pb.filter("fk_user_profile_id = {:userId} && principal = true", {
-        userId,
-      }),
-    });
-
-    const data = enderecos[0];
-
-    if (!data) {
-      const error = new Error("CEP não encontrada.");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const cepLimpo = data.cep.replace(/\D/g, "");
-
-    if (cepLimpo.length !== 8) {
-      const error = new Error(
-        "CEP de destino inválido. O CEP deve conter 8 dígitos.",
+    try {
+      const produtosFisicos = produtos.filter(
+        (produto) => produto.tipo === "Físico",
       );
-      error.statusCode = 400;
-      throw error;
-    }
 
-    let pesoTotalKg = 0;
-    let possuiProdutoFisico = false;
-
-    produtos.forEach((produto) => {
-      if (produto.tipo?.toLowerCase() === "fisico") {
-        possuiProdutoFisico = true;
-        pesoTotalKg += (produto.quantidade || 1) * 0.4;
+      if (!produtosFisicos.length) {
+        return [
+          {
+            transportadora: "Plataforma",
+            modalidade: "Download Digital",
+            preco: 0,
+            prazo_dias: 0,
+            descricao: "Envio imediato por e-mail após aprovação do pagamento.",
+          },
+        ];
       }
-    });
 
-    if (!possuiProdutoFisico) {
+      const enderecos = await pb.collection("enderecos").getFullList({
+        filter: pb.filter(
+          "fk_user_profile_id = {:userId} && principal = true && ativo = true",
+          { userId },
+        ),
+      });
+
+      const endereco = enderecos[0];
+
+      if (!endereco) {
+        const error = new Error("Endereço principal não encontrado.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const cepLimpo = String(endereco.cep || "").replace(/\D/g, "");
+
+      if (cepLimpo.length !== 8) {
+        const error = new Error(
+          "CEP de destino inválido. O CEP deve conter 8 dígitos.",
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const pesoTotalKg = produtosFisicos.reduce(
+        (total, produto) => total + Number(produto.quantidade || 1) * 0.4,
+        0,
+      );
+
+      const regiao = Number.parseInt(cepLimpo.charAt(0), 10);
+
+      const tarifas = {
+        0: [12.9, 18.5, 1],
+        1: [12.9, 18.5, 1],
+        2: [16.2, 24.9, 2],
+        3: [15.5, 23, 2],
+        4: [26, 42, 4],
+        5: [32, 58, 5],
+        6: [32, 58, 5],
+        7: [26, 42, 4],
+        8: [18, 29, 3],
+        9: [18, 29, 3],
+      };
+
+      const [pac, sedex, multiplicador] = tarifas[regiao] || [20, 35, 3];
+
+      const taxaPeso = pesoTotalKg * 3.5;
+
       return [
         {
-          transportadora: "Plataforma",
-          modalidade: "Download Digital",
-          preco: 0,
-          prazo_dias: 0,
-          descricao: "Envio imediato por e-mail após aprovação do pagamento.",
+          transportadora: "Correios",
+          modalidade: "PAC",
+          preco: Math.round((pac + taxaPeso) * 100) / 100,
+          prazo_dias: 3 + multiplicador * 2,
+        },
+        {
+          transportadora: "Correios",
+          modalidade: "SEDEX",
+          preco: Math.round((sedex + taxaPeso) * 100) / 100,
+          prazo_dias: 1 + multiplicador,
         },
       ];
+    } catch (error) {
+      if (error.statusCode) throw error;
+      marcarErro(error);
     }
-
-    const regiao = parseInt(cepLimpo.charAt(0), 10);
-
-    const tarifas = {
-      0: [12.9, 18.5, 1],
-      1: [12.9, 18.5, 1],
-      2: [16.2, 24.9, 2],
-      3: [15.5, 23, 2],
-      4: [26, 42, 4],
-      5: [32, 58, 5],
-      6: [32, 58, 5],
-      7: [26, 42, 4],
-      8: [18, 29, 3],
-      9: [18, 29, 3],
-    };
-
-    const [pac, sedex, multiplicador] = tarifas[regiao] || [20, 35, 3];
-    const taxaPeso = pesoTotalKg * 3.5;
-
-    return [
-      {
-        transportadora: "Correios",
-        modalidade: "PAC",
-        preco: Math.round((pac + taxaPeso) * 100) / 100,
-        prazo_dias: 3 + multiplicador * 2,
-      },
-      {
-        transportadora: "Correios",
-        modalidade: "SEDEX",
-        preco: Math.round((sedex + taxaPeso) * 100) / 100,
-        prazo_dias: 1 + multiplicador,
-      },
-    ];
   }
 
   static async dispararEmailcomLivroDigital(dadosMail) {
-    const porta = Number(process.env.SMTP_PORT || 465);
+    const porta = Number.parseInt(process.env.SMTP_PORT || "465", 10);
 
     if (
       !process.env.SMTP_HOST ||
       !process.env.SMTP_USER ||
       !process.env.SMTP_PASS
     ) {
-      const error = new Error("Configuração SMTP incompleta no backend.");
-      error.statusCode = 500;
-      throw error;
+      return {
+        enviado: false,
+        motivo: "SMTP_NAO_CONFIGURADO",
+      };
     }
 
+    let transporte;
+
     try {
-      const transporter = nodemailer.createTransport({
+      const tempoMinimo = Math.max(
+        0,
+        Number.parseInt(process.env.SMTP_MIN_DELAY_MS || "5000", 10) || 0,
+      );
+
+      if (tempoMinimo > 0) {
+        await new Promise((resolve) => setTimeout(resolve, tempoMinimo));
+      }
+
+      transporte = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: porta,
         secure: porta === 465,
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
         family: 4,
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       });
 
-      return await transporter.sendMail({
+      const resultado = await transporte.sendMail({
         ...dadosMail,
         from: `"Tropa Livresca" <${process.env.SMTP_USER}>`,
       });
+
+      return {
+        enviado: true,
+        messageId: resultado.messageId,
+      };
     } catch (error) {
-      console.error("[LojaModel] Falha no envio SMTP:", {
+      console.error("[LojaModel:dispararEmailcomLivroDigital]", {
         message: error?.message,
         code: error?.code,
         command: error?.command,
         responseCode: error?.responseCode,
-        response: error?.response,
       });
 
-      error.statusCode = 500;
-      throw error;
+      return {
+        enviado: false,
+        motivo: "FALHA_ENVIO",
+      };
+    } finally {
+      transporte?.close();
     }
   }
-
   static async buscarBibliotecaPessoal({
     userId,
     page = 1,
@@ -768,7 +1137,7 @@ export class LojaModel {
     try {
       const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
         filter: pb.filter(
-          `${RELACAO_PERFIL} = {:userId} && status_pagamento = 'pago'`,
+          `${RELACAO_PERFIL} = {:userId} && status_pagamento = 'Pago'`,
           { userId },
         ),
       });
@@ -872,7 +1241,7 @@ export class LojaModel {
     try {
       const vendas = await pb.collection(COLECAO_VENDAS).getFullList({
         filter: pb.filter(
-          "data >= {:inicio} && data < {:fim} && status_pagamento = 'pago'",
+          "data >= {:inicio} && data < {:fim} && status_pagamento = 'Pago'",
           { inicio, fim },
         ),
       });

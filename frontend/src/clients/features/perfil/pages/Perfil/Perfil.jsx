@@ -30,6 +30,8 @@ export default function Perfil() {
     previewUrl,
     carregando,
     editando,
+    sobrenome,
+    setSobrenome,
     setNome,
     setTelefone,
     setDescricao,
@@ -41,11 +43,7 @@ export default function Perfil() {
     updatePerfil,
   } = usePerfil();
 
-  const {
-    dadosBancarios,
-    buscarDadosBancarios,
-    erro: erroDadosBancarios,
-  } = useDadosBancarios();
+  const { dadosBancarios, buscarDadosBancarios } = useDadosBancarios();
   const { endereco, BuscarEnderecoPrincipal } = useEndereco();
 
   useEffect(() => {
@@ -105,7 +103,10 @@ export default function Perfil() {
               )}
             </div>
 
-            <h2>{nome || "Seu Nome"}</h2>
+            <h2>
+              {nome || "Seu Nome"}
+              {sobrenome}
+            </h2>
 
             <div className={styles.linha}></div>
 
@@ -171,6 +172,17 @@ export default function Perfil() {
                 </div>
 
                 <div>
+                  <label>Sobrenome</label>
+                  <Input
+                    placeholder="Inserir sobrenome"
+                    value={sobrenome}
+                    disabled={!editando}
+                    className={styles.inputmodificado}
+                    handleOnChange={(e) => setSobrenome(e.target.value)}
+                  />
+                </div>
+
+                <div>
                   <label>Telefone</label>
                   <Input
                     placeholder="Inserir telefone"
@@ -185,7 +197,7 @@ export default function Perfil() {
                 </div>
 
                 <div>
-                  <label>E-mail</label>
+                  <label>E-mail para contato</label>
                   <Input
                     placeholder=" Inserir e-mail"
                     type="email"
@@ -218,7 +230,7 @@ export default function Perfil() {
                 Adicione apenas o nome de usuário.
               </p>
 
-              <div className={styles.inputs}>
+              <div className={styles.inputs2}>
                 <div>
                   <label>Instagram</label>
                   <Input
@@ -315,9 +327,6 @@ export default function Perfil() {
               <p className={styles.subtitulo}>
                 Informações da sua conta bancária.
               </p>
-              {erroDadosBancarios && (
-                <p role="alert">{erroDadosBancarios}</p>
-              )}
 
               {dadosBancarios ? (
                 <div
@@ -377,7 +386,7 @@ export default function Perfil() {
             <section>
               <h3>Foto de perfil</h3>
 
-              <p className={styles.subtitulo}>PNG ou JPG, até 5MB.</p>
+              <p className={styles.subtitulo}>JPG ou JPEG, até 5MB.</p>
 
               <div className={styles.containerFotoBotoes}>
                 <label
@@ -397,7 +406,7 @@ export default function Perfil() {
                     name="imagem"
                     hidden
                     disabled={!editando}
-                    accept="image/*"
+                    accept="image/jpg, image/jpeg"
                     onChange={handleFileChange}
                   />
                 </label>

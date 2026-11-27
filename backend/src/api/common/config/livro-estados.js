@@ -1,9 +1,9 @@
 export const LIVRO_ESTADO = Object.freeze({
-  RASCUNHO: "rascunho",
-  EM_REVISAO: "em_revisao",
-  PUBLICADO: "publicado",
-  NEGADO: "negado",
-  RECALL: "recall",
+  RASCUNHO: "Rascunho",
+  EM_REVISAO: "Em Revisão",
+  PUBLICADO: "Publicado",
+  NEGADO: "Negado",
+  RECALL: "Para Correção",
 });
 
 export const LIVRO_ESTADOS = Object.freeze(Object.values(LIVRO_ESTADO));

@@ -5,6 +5,7 @@
   max-width: 100%;
   margin: auto;
   padding: 5rem 6%;
+  box-sizing: border-box;
 }
 
 .header {
@@ -106,6 +107,7 @@
   background: #67170c;
   color: #ede6b3;
   border: 1px solid #67170c;
+  margin: 0;
 }
 
 .btnPrimary:hover,
@@ -165,12 +167,31 @@
   border-radius: 999px;
 }
 
+.dvd {
+  margin: 0;
+  color: #67170c;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+.dvd::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 2px;
+  margin-top: 0.7rem;
+  background: #d4b46a;
+  border-radius: 999px;
+  margin-bottom: 0.7rem;
+}
+
 .descricao {
-  margin: 0.5rem 0 0rem;
+  margin: 0;
   color: var(--cor-texto-muted);
   font-size: 0.95rem;
   line-height: 1.8;
-  text-align: left;
+  text-align: justify;
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
@@ -201,21 +222,40 @@
   line-height: 1.7;
 }
 
+.vazio2 {
+  margin: 0;
+  color: var(--cor-texto-muted);
+  font-size: 0.9rem;
+  text-align: left !important;
+  line-height: 1.7;
+}
+
 .btnlivro {
   color: #67170c;
   font-weight: 600;
-  text-decoration: underline;
-  text-decoration-color: #d4b46a;
   text-underline-offset: 3px;
 }
 
 .btnlivro:hover {
-  color: #a43a22;
+  transition: 0.1s;
+  color: #ffbb33;
+  text-decoration: underline;
 }
 
 .precosGrid {
   display: flex;
   flex-direction: column;
+}
+
+.vaziodisplay {
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.click {
+  margin: 0;
 }
 
 .precoItem {
@@ -329,12 +369,23 @@
 .capaBox img {
   display: block;
   width: 100%;
-  max-width: 13rem;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 2.2 / 3;
   object-fit: cover;
   border: 1px solid #e3d5ad;
   border-radius: 0.75rem;
   box-shadow: 0 4px 12px rgba(103, 23, 12, 0.08);
+}
+
+.revisaoInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.btnRevisao {
+  width: fit-content;
 }
 
 .loading,

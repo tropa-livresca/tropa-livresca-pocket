@@ -38,9 +38,10 @@ const ORDENACOES = [
 const FILTROS_ESTADO = [
   ["", "Todos"],
   [LIVRO_ESTADO.RASCUNHO, "Rascunhos"],
-  [LIVRO_ESTADO.EM_REVISAO, "Em revisão"],
+  [LIVRO_ESTADO.EM_REVISAO, "Em Revisão"],
   [LIVRO_ESTADO.PUBLICADO, "Publicados"],
   [LIVRO_ESTADO.NEGADO, "Negados"],
+  [LIVRO_ESTADO.RECALL, "Para Correção"],
 ];
 
 export default function MeusLivros() {
@@ -242,6 +243,15 @@ export default function MeusLivros() {
                     Visualizar
                   </Link>
 
+                  {livro.revisoes.id && (
+                    <Link
+                      to={`/visualizar-revisao/${livro.revisao.id}`}
+                      className={`${styles.btnAcao} ${styles.btnVisualizar}`}
+                    >
+                      Visualizar Revisão
+                    </Link>
+                  )}
+
                   {ESTADOS_EDITAVEIS.includes(livro.estado) && (
                     <>
                       <Link
@@ -265,6 +275,10 @@ export default function MeusLivros() {
 
                   {livro.estado === LIVRO_ESTADO.PUBLICADO && (
                     <span className={styles.textoPublicado}>Publicado</span>
+                  )}
+
+                  {livro.estado === LIVRO_ESTADO.NEGADO && (
+                    <span className={styles.textoNegado}>Negado</span>
                   )}
 
                   {livro.estado === LIVRO_ESTADO.RASCUNHO && (

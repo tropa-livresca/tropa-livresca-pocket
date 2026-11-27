@@ -10,6 +10,12 @@ router.get("/", checkAuth, AutopublicacaoController.buscarComFiltros);
 
 router.get("/:id", checkAuth, AutopublicacaoController.buscarLivroById);
 
+router.get(
+  "/revisao/:id",
+  checkAuth,
+  AutopublicacaoController.buscarRevisaoById,
+);
+
 router.post("/", checkAuth, uploadLivro, AutopublicacaoController.criarLivro);
 
 router.patch(

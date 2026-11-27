@@ -9,7 +9,7 @@ import Paginacao from "../../../../../common/components/Paginacao/Paginacao";
 import Carregando from "../../../../components/Carregando/Carregando";
 
 export default function Autores() {
-  const { autores, carregando, erro, buscarAutores, meta } = useAutores();
+  const { autores, carregando, buscarAutores, meta } = useAutores();
   const [busca, setBusca] = useState("");
   const [paginaAtual, setPaginaAtual] = useState(1);
 
@@ -22,8 +22,6 @@ export default function Autores() {
     setPaginaAtual(1);
     buscarAutores(1, 12, busca);
   };
-
-  if (erro) return <p>{erro}</p>;
 
   return (
     <div>
@@ -55,7 +53,7 @@ export default function Autores() {
             {carregando ? (
               <Carregando mensagem="Carregando autores..." />
             ) : !autores || autores.length === 0 ? (
-              <p>Nenhum autor encontrado</p>
+              <p className={styles.semLivros}>Nenhum autor encontrado</p>
             ) : (
               autores.map((autor) => {
                 return (

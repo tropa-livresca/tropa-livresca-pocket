@@ -28,7 +28,7 @@ const carregarPdfJs = () => {
 const TAMANHO_MAXIMO_CAPA = 10 * 1024 * 1024;
 const TAMANHO_MAXIMO_MANUSCRITO = 50 * 1024 * 1024;
 
-const FORMATOS_CAPA = ["image/jpeg", "image/png"];
+const FORMATOS_CAPA = ["image/jpeg"];
 
 const LARGURA_MINIMA_A5_PX = 0;
 const ALTURA_MINIMA_A5_PX = 0;
@@ -37,7 +37,7 @@ const formatarMB = (bytes) => `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 
 const validarCapa = (arquivo) => {
   if (!FORMATOS_CAPA.includes(arquivo.type)) {
-    return "Formato inválido. Envie uma imagem JPG, JPEG ou PNG.";
+    return "Formato inválido. Envie uma imagem JPG ou JPEG.";
   }
 
   if (arquivo.size <= 0) {
@@ -274,7 +274,7 @@ export default function Conteudo({
             <span>
               Subir arquivo do livro{" "}
               <span className={styles.clique}>
-                Aceitamos apenas arquivos .pdf (máximo 50 MB)
+                Aceitamos apenas arquivos .pdf (máximo <oi className={styles.numero}>50</oi> MB)
               </span>
             </span>
 
@@ -322,25 +322,25 @@ export default function Conteudo({
               <li>
                 Formato final do livro:{" "}
                 <span className={styles.numero}>14,8</span> ×{" "}
-                <span className={styles.numero}>21</span> cm (A5).
+                <span className={styles.numero}>21</span> cm <span className={styles.numero}>(A5)</span>.
               </li>
 
               <li>
                 Frente e verso: recomendamos no mínimo{" "}
                 <span className={styles.numero}>1748</span> ×{" "}
-                <span className={styles.numero}>2480</span> px, equivalente a
-                300 DPI, sem sangria.
+                <span className={styles.numero}>2480</span> px, equivalente a 
+                <span className={styles.numero}> 300</span> DPI, sem sangria.
               </li>
 
-              <li>Formatos aceitos: JPG, JPEG e PNG.</li>
+              <li>Formatos aceitos: JPG e JPEG.</li>
 
-              <li>Tamanho máximo: 10 MB por imagem.</li>
+              <li>Tamanho máximo: <span className={styles.numero}>10</span> MB por imagem.</li>
 
               <li>As dimensões reais serão exibidas após o carregamento.</li>
             </ul>
 
             <p>
-              A medida de 14,8 × 21 cm corresponde ao tamanho final após o
+              A medida de <span className={styles.numero}>14,8</span> × <span className={styles.numero}>21</span> cm corresponde ao tamanho final após o
               corte. A gráfica pode exigir sangria adicional; confirme essa
               especificação antes de preparar os arquivos finais.
             </p>
@@ -352,15 +352,13 @@ export default function Conteudo({
 
               <span>
                 Frente da capa{" "}
-                <span className={styles.clique}>
-                  Aceitamos arquivos .jpg e .png
-                </span>
+                <span className={styles.clique}>Aceitamos arquivos .jpg</span>
               </span>
 
               <input
                 type="file"
                 hidden
-                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                accept=".jpg,.jpeg,image/jpeg"
                 onChange={(e) => atualizarCapa("frente", e)}
               />
             </label>
@@ -384,15 +382,13 @@ export default function Conteudo({
 
               <span>
                 Verso da capa{" "}
-                <span className={styles.clique}>
-                  Aceitamos arquivos .jpg e .png
-                </span>
+                <span className={styles.clique}>Aceitamos arquivos .jpg</span>
               </span>
 
               <input
                 type="file"
                 hidden
-                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                accept=".jpg,.jpeg,image/jpeg"
                 onChange={(e) => atualizarCapa("verso", e)}
               />
             </label>

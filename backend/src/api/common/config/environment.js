@@ -1,4 +1,3 @@
-
 const FRONTEND_PORT = 5173;
 const BACKEND_PORT = 3000;
 const POCKETBASE_PORT = 8090;
@@ -42,14 +41,11 @@ const AUTH_REDIRECT_URL = `${FRONTEND_URL}/auth/callback`;
 
 const RESET_PASSWORD_URL = `${FRONTEND_URL}/auth/callback`;
 
-const RESET_PASSWORD_CALLBACK_URL =
-  `${BACKEND_URL}/api/v1/auth/callback-redefinir-senha`;
+const RESET_PASSWORD_CALLBACK_URL = `${BACKEND_URL}/api/v1/auth/callback-redefinir-senha`;
 
-const EMAIL_CONFIRMATION_URL =
-  `${FRONTEND_URL}/confirmacao-email`;
+const EMAIL_CONFIRMATION_URL = `${FRONTEND_URL}/confirmacao-email`;
 
-const REDIRECT_ADMIN_URL =
-  `${FRONTEND_URL}/admin/configuracoes/novasenha`;
+const REDIRECT_ADMIN_URL = `${FRONTEND_URL}/admin/configuracoes/novasenha`;
 
 export {
   FRONTEND_URL,

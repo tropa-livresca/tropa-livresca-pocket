@@ -25,17 +25,23 @@ const generos = [
 ];
 
 const idiomas = [
-  { valor: "português", rotulo: "Português" },
-  { valor: "inglês", rotulo: "Inglês" },
-  { valor: "espanhol", rotulo: "Espanhol" },
+  { valor: "Português", rotulo: "Português" },
+  { valor: "Inglês", rotulo: "Inglês" },
+  { valor: "Espanhol", rotulo: "Espanhol" },
 ];
 
 const formatarData = (data) =>
   data ? new Date(data).toLocaleDateString("pt-BR") : "";
 
 export default function BibliotecaPessoal() {
-  const { livros, meta, buscarMeusLivros, carregando, erro } =
-    useBibliotecaPessoal();
+  const {
+    livros,
+    meta,
+    buscarMeusLivros,
+    baixarLivroDigital,
+    carregando,
+    erro,
+  } = useBibliotecaPessoal();
   const { reenviarEmailLivrosDigitais, carregando: reenviando } = useCompra();
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [filtro, setFiltro] = useState("");
@@ -126,7 +132,9 @@ export default function BibliotecaPessoal() {
         <div className={styles.containerLivros}>
           <aside className={styles.filtros}>
             <section>
-              <h2>Gênero</h2>
+              <div className={styles.oi2}>
+                <h1>Gênero</h1>
+              </div>
               <ul>
                 <li
                   className={categoria === "" ? styles.filtroAtivo : ""}
@@ -147,7 +155,9 @@ export default function BibliotecaPessoal() {
             </section>
 
             <section className={styles.filtroIdioma}>
-              <h2>Idioma</h2>
+              <div className={styles.oi2}>
+                <h1>Idioma</h1>
+              </div>
               <ul>
                 <li
                   className={idioma === "" ? styles.filtroAtivo : ""}
@@ -268,7 +278,8 @@ export default function BibliotecaPessoal() {
             ) : (
               livros.map((livro) => {
                 const capa =
-                  livro.capa?.frente || null;
+                  livro.capa?.frente ||
+                  (typeof livro.capa === "string" ? livro.capa : null);
                 const autor = livro.users_profile
                   ? `${livro.users_profile.nome} ${livro.users_profile.sobrenome || ""}`.trim()
                   : "Autor desconhecido";
@@ -301,7 +312,10 @@ export default function BibliotecaPessoal() {
                       </Link>
                       <p className={styles.autor}>{autor}</p>
                       <small>
-                        Comprado em {formatarData(livro.dataCompra)}
+                        Comprado em{" "}
+                        <span className={styles.numero}>
+                          {formatarData(livro.dataCompra)}
+                        </span>
                       </small>
                       <button
                         type="button"
@@ -310,6 +324,15 @@ export default function BibliotecaPessoal() {
                         disabled={reenviando}
                       >
                         {reenviando ? "Reenviando..." : "Reenviar e-mail"}
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.btnlivro}
+                        onClick={() => baixarLivroDigital(livro.id)}
+                        disabled={carregando}
+                      >
+                        {carregando ? "Baixando..." : "Baixar livro"}
                       </button>
                     </div>
                   </article>

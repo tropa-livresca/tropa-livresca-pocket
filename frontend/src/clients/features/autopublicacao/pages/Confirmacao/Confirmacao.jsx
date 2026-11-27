@@ -7,10 +7,8 @@ import { LIVRO_ESTADO } from "../../../../../common/config/livroEstados";
 function criarUrlPreview(arquivo, urlsTemporarias) {
   if (!arquivo) return "";
 
-  // Arquivos já enviados ao PocketBase.
   if (typeof arquivo === "string") return arquivo;
 
-  // Arquivos selecionados no navegador.
   if (arquivo instanceof Blob) {
     const url = URL.createObjectURL(arquivo);
     urlsTemporarias.push(url);
@@ -18,21 +16,6 @@ function criarUrlPreview(arquivo, urlsTemporarias) {
   }
 
   return "";
-}
-
-function mapearIdioma(idioma) {
-  if (!idioma) return "Não informado";
-
-  const dicionario = {
-    ingles: "Inglês",
-    portugues: "Português",
-    espanhol: "Espanhol",
-  };
-
-  return (
-    dicionario[idioma.toLowerCase()] ||
-    idioma.charAt(0).toUpperCase() + idioma.slice(1)
-  );
 }
 
 function exibirValor(valor) {
@@ -67,7 +50,6 @@ export default function Confirmacao({
   const capaFrente = capa.frente;
   const capaVerso = capa.verso;
 
-  // Gera URLs temporárias para arquivos locais e preserva URLs do PocketBase.
   useEffect(() => {
     const urlsTemporarias = [];
 
@@ -120,7 +102,6 @@ export default function Confirmacao({
 
   return (
     <main>
-      {/* Detalhes do livro */}
       <div className={styles.form}>
         <div className={styles.tituloContainer}>
           <h1 className={styles.titulo}>Confirmação</h1>
@@ -181,9 +162,7 @@ export default function Confirmacao({
             <div className={styles.containergrid}>
               <div>
                 <label>Idioma:</label>
-                <div className={styles.liinput}>
-                  {mapearIdioma(detalhes.idioma)}
-                </div>
+                <div className={styles.liinput}>{detalhes.idioma}</div>
               </div>
 
               <div>
@@ -233,10 +212,9 @@ export default function Confirmacao({
         </div>
       </div>
 
-      {/* Manuscrito */}
       <div className={styles.containerManuscrito}>
         <div className={styles.form}>
-          <div className={styles.manuscritoHeader}>
+          <div className={styles.tituloContainer}>
             <div>
               <h1 className={styles.titulo}>Manuscrito</h1>
 
@@ -245,17 +223,17 @@ export default function Confirmacao({
               </p>
             </div>
 
-            <div
-              className={`${styles.statusArquivo} ${
-                previews.manuscrito
-                  ? styles.statusCarregado
-                  : styles.statusNaoEnviado
-              }`}
+            <button
+              type="button"
+              onClick={() => irParaEtapaEspecifica(2)}
+              className={styles.btnEditarDescricao}
+              title="Editar manuscrito"
+              aria-label="Editar manuscrito"
+              disabled={salvando}
             >
-              <span className={styles.statusPonto}></span>
-
-              {previews.manuscrito ? "Arquivo carregado" : "Não enviado"}
-            </div>
+              <FaPen />
+              <span>Editar</span>
+            </button>
           </div>
 
           {previews.manuscrito ? (
@@ -284,7 +262,6 @@ export default function Confirmacao({
         </div>
       </div>
 
-      {/* Capas */}
       <div className={styles.form}>
         <div className={styles.tituloContainer}>
           <h1 className={styles.titulo}>Imagens da Capa</h1>
@@ -328,7 +305,6 @@ export default function Confirmacao({
         </div>
       </div>
 
-      {/* Orçamento */}
       <div className={`${styles.form} ${styles.formOrcamento}`}>
         <div className={styles.tituloContainer}>
           <h1 className={styles.titulo}>Orçamento</h1>

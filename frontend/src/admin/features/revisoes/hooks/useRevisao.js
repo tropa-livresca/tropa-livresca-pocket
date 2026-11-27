@@ -1,10 +1,8 @@
 import { useCallback, useState } from "react";
 import { apiFetch } from "../../../../common/services/api.js";
 import { LIVRO_ESTADO } from "../../../../common/config/livroEstados.js";
+import {useNavigate} from "react-router-dom";
 
-/**
- * Lê a resposta da API e apresenta mensagens de erro consistentes.
- */
 async function lerResposta(response, mensagemErro) {
   let resultado = null;
 
@@ -13,7 +11,6 @@ async function lerResposta(response, mensagemErro) {
   } catch {
     // Algumas respostas podem não conter JSON.
   }
-
   if (!response.ok) {
     const mensagem =
       resultado?.message ||
@@ -28,9 +25,6 @@ async function lerResposta(response, mensagemErro) {
   return resultado;
 }
 
-/**
- * Aceita tanto respostas diretas quanto respostas envelopadas em "data".
- */
 function extrairDados(resultado) {
   return resultado?.data ?? resultado;
 }
@@ -48,6 +42,8 @@ export const useRevisao = () => {
   const [apontamento, setApontamento] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   const validarCamposTexto = useCallback(() => {
     return (
@@ -271,17 +267,23 @@ export const useRevisao = () => {
   }, []);
 
   const alterarEstadoLivro = useCallback(async (idLivro, novoEstado) => {
-    const response = await apiFetch(
-      `/api/v1/admin/revisao/estado-${novoEstado}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idLivro, novoEstado }),
-      },
-    );
+    const ROTAS_ESTADO = {
+      [LIVRO_ESTADO.PUBLICADO]: "publicado",
+      [LIVRO_ESTADO.NEGADO]: "negado",
+      [LIVRO_ESTADO.RECALL]: "recall",
+    };
 
+    const rota = ROTAS_ESTADO[novoEstado];
+
+    if (!rota) {
+      throw new Error("Estado de revisão inválido.");
+    }
+
+    const response = await apiFetch(`/api/v1/admin/revisao/estado-${rota}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idLivro, novoEstado }),
+    });
     return lerResposta(
       response,
       "A revisão foi salva, mas não foi possível atualizar o estado do livro",
@@ -338,6 +340,7 @@ export const useRevisao = () => {
           return resultadoEstado;
         }
 
+        navigate("/livros/revisoes");
         return revisao;
       } catch (err) {
         const mensagem = revisaoSalva
@@ -415,6 +418,7 @@ export const useRevisao = () => {
           return resultadoEstado;
         }
 
+        navigate("/livros/revisoes");
         return revisao;
       } catch (err) {
         const mensagem = revisaoSalva

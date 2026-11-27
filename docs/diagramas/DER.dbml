@@ -1,14 +1,10 @@
-
-Project TropaLivresca {
-  database_type: 'SQLite'
-  Note: 'Modelo baseado nas collections funcionais do schema exportado do PocketBase.'
-}
+// Tropa Livresca — Banco de Dados
+// Campos sem [not null] aceitam valores nulos.
+// IDs varchar(15) são gerados pelo PocketBase, não são autoincrementos numéricos.
 
 Table users_profile {
   id varchar(15) [pk, not null]
-  password text [not null]
-  tokenKey varchar(60) [not null, unique]
-  email varchar(255) [not null, unique]
+  email varchar [not null, unique]
   emailVisibility boolean
   verified boolean
   nome text
@@ -20,20 +16,51 @@ Table users_profile {
   primeiro_acesso boolean
   is_master boolean
   dados_bancarios json
-  imagem text [note: 'Arquivo de imagem armazenado pelo PocketBase']
+  imagem file
   telefone text
-  created datetime
-  updated datetime
+  created timestamp
+  updated timestamp
+}
 
-  Note: 'Collection de autenticação users_profile do PocketBase.'
+Table avaliacoes {
+  id varchar(15) [pk, not null]
+  data_criacao date [not null]
+  qtd_estrelas decimal
+  fk_livros_id varchar(15)
+  fk_user_profile_id varchar(15)
+}
+
+Table enderecos {
+  id varchar(15) [pk, not null]
+  estado text [not null]
+  bairro text [not null]
+  rua text [not null]
+  num decimal [not null]
+  cep text [not null]
+  cidade text [not null]
+  complemento text
+  pais text
+  ativo boolean
+  principal boolean
+  fk_user_profile_id varchar(15)
+}
+
+Table itens_venda {
+  id varchar(15) [pk, not null]
+  qtd decimal [not null]
+  subtotal decimal [not null]
+  fisico boolean
+  preco_unitario decimal [not null]
+  fk_livros_itens_id varchar(15) [not null]
+  fk_vendas_id varchar(15) [not null]
 }
 
 Table livros {
   id varchar(15) [pk, not null]
-  direitos_de_publicacao boolean [not null]
+  direitos_de_publicacao boolean
   data_de_publicacao date [not null]
-  preco_digital real [not null]
-  preco_fisico real [not null]
+  preco_digital decimal [not null]
+  preco_fisico decimal [not null]
   titulo text [not null]
   subtitulo text [not null]
   descricao text [not null]
@@ -43,79 +70,23 @@ Table livros {
   colaboradores json
   categoria text
   ISBN text
-  numero_paginas real
-  manuscrito text [note: 'Arquivo PDF armazenado pelo PocketBase']
-  capa_frente text [note: 'Arquivo de imagem armazenado pelo PocketBase']
-  capa_verso text [note: 'Arquivo de imagem armazenado pelo PocketBase']
+  numero_paginas decimal
+  manuscrito file
+  capa_frente file
+  capa_verso file
   fk_user_profile_id varchar(15)
-
-  Note: 'Cadastro de livros e informações de publicação.'
-}
-
-Table enderecos {
-  id varchar(15) [pk, not null]
-  estado text [not null]
-  bairro text [not null]
-  rua text [not null]
-  num real [not null]
-  cep text [not null]
-  cidade text [not null]
-  complemento text
-  pais text
-  ativo boolean
-  principal boolean
-  fk_user_profile_id varchar(15)
-
-  Note: 'Endereços cadastrados pelos usuários.'
-}
-
-Table avaliacoes {
-  id varchar(15) [pk, not null]
-  data_criacao date [not null]
-  qtd_estrelas real
-  fk_livros_id varchar(15)
-  fk_user_profile_id varchar(15)
-
-  Note: 'Avaliações associadas a livros e usuários.'
-}
-
-Table vendas {
-  id varchar(15) [pk, not null]
-  data date [not null]
-  total real [not null]
-  metodo_pagamento real [not null]
-  status_pagamento text [not null]
-  endereco_entrega json
-  status_entrega text [not null]
-  fk_user_profile_id varchar(15)
-
-  Note: 'Pedidos e informações gerais das vendas.'
-}
-
-Table itens_venda {
-  id varchar(15) [pk, not null]
-  qtd real [not null]
-  subtotal real [not null]
-  fisico boolean
-  preco_unitario real [not null]
-  fk_livros_itens_id varchar(15) [not null]
-  fk_vendas_id varchar(15) [not null]
-
-  Note: 'Livros e quantidades vinculados a cada venda.'
 }
 
 Table movimentacoes_financeiras {
   id varchar(15) [pk, not null]
   data date [not null]
   tipo text [not null]
-  valor real [not null]
+  valor decimal [not null]
   descricao text [not null]
   status text [not null]
   fk_vendas_id varchar(15)
   dados_bancarios json
   fk_user_profile_id varchar(15)
-
-  Note: 'Entradas, saídas e demais movimentações financeiras.'
 }
 
 Table revisoes {
@@ -125,25 +96,37 @@ Table revisoes {
   completado boolean
   fk_livro_id varchar(15) [not null]
   fk_user_profile_id varchar(15)
-  arquivo text [note: 'Arquivo PDF armazenado pelo PocketBase']
-  data_criacao datetime
-
-  Note: 'Registros de revisão dos livros.'
+  arquivo file
+  fk_autor_id varchar(15) [not null]
+  data_criacao timestamp
 }
 
-// Relacionamentos com usuários
-Ref: livros.fk_user_profile_id > users_profile.id
-Ref: enderecos.fk_user_profile_id > users_profile.id
-Ref: avaliacoes.fk_user_profile_id > users_profile.id
-Ref: vendas.fk_user_profile_id > users_profile.id
-Ref: movimentacoes_financeiras.fk_user_profile_id > users_profile.id
-Ref: revisoes.fk_user_profile_id > users_profile.id
+Table vendas {
+  id varchar(15) [pk, not null]
+  data date [not null]
+  total decimal [not null]
+  metodo_pagamento decimal [not null]
+  status_pagamento text [not null]
+  endereco_entrega json
+  status_entrega text [not null]
+  fk_user_profile_id varchar(15)
+}
 
-// Relacionamentos com livros
+// Relacionamentos
+
 Ref: avaliacoes.fk_livros_id > livros.id
-Ref: itens_venda.fk_livros_itens_id > livros.id
-Ref: revisoes.fk_livro_id > livros.id
+Ref: avaliacoes.fk_user_profile_id > users_profile.id
 
-// Relacionamentos com vendas
+Ref: enderecos.fk_user_profile_id > users_profile.id
+
+Ref: itens_venda.fk_livros_itens_id > livros.id
 Ref: itens_venda.fk_vendas_id > vendas.id
+
 Ref: movimentacoes_financeiras.fk_vendas_id > vendas.id
+Ref: movimentacoes_financeiras.fk_user_profile_id > users_profile.id
+
+Ref: revisoes.fk_livro_id > livros.id
+Ref: revisoes.fk_user_profile_id > users_profile.id
+Ref: revisoes.fk_autor_id > users_profile.id
+
+Ref: vendas.fk_user_profile_id > users_profile.id

@@ -160,4 +160,14 @@ export class AutopublicacaoController {
       next(err);
     }
   }
+
+  static async buscarRevisaoById(req, res, next) {
+    try {
+      const { id } = req.params;
+      const revisao = await AutopublicacaoService.BuscarRevisaoById(id);
+      return res.status(200).json(revisao);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

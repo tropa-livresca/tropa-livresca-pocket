@@ -48,6 +48,16 @@ export class LojaService {
     };
   }
 
+  static async baixarLivroDigital(livroId, usuarioId) {
+    if (!usuarioId) errorUsuarioId();
+
+    if (!livroId || typeof livroId !== "string") {
+      error(400, "Identificador do livro inválido.");
+    }
+
+    return LojaModel.baixarLivroDigital(livroId, usuarioId);
+  }
+
   static async buscarLivros({
     page = 1,
     limit = 12,
@@ -185,7 +195,7 @@ export class LojaService {
 
       const opcoesFrete = await LojaModel.calcularFretePrazo(
         usuarioId,
-        itensFisicos.map((item) => ({ tipo: "fisico", quantidade: item.qtd })),
+        itensFisicos.map((item) => ({ tipo: "Físico", quantidade: item.qtd })),
       );
       frete = Math.min(...opcoesFrete.map((opcao) => opcao.preco));
     }
@@ -199,7 +209,7 @@ export class LojaService {
       endereco_entrega: enderecoEntrega,
       total,
       data: new Date().toISOString(),
-      status_pagamento: "pendente",
+      status_pagamento: "Pendente",
       status_entrega: itensFisicos.length > 0 ? "Pendente" : "Não se aplica",
     };
 
@@ -251,10 +261,30 @@ export class LojaService {
     error(400, "Endereço de entrega inválido.");
   }
 
-  static async buscarHistoricoVendasUsuario(usuarioId) {
+  static async buscarHistoricoVendasUsuario(
+    usuarioId,
+    page = 1,
+    limit = 12,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  ) {
     if (!usuarioId) errorUsuarioId();
 
-    const buscaVendas = await LojaModel.buscarHistoricoVendasUsuario(usuarioId);
+    const buscaVendas = await LojaModel.buscarHistoricoVendasUsuario({
+      usuarioId,
+      page,
+      limit,
+      busca,
+      statusPagamento,
+      statusEntrega,
+      dataInicio,
+      dataFim,
+      ordem,
+    });
 
     if (buscaVendas.error) throw buscaVendas.error;
 
@@ -289,7 +319,7 @@ export class LojaService {
 
     const venda = await LojaService.consultarVenda(vendaId, usuario?.id);
 
-    if (venda.status_pagamento === "pago")
+    if (venda.status_pagamento === "Pago")
       error(409, "Esta venda já foi paga.");
 
     return LojaModel.mudarStatusPagamento(vendaId, usuario.email);

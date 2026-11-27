@@ -44,6 +44,57 @@ export const useMeusLivros = () => {
     [],
   );
 
+  
+const buscarRevisaoLivro = useCallback(async (id) => {
+  setCarregando(true);
+
+  try {
+    const res = await apiFetch(`/api/v1/clients/autopublicacao/revisao/${id}`, {
+      method: "GET",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || `Erro ${res.status}`);
+    }
+
+    const revisoes = data.data ?? data;
+
+    if (!Array.isArray(revisoes) || revisoes.length === 0) {
+      setLivroSelecionado(null);
+      return null;
+    }
+
+    const livro = revisoes[0].livros;
+
+    if (!livro) {
+      setLivroSelecionado(null);
+      return null;
+    }
+
+    const detalhe = {
+      ...livro,
+      revisoes: revisoes.map((revisao) => ({
+        ...revisao,
+        arquivoUrl: Array.isArray(revisao.arquivoUrl)
+          ? revisao.arquivoUrl[0]
+          : revisao.arquivoUrl,
+      })),
+    };
+
+    setLivroSelecionado(detalhe);
+
+    return detalhe;
+  } catch (error) {
+    console.error("Erro em buscarRevisaoLivro", error);
+    setLivroSelecionado(null);
+    throw error;
+  } finally {
+    setCarregando(false);
+  }
+}, []);
+
   const buscarLivroById = useCallback(async (id) => {
     setCarregando(true);
     try {
@@ -123,6 +174,7 @@ export const useMeusLivros = () => {
     setLivroSelecionado,
     setLivros,
     buscarLivros,
+    buscarRevisaoLivro,
     buscarLivroById,
     atualizarEstado,
     deletarLivro,

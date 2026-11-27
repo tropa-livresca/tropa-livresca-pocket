@@ -97,6 +97,13 @@ main {
   transform: translateY(-8px);
 }
 
+.semLivros {
+  margin: 4rem 0;
+  color: var(--cor-texto-muted);
+  text-align: center;
+  font-size: 1rem;
+}
+
 .autorinf img,
 .semfoto {
   width: 8.75rem;
@@ -126,7 +133,7 @@ main {
 .autorinf h3 {
   margin: 0;
   color: #4d1f18;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   white-space: normal;
   overflow-wrap: break-word;
   color: #67170c;

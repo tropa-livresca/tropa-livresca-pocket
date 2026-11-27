@@ -16,7 +16,7 @@ const BACKEND_URL = isPortable
     ? configuredBackendUrl.replace(/\/+$/, "")
     : isCodespace
       ? `${window.location.protocol}//${hostname.replace(
-          /-\d+\.app.github\.dev$/,
+          /-\d+\.app\.github\.dev$/,
           `-${BACKEND_PORT}.app.github.dev`,
         )}`
       : isLocalhost

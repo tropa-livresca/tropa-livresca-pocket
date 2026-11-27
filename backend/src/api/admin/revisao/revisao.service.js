@@ -50,8 +50,7 @@ export class RevisaoService {
     } else {
       for (const nomeArquivo of Array.isArray(removerArquivo)
         ? removerArquivo
-        : [removerArquivo]
-      ) {
+        : [removerArquivo]) {
         if (typeof nomeArquivo === "string" && nomeArquivo) {
           formData.append("arquivo-", nomeArquivo);
         }
@@ -232,7 +231,7 @@ export class RevisaoService {
       dadosRevisao,
       arquivo,
       arquivo || removerArquivo
-        ? (revisaoAtual.arquivo || removerArquivo)
+        ? revisaoAtual.arquivo || removerArquivo
         : false,
     );
 
@@ -290,6 +289,7 @@ export class RevisaoService {
         apontamento,
         fk_livro_id: idLivro,
         fk_user_profile_id: userId,
+        fk_autor_id: livro.fk_autor_id,
       },
       arquivo,
     );

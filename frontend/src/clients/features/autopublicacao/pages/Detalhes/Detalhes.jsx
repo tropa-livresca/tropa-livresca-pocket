@@ -7,10 +7,10 @@ import { Link } from "react-router-dom";
 export default function Detalhes({ dados, onChange, irParaProximaEtapa }) {
   const listaIdiomas = [
     { id: "", label: "Selecione um idioma" },
-    { id: "portugues", label: "Português" },
-    { id: "ingles", label: "Inglês" },
-    { id: "espanhol", label: "Espanhol" },
-    { id: "outro", label: "Outro" },
+    { id: "Português", label: "Português" },
+    { id: "Inglês", label: "Inglês" },
+    { id: "Espanhol", label: "Espanhol" },
+    { id: "Outro", label: "Outro" },
   ];
 
   const maskISBN = (value) => {

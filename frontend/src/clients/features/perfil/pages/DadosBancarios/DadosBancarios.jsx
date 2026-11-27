@@ -157,7 +157,7 @@ export default function DadosBancarios() {
 
       <div className={styles.container}>
         {erroConsulta && !erro && (
-          <p role="alert" className={`${styles.mensagem} ${styles.erro}`}>
+          <p role="alert" className={`${styles.mensagem2} ${styles.erro}`}>
             {erroConsulta}
           </p>
         )}

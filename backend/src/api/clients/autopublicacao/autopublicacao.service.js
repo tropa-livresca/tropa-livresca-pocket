@@ -42,6 +42,18 @@ export class AutopublicacaoService {
     return preco;
   }
 
+  static async _incluirRevisoes(livros) {
+    return Promise.all(
+      livros.map(async (livro) => {
+        const resultado = await this.BuscarRevisaoById(livro.id);
+
+        return {
+          ...livro,
+          revisoes: resultado?.data ?? [],
+        };
+      }),
+    );
+  }
   static _obterArquivo(arquivos, campo) {
     const arquivo = arquivos?.[campo];
 
@@ -245,8 +257,10 @@ export class AutopublicacaoService {
 
     const livrosFormatados = await this._assinarLivros(listaLivros);
 
+    const livrosComRevisoes = await this._incluirRevisoes(livrosFormatados);
+
     return {
-      data: livrosFormatados,
+      data: livrosComRevisoes,
       meta: {
         totalItems: total,
         limit,
@@ -254,6 +268,16 @@ export class AutopublicacaoService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  static async BuscarRevisaoById(livroId) {
+    if (!livroId) {
+      const erroLivroId = new Error("O id do livro não foi informado.");
+      erroLivroId.statusCode = 400;
+      throw erroLivroId;
+    }
+
+    return await AutopublicacaoModel.buscarRevisaoByLivroId(livroId);
   }
 
   static async buscarDetalhesPorId(livroId, userId) {
@@ -278,7 +302,14 @@ export class AutopublicacaoService {
 
     const pb = await criarClienteModel();
 
-    return this._assinarLivro(resultado, pb);
+    const livroFormatado = this._assinarLivro(resultado, pb);
+
+    const revisao = await this.BuscarRevisaoById(livroId);
+
+    return {
+      ...livroFormatado,
+      revisoes: revisao?.data ?? [],
+    };
   }
 
   static async criarLivro({

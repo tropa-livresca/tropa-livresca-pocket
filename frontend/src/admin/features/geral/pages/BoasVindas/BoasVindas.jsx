@@ -85,7 +85,7 @@ export default function BoasVindas() {
 
         <p className={styles.rodape}>
           Você também pode navegar pelo menu lateral.{" "}
-          <Link to="/admin/configuracoes/novasenha" className={styles.link}>
+          <Link to="/admin/configuracoes/alterarsenha" className={styles.link}>
             Alterar minha senha
           </Link>
         </p>

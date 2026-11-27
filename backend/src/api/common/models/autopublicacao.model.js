@@ -8,13 +8,64 @@ import {
 } from "./pocketbase.helpers.js";
 
 const COLECAO = "livros";
+const COLECAO_REVISAO = "revisoes";
+
+const RELACAO_LIVRO = "fk_livro_id";
 const RELACAO_PERFIL = "fk_user_profile_id";
+
+const CAMPO_ARQUIVO = "arquivo";
+
+const EXPAND_LIVRO = `${RELACAO_LIVRO},${RELACAO_LIVRO}.${RELACAO_PERFIL}`;
 
 function erroConflito() {
   const error = new Error("Livro não encontrado ou estado desatualizado.");
 
   error.statusCode = 409;
   return error;
+}
+
+function mapearRevisao(pb, revisao) {
+  const { expand, ...dados } = revisao;
+  const arquivo = mapearCampoArquivo(pb, revisao, CAMPO_ARQUIVO);
+
+  return {
+    ...dados,
+    ...arquivo,
+    livros: formatarLivro(pb, expand?.[RELACAO_LIVRO]),
+  };
+}
+
+async function incluirRevisaoId(pb, livros) {
+  if (!livros.length) return [];
+
+  const params = {};
+
+  const filtros = livros.map((livro, index) => {
+    const chave = `livro${index}`;
+
+    params[chave] = livro.id;
+
+    return `${RELACAO_LIVRO} = {:${chave}}`;
+  });
+
+  const revisoes = await pb.collection(COLECAO_REVISAO).getFullList({
+    filter: pb.filter(filtros.join(" || "), params),
+    sort: "-data_criacao",
+    fields: `id,${RELACAO_LIVRO}`,
+  });
+
+  const revisoesPorLivro = new Map();
+
+  for (const revisao of revisoes) {
+    if (!revisoesPorLivro.has(revisao[RELACAO_LIVRO])) {
+      revisoesPorLivro.set(revisao[RELACAO_LIVRO], revisao.id);
+    }
+  }
+
+  return livros.map((livro) => ({
+    ...formatarLivro(pb, livro),
+    revisaoId: revisoesPorLivro.get(livro.id) ?? null,
+  }));
 }
 
 function formatarLivro(pb, livro) {
@@ -36,9 +87,9 @@ function formatarLivro(pb, livro) {
   };
 }
 
-function resultadoPaginado(pb, result) {
+async function resultadoPaginado(pb, result) {
   return {
-    data: result.items.map((livro) => formatarLivro(pb, livro)),
+    data: await incluirRevisaoId(pb, result.items),
     count: result.totalItems,
   };
 }
@@ -88,6 +139,28 @@ export class AutopublicacaoModel {
     }
   }
 
+  static async buscarRevisaoByLivroId(livroId) {
+    if (!livroId) return { data: [] };
+
+    const pb = await criarClienteModel();
+
+    try {
+      const data = await pb.collection(COLECAO_REVISAO).getFullList({
+        filter: pb.filter(`${RELACAO_LIVRO} = {:livroId}`, {
+          livroId,
+        }),
+        sort: "-data_criacao",
+        expand: EXPAND_LIVRO,
+      });
+
+      return {
+        data: data.map((revisao) => mapearRevisao(pb, revisao)),
+      };
+    } catch (error) {
+      marcarErro(error);
+    }
+  }
+
   static async buscarDetalhesPorId(idLivro, userId) {
     const pb = await criarClienteModel();
 
@@ -98,7 +171,7 @@ export class AutopublicacaoModel {
         return null;
       }
 
-      return formatarLivro(pb, livro);
+      return (await incluirRevisaoId(pb, [livro]))[0];
     } catch (error) {
       if (error.status === 404) return null;
 

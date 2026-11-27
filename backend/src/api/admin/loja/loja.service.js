@@ -2,10 +2,24 @@ import { LojaModel } from "../../common/models/loja.model.js";
 import { error } from "../../common/utils/error.js";
 
 export class LojaService {
-  static async consultarVendas({ page = 1, limit = 12, ordem = "" }) {
+  static async consultarVendas({
+    page = 1,
+    limit = 10,
+    busca = "",
+    statusPagamento = "",
+    statusEntrega = "",
+    dataInicio = "",
+    dataFim = "",
+    ordem = "recentes",
+  }) {
     const { data, count } = await LojaModel.consultarVendas({
       page,
       limit,
+      busca,
+      statusPagamento,
+      statusEntrega,
+      dataInicio,
+      dataFim,
       ordem,
     });
 
@@ -70,7 +84,7 @@ export class LojaService {
 
     const venda = await LojaModel.consultarVenda(vendaId);
 
-    if (venda.status_pagamento !== "pago")
+    if (venda.status_pagamento !== "Pago")
       error(400, "Só é possível enviar vendas pagas.");
     if (venda.status_entrega !== "Pendente")
       error(409, "Esta venda não está aguardando envio.");

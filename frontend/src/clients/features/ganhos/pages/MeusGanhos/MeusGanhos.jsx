@@ -15,12 +15,8 @@ const formatarData = (data) =>
   data ? new Date(data).toLocaleDateString("pt-BR") : "";
 
 export default function MeusGanhos() {
-  const {
-    dadosBancarios,
-    buscarDadosBancarios,
-    solicitarSaque,
-    erro: erroDadosBancarios,
-  } = useDadosBancarios();
+  const { dadosBancarios, buscarDadosBancarios, solicitarSaque } =
+    useDadosBancarios();
 
   const { ganhos, carregando, erro, buscarGanhos } = useGanhos();
 
@@ -49,6 +45,40 @@ export default function MeusGanhos() {
 
   const existeConta = dadosBancarios && Object.keys(dadosBancarios).length > 0;
 
+  const [periodo, setPeriodo] = useState("");
+  const [pagina, setPagina] = useState(1);
+
+  const LIMITE = 10;
+
+  const extratoFiltrado = extrato.filter((mov) => {
+    if (!periodo) return true;
+
+    const dataMovimentacao = new Date(mov.data);
+
+    if (Number.isNaN(dataMovimentacao.getTime())) return false;
+
+    const hoje = new Date();
+    const inicio = new Date(hoje);
+
+    if (periodo === "7") inicio.setDate(hoje.getDate() - 7);
+    if (periodo === "30") inicio.setDate(hoje.getDate() - 30);
+    if (periodo === "90") inicio.setDate(hoje.getDate() - 90);
+
+    if (periodo === "ano") {
+      inicio.setMonth(0, 1);
+      inicio.setHours(0, 0, 0, 0);
+    }
+
+    return dataMovimentacao >= inicio && dataMovimentacao <= hoje;
+  });
+
+  const totalPaginas = Math.ceil(extratoFiltrado.length / LIMITE);
+
+  const movimentacoesPaginadas = extratoFiltrado.slice(
+    (pagina - 1) * LIMITE,
+    pagina * LIMITE,
+  );
+
   const handleSolicitarSaque = async (e) => {
     e.preventDefault();
 
@@ -73,6 +103,11 @@ export default function MeusGanhos() {
       setErroSaque(
         "O valor solicitado não pode ser maior que seu saldo disponível.",
       );
+      return;
+    }
+
+    if (valor < 50) {
+      setErroSaque("O valor solicitado não pode ser inferior a R$ 50,00.");
       return;
     }
 
@@ -186,11 +221,6 @@ export default function MeusGanhos() {
                   </Link>
                 </p>
               )}
-              {erroDadosBancarios && !erroSaque && (
-                <p role="alert" className={styles.erro}>
-                  {erroDadosBancarios}
-                </p>
-              )}
 
               <form
                 onSubmit={handleSolicitarSaque}
@@ -264,108 +294,156 @@ export default function MeusGanhos() {
             <section className={styles.cartao}>
               <strong className={styles.ex}>Extrato</strong>
 
-              {extrato.length === 0 ? (
+              <div className={styles.filtrosExtrato}>
+                <label htmlFor="periodoExtrato">Filtrar por período</label>
+
+                <select
+                  id="periodoExtrato"
+                  value={periodo}
+                  onChange={(e) => {
+                    setPeriodo(e.target.value);
+                    setPagina(1);
+                  }}
+                >
+                  <option value="">Todo o período</option>
+                  <option value="7">Últimos 7 dias</option>
+                  <option value="30">Últimos 30 dias</option>
+                  <option value="90">Últimos 90 dias</option>
+                  <option value="ano">Este ano</option>
+                </select>
+              </div>
+
+              {extratoFiltrado.length === 0 ? (
                 <p className={styles.aviso}>
-                  Você ainda não possui movimentações financeiras.{" "}
+                  {extrato.length === 0
+                    ? "Você ainda não possui movimentações financeiras."
+                    : "Nenhuma movimentação encontrada para o período selecionado."}{" "}
                   <Link to="/meuslivros">Ver meus livros</Link>
                 </p>
               ) : (
-                <div className={styles.tabelaContainer}>
-                  <table className={styles.tabelaExtrato}>
-                    <thead>
-                      <tr>
-                        <th>Movimentação</th>
-                        <th>Data</th>
-                        <th>Conta da movimentação</th>
-                        <th>Valor</th>
-                      </tr>
-                    </thead>
+                <>
+                  <div className={styles.tabelaContainer}>
+                    <table className={styles.tabelaExtrato}>
+                      <thead>
+                        <tr>
+                          <th>Movimentação</th>
+                          <th>Data</th>
+                          <th>Conta da movimentação</th>
+                          <th>Valor</th>
+                        </tr>
+                      </thead>
 
-                    <tbody>
-                      {extrato.map((mov) => {
-                        const entrada = mov.tipo === "entrada";
-                        const conta = formatarContaMovimentacao(mov);
+                      <tbody>
+                        {movimentacoesPaginadas.map((mov) => {
+                          const entrada = mov.tipo === "entrada";
+                          const conta = formatarContaMovimentacao(mov);
 
-                        return (
-                          <tr key={mov.id}>
-                            <td>
-                              <span
-                                className={`${styles.icone} ${
-                                  entrada
-                                    ? styles.iconeEntrada
-                                    : styles.iconeSaida
-                                }`}
-                              >
-                                {entrada ? (
-                                  <FiArrowDownLeft />
+                          return (
+                            <tr key={mov.id}>
+                              <td>
+                                <span
+                                  className={`${styles.icone} ${
+                                    entrada
+                                      ? styles.iconeEntrada
+                                      : styles.iconeSaida
+                                  }`}
+                                >
+                                  {entrada ? (
+                                    <FiArrowDownLeft />
+                                  ) : (
+                                    <FiArrowUpRight />
+                                  )}
+                                </span>
+
+                                <strong>
+                                  {entrada ? (
+                                    <>
+                                      Direitos autorais
+                                      {mov.fk_vendas_id && (
+                                        <>
+                                          {" · Pedido "}
+                                          <span className={styles.numero2}>
+                                            #{mov.fk_vendas_id}
+                                          </span>
+                                        </>
+                                      )}
+                                    </>
+                                  ) : (
+                                    "Saque"
+                                  )}
+                                </strong>
+                              </td>
+
+                              <td className={styles.numero2}>
+                                {formatarData(mov.data)}
+                              </td>
+
+                              <td>
+                                {typeof conta === "string" ? (
+                                  <span>{conta}</span>
                                 ) : (
-                                  <FiArrowUpRight />
+                                  <div className={styles.dadosConta}>
+                                    <strong>{conta.banco}</strong>
+                                    <small>
+                                      Agência:{" "}
+                                      <span className={styles.numero2}>
+                                        {conta.agencia}
+                                      </span>
+                                    </small>
+                                    <small>
+                                      Conta:{" "}
+                                      <span className={styles.numero2}>
+                                        {conta.conta}
+                                      </span>
+                                    </small>
+                                    <small>Titular: {conta.titular}</small>
+                                  </div>
                                 )}
-                              </span>
+                              </td>
 
-                              <strong>
-                                {entrada ? (
-                                  <>
-                                    Direitos autorais
-                                    {mov.fk_vendas_id && (
-                                      <>
-                                        {" · Pedido "}
-                                        <span className={styles.numero2}>
-                                          #{mov.fk_vendas_id}
-                                        </span>
-                                      </>
-                                    )}
-                                  </>
-                                ) : (
-                                  "Saque"
-                                )}
-                              </strong>
-                            </td>
+                              <td>
+                                <strong
+                                  className={
+                                    entrada
+                                      ? styles.valorEntrada
+                                      : styles.valorSaida
+                                  }
+                                >
+                                  {entrada ? "+" : "−"}{" "}
+                                  {formatarPreco(mov.valor)}
+                                </strong>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
 
-                            <td className={styles.numero2}>
-                              {formatarData(mov.data)}
-                            </td>
+                  {totalPaginas > 1 && (
+                    <div className={styles.paginacao}>
+                      <button
+                        type="button"
+                        disabled={pagina === 1}
+                        onClick={() => setPagina((atual) => atual - 1)}
+                      >
+                        Anterior
+                      </button>
 
-                            <td>
-                              {typeof conta === "string" ? (
-                                <span>{conta}</span>
-                              ) : (
-                                <div className={styles.dadosConta}>
-                                  <strong>{conta.banco}</strong>
-                                  <small>
-                                    Agência:{" "}
-                                    <span className={styles.numero2}>
-                                      {conta.agencia}
-                                    </span>
-                                  </small>
-                                  <small>
-                                    Conta:{" "}
-                                    <span className={styles.numero2}>
-                                      {conta.conta}
-                                    </span>
-                                  </small>
-                                  <small>Titular: {conta.titular}</small>
-                                </div>
-                              )}
-                            </td>
+                      <span>
+                        Página {pagina} de {totalPaginas}
+                      </span>
 
-                            <td>
-                              <strong
-                                className={
-                                  entrada
-                                    ? styles.valorEntrada
-                                    : styles.valorSaida
-                                }
-                              >
-                                {entrada ? "+" : "−"} {formatarPreco(mov.valor)}
-                              </strong>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                      <button
+                        type="button"
+                        disabled={pagina === totalPaginas}
+                        onClick={() => setPagina((atual) => atual + 1)}
+                      >
+                        Próxima
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </section>
           </div>

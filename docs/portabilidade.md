@@ -7,25 +7,25 @@ para preparar a versão portátil da Tropa Livresca no Windows.
 
 Na máquina de desenvolvimento:
 
--   Windows 64 bits;
--   Node.js 20.12 ou superior;
--   npm;
--   dependências do projeto instaladas;
--   `esbuild` e `postject` instalados no projeto;
--   executável do PocketBase para Windows x64;
--   banco de dados em `pocketbase/pb_data`.
+- Windows 64 bits;
+- Node.js 20.12 ou superior;
+- npm;
+- dependências do projeto instaladas;
+- `esbuild` e `postject` instalados no projeto;
+- executável do PocketBase para Windows x64;
+- banco de dados em `pocketbase/pb_data`.
 
 Abra o terminal na **raiz do projeto** (`tropa-livresca-pocket`).
 
 Se as dependências ainda não estiverem instaladas, execute:
 
-``` bash
+```bash
 npm install
 ```
 
 Se `esbuild` e `postject` ainda não estiverem disponíveis, instale-os:
 
-``` bash
+```bash
 npm install -D esbuild postject -w backend
 ```
 
@@ -36,31 +36,31 @@ do projeto.
 
 ### Etapa 1 --- Compilar o frontend
 
-``` bash
+```bash
 npm run build -w frontend
 ```
 
 ### Etapa 2 --- Agrupar o código do backend
 
-``` bash
+```bash
 npm run build:bundle -w backend
 ```
 
 ### Etapa 3 --- Gerar o `Backend.exe`
 
-``` bash
+```bash
 npm run build:exe -w backend
 ```
 
 ### Etapa 4 --- Gerar o inicializador `TropaLivresca.exe`
 
-``` bash
+```bash
 node build-launcher.cjs
 ```
 
 Ao concluir, os executáveis estarão nestes caminhos:
 
-``` text
+```text
 backend/build/Backend.exe
 TropaLivresca.exe
 ```
@@ -70,13 +70,13 @@ TropaLivresca.exe
 Com `TropaLivresca.ico` e `rcedit-x64.exe` na raiz do projeto, faça
 primeiro uma cópia de segurança:
 
-``` powershell
+```powershell
 Copy-Item ".\TropaLivresca.exe" ".\TropaLivresca-backup.exe"
 ```
 
 Aplique o ícone:
 
-``` powershell
+```powershell
 .\rcedit-x64.exe ".\TropaLivresca.exe" --set-icon ".\TropaLivresca.ico"
 ```
 
@@ -101,21 +101,24 @@ diretório `pocketbase/pb_data`.**
 
 ## 5. Recompilar após alterações
 
-  -----------------------------------------------------------------------
-  O que foi alterado                  Comando
-  ----------------------------------- -----------------------------------
-  Frontend                            `npm run build -w frontend`
+---
 
-  Backend                             `npm run build:bundle -w backend` e
-                                      depois
-                                      `npm run build:exe -w backend`
+O que foi alterado Comando
 
-  `TropaLivresca.bat`                 `node build-launcher.cjs`
+---
 
-  `launcher.cjs`                      `node build-launcher.cjs`
+Frontend `npm run build -w frontend`
 
-  Ícone                               Reaplicar o comando do `rcedit`
-  -----------------------------------------------------------------------
+Backend `npm run build:bundle -w backend` e
+depois
+`npm run build:exe -w backend`
+
+`TropaLivresca.bat` `node build-launcher.cjs`
+
+`launcher.cjs` `node build-launcher.cjs`
+
+Ícone Reaplicar o comando do `rcedit`
+-----------------------------------------------------------------------
 
 Se houver alterações tanto no frontend quanto no backend, execute as
 respectivas compilações antes de gerar novamente o inicializador, se
@@ -128,7 +131,7 @@ exigem recompilação. Basta reiniciar a aplicação.
 
 Mantenha, no mínimo, esta estrutura:
 
-``` text
+```text
 tropa-livresca-pocket/
 ├── TropaLivresca.exe
 ├── TropaLivresca.bat

@@ -19,7 +19,9 @@ export const apiFetch = async (endpoint, options = {}) => {
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   ).replace(/\/$/, "");
 
-  let response = await fetch(`${BACKEND_URL}${caminhoEndpoint}`, fetchOptions);
+  const urlFinal = `${BACKEND_URL}${caminhoEndpoint}`;
+
+  let response = await fetch(urlFinal, fetchOptions);
 
   const ehRotaIgnorada =
     caminhoEndpoint.endsWith("/auth/refresh") ||
@@ -33,10 +35,9 @@ export const apiFetch = async (endpoint, options = {}) => {
       const URL_ATUAL = window.location.pathname;
 
       const ehAdmin =
-        URL_ATUAL.startsWith("/admin") ||
-        URL_ATUAL.includes("/auth/admin");
+        URL_ATUAL.startsWith("/admin") || URL_ATUAL.includes("/auth/admin");
 
-      const urlRefresh = "/api/v1/auth/refresh";
+      const urlRefresh = `${BACKEND_URL}/api/v1/auth/refresh`;
 
       const rotaLogin = ehAdmin ? "/auth/admin" : "/auth/login";
 
@@ -58,11 +59,8 @@ export const apiFetch = async (endpoint, options = {}) => {
           delete fetchOptions.headers["Content-Type"];
         }
 
-        response = await fetch(
-          `${BACKEND_URL}${caminhoEndpoint}`,
-          fetchOptions,
-        );
-        
+        response = await fetch(urlFinal, fetchOptions);
+
         return response;
       } else {
         const payload = await refreshResponse.json().catch(() => ({}));

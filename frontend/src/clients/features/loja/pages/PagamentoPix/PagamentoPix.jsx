@@ -8,7 +8,8 @@ import BotaoComprar from "../../components/BotaoComprar/BotaoComprar";
 import { useCompra } from "../../hooks/useCompra";
 import { useCarrinho } from "../../hooks/useCarrinho";
 
-const CHAVE_PIX = "davidballsdocumentacao@gmail.com";
+const CHAVE_PIX =
+  "00020126580014br.gov.bcb.pix0136c1e8f3d0-4b7a-4f5e-9c2e-1a2b3c4d5e6f5204000053039865802BR5925Tropa Livresca Ltda6009Sao Paulo61080540900062070503***6304B14F";
 
 const formatarPreco = (valor) =>
   `R$ ${Number(valor || 0)

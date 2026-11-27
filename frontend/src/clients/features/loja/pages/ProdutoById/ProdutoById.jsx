@@ -41,6 +41,7 @@ export default function ProdutoById() {
   const [qtd, setQtd] = useState(1);
   const [adicionado, setAdicionado] = useState(false);
   const [solicitandoLogin, setSolicitandoLogin] = useState(false);
+  const [modalCarrinho, setModalCarrinho] = useState(false);
   const [livroDigitalComprado, setLivroDigitalComprado] = useState(false);
   const [verificandoCompra, setVerificandoCompra] = useState(false);
   const [erroVerificacaoCompra, setErroVerificacaoCompra] = useState(false);
@@ -51,21 +52,6 @@ export default function ProdutoById() {
   useEffect(() => {
     buscarResumo(id);
   }, [id, buscarResumo]);
-
-  const mapearIdioma = (idioma) => {
-    if (!idioma) return "Não informado";
-
-    const dicionario = {
-      ingles: "Inglês",
-      portugues: "Português",
-      espanhol: "Espanhol",
-    };
-
-    return (
-      dicionario[idioma.toLowerCase()] ||
-      idioma.charAt(0).toUpperCase() + idioma.slice(1)
-    );
-  };
 
   useEffect(() => {
     if (id) {
@@ -93,9 +79,11 @@ export default function ProdutoById() {
     }
 
     setVerificandoCompra(true);
+
     buscarMeusLivros(1, 1, "", "", "", "", "", id)
       .then((livrosComprados) => {
         if (!ativo) return;
+
         if (livrosComprados === null) {
           setErroVerificacaoCompra(true);
           return;
@@ -122,6 +110,22 @@ export default function ProdutoById() {
     return <p className={styles.naoEncontrado}>Livro não encontrado.</p>;
   }
 
+  const formatarData = (data) => {
+    if (!data) return "";
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return "";
+    }
+
+    return dataConvertida.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
   const capaFrente = livro.capa?.frente;
 
   const formatarPreco = (valor) => {
@@ -134,10 +138,10 @@ export default function ProdutoById() {
   const temDigital = Number(livro.preco_digital) > 0;
 
   const formato =
-    formatoEscolhido || (temFisico ? "fisico" : temDigital ? "digital" : null);
+    formatoEscolhido || (temFisico ? "Físico" : temDigital ? "Digital" : null);
 
   const precoAtual =
-    formato === "fisico" ? livro.preco_fisico : livro.preco_digital;
+    formato === "Físico" ? livro.preco_fisico : livro.preco_digital;
 
   const escolherFormato = (novoFormato) => {
     setFormato(novoFormato);
@@ -161,10 +165,11 @@ export default function ProdutoById() {
       capa: capaFrente,
       preco: Number(precoAtual),
       tipo: formato,
-      quantidade: formato === "fisico" ? qtd : 1,
+      quantidade: formato === "Físico" ? qtd : 1,
     });
 
     setAdicionado(true);
+    setModalCarrinho(true);
   };
 
   return (
@@ -198,7 +203,7 @@ export default function ProdutoById() {
 
             {livro.idioma && (
               <div className={styles.tags}>
-                <span>{mapearIdioma(livro.idioma)}</span>
+                <span>{livro.idioma || "Não informado"}</span>
               </div>
             )}
           </div>
@@ -230,7 +235,6 @@ export default function ProdutoById() {
               <div className={styles.iconeInformacao}>
                 <FaBookOpen />
               </div>
-
               <div>
                 <strong>Publicado por</strong>
                 <p>{autor?.nome || "Autor desconhecido"}</p>
@@ -241,13 +245,10 @@ export default function ProdutoById() {
               <div className={styles.iconeInformacao}>
                 <FaCalendarAlt />
               </div>
-
               <div>
                 <strong>Data de publicação</strong>
                 <p className={styles.numero}>
-                  {livro.data_de_publicacao
-                    ? livro.data_de_publicacao.split("-").reverse().join("/")
-                    : "Não informado"}
+                  {formatarData(livro.data_de_publicacao)}
                 </p>
               </div>
             </div>
@@ -256,7 +257,6 @@ export default function ProdutoById() {
               <div className={styles.iconeInformacao}>
                 <FaUsers />
               </div>
-
               <div>
                 <strong>Categoria</strong>
                 <p>{livro.categoria || "Não informado"}</p>
@@ -267,12 +267,29 @@ export default function ProdutoById() {
               <div className={styles.iconeInformacao}>
                 <FaLanguage />
               </div>
-
               <div>
                 <strong>Idioma</strong>
-                <p>{mapearIdioma(livro.idioma)}</p>
+                <p>{livro.idioma || "Não informado"}</p>
               </div>
             </div>
+
+            {colaboradores?.map((colaborador, index) => (
+              <div
+                className={styles.informacao}
+                key={`${colaborador.nome}-${index}`}
+              >
+                <div className={styles.iconeInformacao}>
+                  <FaUsers />
+                </div>
+                <div>
+                  <strong>Colaborador(a)</strong>
+                  <p>
+                    {colaborador.nome} {colaborador.sobrenome} (
+                    {colaborador.funcao || "Colaborador"})
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -294,8 +311,10 @@ export default function ProdutoById() {
                 {temFisico && (
                   <button
                     type="button"
-                    className={`${styles.formato} ${formato === "fisico" ? styles.formatoAtivo : ""}`}
-                    onClick={() => escolherFormato("fisico")}
+                    className={`${styles.formato} ${
+                      formato === "Físico" ? styles.formatoAtivo : ""
+                    }`}
+                    onClick={() => escolherFormato("Físico")}
                   >
                     <span>Físico</span>
                     <strong className={styles.numero}>
@@ -307,8 +326,10 @@ export default function ProdutoById() {
                 {temDigital && (
                   <button
                     type="button"
-                    className={`${styles.formato} ${formato === "digital" ? styles.formatoAtivo : ""}`}
-                    onClick={() => escolherFormato("digital")}
+                    className={`${styles.formato} ${
+                      formato === "Digital" ? styles.formatoAtivo : ""
+                    }`}
+                    onClick={() => escolherFormato("Digital")}
                   >
                     <span>E-book</span>
                     <strong className={styles.numero}>
@@ -324,7 +345,7 @@ export default function ProdutoById() {
                 </span>
               </div>
 
-              {formato === "fisico" && (
+              {formato === "Físico" && (
                 <label className={styles.quantidade}>
                   Quantidade
                   <input
@@ -344,11 +365,10 @@ export default function ProdutoById() {
               )}
 
               {livroDigitalComprado && (
-                <div className={styles.avisoLivroComprado} role="status">
-                  <p>Você já comprou a versão digital deste livro.</p>
-                  <Link to="/bibliotecapessoal">
-                    Acessar biblioteca pessoal
-                  </Link>
+                <div role="status">
+                  <div className={styles.avisoLivroComprado}>
+                    <p>Você já comprou a versão digital deste livro.</p>
+                  </div>
                 </div>
               )}
 
@@ -359,7 +379,7 @@ export default function ProdutoById() {
                 </p>
               )}
 
-              {livroDigitalComprado && formato === "digital" ? (
+              {livroDigitalComprado && formato === "Digital" ? (
                 <Link to="/bibliotecapessoal" className={styles.btnCarrinho}>
                   Acessar biblioteca pessoal
                 </Link>
@@ -370,7 +390,7 @@ export default function ProdutoById() {
                   onClick={handleAdicionarCarrinho}
                   disabled={
                     verificandoCompra ||
-                    (erroVerificacaoCompra && formato === "digital")
+                    (erroVerificacaoCompra && formato === "Digital")
                   }
                 >
                   <FaShoppingCart />
@@ -378,13 +398,6 @@ export default function ProdutoById() {
                     ? "Verificando compra..."
                     : "Adicionar ao carrinho"}
                 </button>
-              )}
-
-              {adicionado && (
-                <p className={styles.adicionado}>
-                  Adicionado ao carrinho!{" "}
-                  <Link to="/carrinho">Ver carrinho</Link>
-                </p>
               )}
             </>
           ) : (
@@ -418,27 +431,33 @@ export default function ProdutoById() {
         </aside>
       </section>
 
-      {colaboradores?.length > 0 && (
-        <section className={styles.secaoColaboradores}>
-          <h2 className={styles.tituloSecao}>Relação dos colaboradores</h2>
+      {modalCarrinho && (
+        <Modal
+          title="Produto adicionado!"
+          description="Seu livro foi adicionado ao carrinho com sucesso."
+          onClose={() => setModalCarrinho(false)}
+        >
+          <div className={modalStyles.acoes}>
+            <button
+              type="button"
+              className={modalStyles.botao}
+              onClick={() => {
+                setModalCarrinho(false);
+                navigate("/carrinho");
+              }}
+            >
+              Ir para o carrinho
+            </button>
 
-          <ul className={styles.listaColaboradores}>
-            {colaboradores.map((colaborador, index) => (
-              <li
-                className={styles.colaborador}
-                key={`${colaborador.nome}-${index}`}
-              >
-                <span className={styles.nomeColaborador}>
-                  {colaborador.nome} {colaborador.sobrenome}
-                </span>
-
-                <span className={styles.funcaoColaborador}>
-                  {colaborador.funcao}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+            <button
+              type="button"
+              className={`${modalStyles.botao} ${modalStyles.botaoSecundario}`}
+              onClick={() => setModalCarrinho(false)}
+            >
+              Continuar comprando
+            </button>
+          </div>
+        </Modal>
       )}
 
       {solicitandoLogin && (

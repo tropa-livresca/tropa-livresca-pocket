@@ -102,6 +102,8 @@ export class MovimentacoesService {
 
     if (!valorSaque) error(400, "Valor do saque não informado.");
 
+    if (valorSaque < 50) error(400, "O valor mínimo para saque é de R$ 50,00.");
+
     const saque = await MovimentacoesModel.solicitarSaque(
       usuarioId,
       valorSaque,

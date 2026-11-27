@@ -7,32 +7,17 @@ import Carregando from "../../../../components/Carregando/Carregando";
 import Popup from "../../../../components/PopUp/Popup";
 
 const ROTULO_ESTADO = {
-  rascunho: "Rascunho",
-  em_revisao: "Em revisão",
-  publicado: "Publicado",
-  negado: "Negado",
-  recall: "Recall",
+  Rascunho: "Rascunho",
+  "Em Revisão": "Em Revisão",
+  Publicado: "Publicado",
+  Negado: "Negado",
+  "Para Correção": "Para Correção",
 };
 
 const formatarPreco = (valor) =>
   Number(valor) > 0
     ? `R$ ${Number(valor).toFixed(2).replace(".", ",")}`
     : "Não vendido";
-
-const mapearIdioma = (idioma) => {
-  if (!idioma) return "Não informado";
-
-  const dicionario = {
-    ingles: "Inglês",
-    portugues: "Português",
-    espanhol: "Espanhol",
-  };
-
-  return (
-    dicionario[idioma.toLowerCase()] ||
-    idioma.charAt(0).toUpperCase() + idioma.slice(1)
-  );
-};
 
 export default function VisualizarLivro() {
   const { id } = useParams();
@@ -273,7 +258,7 @@ export default function VisualizarLivro() {
               <li>
                 <span>Idioma</span>
 
-                <strong>{mapearIdioma(idioma)}</strong>
+                <strong>{idioma}</strong>
               </li>
 
               <li>
