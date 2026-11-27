@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CarrinhoContext } from "./CarrinhoContext";
 import { apiFetch } from "../../../../common/services/api";
 
@@ -84,40 +84,58 @@ export const CarrinhoProvider = ({ children }) => {
     );
   };
 
-  const calcularFrete = async (produtos) => {
-    setCarregando(true);
-    try {
-      let queryProdutos = produtos.map((produto) => {
-        return { tipo: produto.tipo, quantidade: produto.quantidade };
-      });
+  const calcularFrete = useCallback(async (produtos) => {
+    const produtosFisicos = produtos
+      .filter((produto) => produto.tipo === "Físico")
+      .map((produto) => ({
+        tipo: produto.tipo,
+        quantidade: Number(produto.quantidade),
+      }))
+      .filter(
+        (produto) =>
+          Number.isInteger(produto.quantidade) && produto.quantidade > 0,
+      );
 
-      queryProdutos = JSON.stringify(queryProdutos);
+    if (produtosFisicos.length === 0) {
+      setFrete(null);
+      setCarregando(false);
+      return;
+    }
+
+    setCarregando(true);
+
+    try {
+      const queryProdutos = encodeURIComponent(JSON.stringify(produtosFisicos));
 
       const response = await apiFetch(
         `/api/v1/clients/loja/frete?itensVenda=${queryProdutos}`,
       );
 
       if (!response.ok) {
-        console.error("Erro ao calcular frete:", response.error);
-        return;
+        throw new Error(response.error || "Não foi possível calcular o frete.");
       }
 
       const res = await response.json();
 
-      if (res.frete[1] != undefined) {
-        setFrete({
-          precoSedex: res.frete[1].preco,
-          precoPac: res.frete[0].preco,
-        });
-      } else {
-        setFrete(null);
+      if (!Array.isArray(res.frete) || res.frete.length < 2) {
+        throw new Error("Resposta de frete inválida.");
       }
+
+      if (!Array.isArray(res.frete) || res.frete.length < 2) {
+        throw new Error("Opções de frete indisponíveis.");
+      }
+
+      setFrete({
+        precoPac: Number(res.frete[0].preco),
+        precoSedex: Number(res.frete[1].preco),
+      });
     } catch (err) {
       console.error("Erro ao calcular frete:", err);
+      setFrete(null);
     } finally {
       setCarregando(false);
     }
-  };
+  }, []);
 
   const limparCarrinho = () => setItens([]);
 

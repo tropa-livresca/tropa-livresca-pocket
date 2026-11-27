@@ -177,14 +177,16 @@ export default function Compra() {
                   O frete e o total final são calculados ao confirmar.
                 </p>
 
-                <button
-                  type="button"
-                  className={styles.botao}
-                  onClick={handleConfirmar}
-                  disabled={carregando || (temFisico && !enderecoId)}
-                >
-                  {carregando ? "Criando pedido..." : "Confirmar pedido"}
-                </button>
+                {(!temFisico || enderecoId) && (
+                  <button
+                    type="button"
+                    className={styles.botao}
+                    onClick={handleConfirmar}
+                    disabled={carregando}
+                  >
+                    {carregando ? "Criando pedido..." : "Concluir minha compra"}
+                  </button>
+                )}
               </>
             )}
 

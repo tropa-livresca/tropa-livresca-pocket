@@ -970,84 +970,90 @@ export class LojaModel {
   static async calcularFretePrazo(userId, produtos) {
     const pb = await criarClienteModel();
 
-    const enderecos = await pb.collection("enderecos").getFullList({
-      filter: pb.filter("fk_user_profile_id = {:userId} && principal = true", {
-        userId,
-      }),
-    });
-
-    const data = enderecos[0];
-
-    if (!data) {
-      const error = new Error("CEP não encontrada.");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const cepLimpo = data.cep.replace(/\D/g, "");
-
-    if (cepLimpo.length !== 8) {
-      const error = new Error(
-        "CEP de destino inválido. O CEP deve conter 8 dígitos.",
+    try {
+      const produtosFisicos = produtos.filter(
+        (produto) => produto.tipo === "Físico",
       );
-      error.statusCode = 400;
-      throw error;
-    }
 
-    let pesoTotalKg = 0;
-    let possuiProdutoFisico = false;
-
-    produtos.forEach((produto) => {
-      if (produto.tipo?.toLowerCase() === "Físico") {
-        possuiProdutoFisico = true;
-        pesoTotalKg += (produto.quantidade || 1) * 0.4;
+      if (!produtosFisicos.length) {
+        return [
+          {
+            transportadora: "Plataforma",
+            modalidade: "Download Digital",
+            preco: 0,
+            prazo_dias: 0,
+            descricao: "Envio imediato por e-mail após aprovação do pagamento.",
+          },
+        ];
       }
-    });
 
-    if (!possuiProdutoFisico) {
+      const enderecos = await pb.collection("enderecos").getFullList({
+        filter: pb.filter(
+          "fk_user_profile_id = {:userId} && principal = true && ativo = true",
+          { userId },
+        ),
+      });
+
+      const endereco = enderecos[0];
+
+      if (!endereco) {
+        const error = new Error("Endereço principal não encontrado.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const cepLimpo = String(endereco.cep || "").replace(/\D/g, "");
+
+      if (cepLimpo.length !== 8) {
+        const error = new Error(
+          "CEP de destino inválido. O CEP deve conter 8 dígitos.",
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const pesoTotalKg = produtosFisicos.reduce(
+        (total, produto) => total + Number(produto.quantidade || 1) * 0.4,
+        0,
+      );
+
+      const regiao = Number.parseInt(cepLimpo.charAt(0), 10);
+
+      const tarifas = {
+        0: [12.9, 18.5, 1],
+        1: [12.9, 18.5, 1],
+        2: [16.2, 24.9, 2],
+        3: [15.5, 23, 2],
+        4: [26, 42, 4],
+        5: [32, 58, 5],
+        6: [32, 58, 5],
+        7: [26, 42, 4],
+        8: [18, 29, 3],
+        9: [18, 29, 3],
+      };
+
+      const [pac, sedex, multiplicador] = tarifas[regiao] || [20, 35, 3];
+
+      const taxaPeso = pesoTotalKg * 3.5;
+
       return [
         {
-          transportadora: "Plataforma",
-          modalidade: "Download Digital",
-          preco: 0,
-          prazo_dias: 0,
-          descricao: "Envio imediato por e-mail após aprovação do pagamento.",
+          transportadora: "Correios",
+          modalidade: "PAC",
+          preco: Math.round((pac + taxaPeso) * 100) / 100,
+          prazo_dias: 3 + multiplicador * 2,
+        },
+        {
+          transportadora: "Correios",
+          modalidade: "SEDEX",
+          preco: Math.round((sedex + taxaPeso) * 100) / 100,
+          prazo_dias: 1 + multiplicador,
         },
       ];
+    } catch (error) {
+      if (error.statusCode) throw error;
+      marcarErro(error);
     }
-
-    const regiao = parseInt(cepLimpo.charAt(0), 10);
-
-    const tarifas = {
-      0: [12.9, 18.5, 1],
-      1: [12.9, 18.5, 1],
-      2: [16.2, 24.9, 2],
-      3: [15.5, 23, 2],
-      4: [26, 42, 4],
-      5: [32, 58, 5],
-      6: [32, 58, 5],
-      7: [26, 42, 4],
-      8: [18, 29, 3],
-      9: [18, 29, 3],
-    };
-
-    const [pac, sedex, multiplicador] = tarifas[regiao] || [20, 35, 3];
-    const taxaPeso = pesoTotalKg * 3.5;
-
-    return [
-      {
-        transportadora: "Correios",
-        modalidade: "PAC",
-        preco: Math.round((pac + taxaPeso) * 100) / 100,
-        prazo_dias: 3 + multiplicador * 2,
-      },
-      {
-        transportadora: "Correios",
-        modalidade: "SEDEX",
-        preco: Math.round((sedex + taxaPeso) * 100) / 100,
-        prazo_dias: 1 + multiplicador,
-      },
-    ];
   }
 
   static async dispararEmailcomLivroDigital(dadosMail) {
