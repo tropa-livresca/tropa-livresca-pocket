@@ -411,7 +411,7 @@ export default function Carrinho() {
               </div>
             )}
 
-            {possuiLivroFisico && possuiEndereco && (
+            {(!possuiLivroFisico || possuiEndereco) && (
               <button
                 type="button"
                 className={styles.finalizar}

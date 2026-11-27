@@ -5,6 +5,7 @@ import { PerfilContext } from "./PerfilContext.jsx";
 export function PerfilProvider({ children }) {
   const [perfil, setPerfil] = useState(null);
   const [nome, setNome] = useState("");
+  const [sobrenome, setSobrenome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagem, setImagem] = useState("");
@@ -22,6 +23,7 @@ export function PerfilProvider({ children }) {
   const resetEstados = useCallback(() => {
     setPerfil(null);
     setNome("");
+    setSobrenome("");
     setDescricao("");
     setTelefone("");
     setPreviewUrl(null);
@@ -48,6 +50,7 @@ export function PerfilProvider({ children }) {
       setDescricao(dadosPerfil.descricao || "");
       setTelefone(dadosPerfil.telefone || "");
       setPreviewUrl(dadosPerfil.imagem || null);
+      setSobrenome(dadosPerfil.sobrenome || "");
       setRedesSociais({
         email: dadosPerfil.redes_sociais?.email || "",
         instagram: dadosPerfil.redes_sociais?.instagram || "",
@@ -82,6 +85,8 @@ export function PerfilProvider({ children }) {
         setDescricao,
         imagem,
         setImagem,
+        sobrenome,
+        setSobrenome,
         redesSociais,
         setRedesSociais,
         previewUrl,
