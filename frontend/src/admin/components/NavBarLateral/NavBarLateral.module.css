@@ -1,16 +1,20 @@
-.menu {
-  position: fixed;
-  top: 5rem;
-  left: 0;
+.coluna {
+  flex: 0 0 15.6rem;
   width: 15.6rem;
-  height: calc(100vh - 5rem);
-  padding: 0.8rem 0.6rem;
-  box-sizing: border-box;
   background: #fffdf7;
   border-right: 1px solid #d4b46a;
+  box-sizing: border-box;
+}
+
+.menu {
+  position: sticky;
+  top: 5rem;
+  width: 100%;
+  max-height: calc(100dvh - 5rem);
+  padding: 0.8rem 0.6rem;
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 1100;
 }
 
 .menu::-webkit-scrollbar {

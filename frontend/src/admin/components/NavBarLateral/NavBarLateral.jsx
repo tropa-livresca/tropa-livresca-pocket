@@ -13,6 +13,7 @@ export default function NavBarLateral() {
   const [analisesAberto, setAnalisesAberto] = useState(false);
 
   return (
+    <aside className={styles.coluna}>
     <div className={styles.menu}>
       <div className={styles.blocoConfiguracoes}>
         <div className={styles.titulo}>Configurações de Conta</div>
@@ -108,5 +109,6 @@ export default function NavBarLateral() {
         )}
       </>
     </div>
+    </aside>
   );
 }

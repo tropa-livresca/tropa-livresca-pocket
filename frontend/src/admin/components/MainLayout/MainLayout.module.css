@@ -4,6 +4,8 @@
 }
 
 .areaPrincipal {
+  display: flex;
+  align-items: stretch;
   width: 100%;
   min-height: 100vh;
   padding-top: 5rem;
@@ -11,12 +13,8 @@
 }
 
 .conteudo {
-  min-height: calc(100vh - 5rem);
-  margin-left: 15.6rem;
+  flex: 1;
+  min-width: 0;
+  min-height: calc(100dvh - 5rem);
   box-sizing: border-box;
-}
-
-.conteudoCheio {
-  margin-left: 0;
-  width: 100%;
 }
