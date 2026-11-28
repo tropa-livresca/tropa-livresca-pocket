@@ -134,7 +134,6 @@ export default function Compra() {
               </section>
             )}
           </div>
-
           <aside className={styles.resumo}>
             <h2>Resumo</h2>
 
@@ -144,12 +143,14 @@ export default function Compra() {
                   <span>Livros</span>
                   <strong>{formatarPreco(pedido.total - pedido.frete)}</strong>
                 </div>
+
                 <div className={styles.linha}>
                   <span>Frete</span>
                   <strong>
                     {pedido.frete > 0 ? formatarPreco(pedido.frete) : "Grátis"}
                   </strong>
                 </div>
+
                 <div className={`${styles.linha} ${styles.total}`}>
                   <span>Total</span>
                   <strong>{formatarPreco(pedido.total)}</strong>
@@ -163,6 +164,7 @@ export default function Compra() {
                 >
                   {carregando ? "Processando..." : "Pagar (simulado)"}
                 </button>
+
                 <p className={styles.nota}>
                   Pagamento demonstrativo: nenhuma cobrança real é feita.
                 </p>
@@ -170,11 +172,19 @@ export default function Compra() {
             ) : (
               <>
                 <div className={styles.linha}>
-                  <span>Subtotal estimado</span>
+                  <span>Livros</span>
                   <strong>{formatarPreco(valorSubtotal)}</strong>
                 </div>
+
+                <div className={styles.linha}>
+                  <span>Frete</span>
+                  <strong>{temFisico ? "A calcular" : "Grátis"}</strong>
+                </div>
+
                 <p className={styles.nota}>
-                  O frete e o total final são calculados ao confirmar.
+                  {temFisico
+                    ? "O frete e o total final são calculados ao confirmar."
+                    : "Entrega digital sem custo de frete."}
                 </p>
 
                 {(!temFisico || enderecoId) && (
@@ -197,7 +207,7 @@ export default function Compra() {
                 <FiArrowLeft /> Voltar ao carrinho
               </Link>
             )}
-          </aside>
+          </aside>{" "}
         </div>
       </div>
     </main>

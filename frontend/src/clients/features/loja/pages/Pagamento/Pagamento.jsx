@@ -120,11 +120,13 @@ export default function Pagamento() {
                 </div>
               </div>
               <span className={styles.numero}>{formatarPreco(item.preco)}</span>
-              {temFisico ? (
-                <span className={styles.numero}>{formatarPreco(frete)}</span>
-              ) : (
-                <></>
-              )}
+              <span className={styles.numero}>
+                {temFisico
+                  ? Number(frete) > 0
+                    ? formatarPreco(frete)
+                    : "Grátis"
+                  : "Grátis"}
+              </span>
               <span className={styles.quantidade}>{item.quantidade}</span>
               <span className={styles.numero}>
                 {formatarPreco(
@@ -300,11 +302,13 @@ export default function Pagamento() {
                 <div>
                   <span>Frete</span>
                   <strong className={styles.numero}>
-                    {temFisico
-                      ? frete > 0
-                        ? formatarPreco(frete)
-                        : "Grátis"
-                      : "compra apenas digital"}
+                    <span className={styles.numero}>
+                      {temFisico
+                        ? Number(frete) > 0
+                          ? formatarPreco(frete)
+                          : "Grátis"
+                        : "Grátis"}
+                    </span>
                   </strong>
                 </div>
                 <div className={styles.total}>
