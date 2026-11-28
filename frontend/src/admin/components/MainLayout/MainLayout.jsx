@@ -19,7 +19,11 @@ export default function MainLayout() {
       <div className={styles.areaPrincipal}>
         {primeiroAcessoConcluido && <NavBarLateral />}
 
-        <main className={styles.conteudo}>
+        <main
+          className={`${styles.conteudo} ${
+            primeiroAcessoConcluido ? "" : styles.conteudoCheio
+          }`}
+        >
           <Outlet />
         </main>
       </div>
