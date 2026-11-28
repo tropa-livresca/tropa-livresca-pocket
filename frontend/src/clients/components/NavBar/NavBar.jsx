@@ -46,12 +46,12 @@ export default function NavBar() {
         ☰
       </button>
 
-       <nav
+      <nav
         className={`${styles.navbar} ${menuAberto ? styles.menuAberto : ""}`}
       >
         <ul className={styles.list}>
           <li className={styles.item}>
-            <Link to="/historia">Sobre Nós</Link>
+            <Link to="/">Início</Link>
             <ul className={styles.subtema}>
               <li>
                 <Link to="/">Início</Link>
@@ -67,7 +67,7 @@ export default function NavBar() {
           <li className={styles.item}>
             <Link to="/livros">Livros</Link>
           </li>
-         <li className={styles.item}>
+          <li className={styles.item}>
             <Link to="/loja">Loja</Link>
             <ul className={styles.subtema}>
               <li>

@@ -10,7 +10,7 @@ export default function Historia() {
   return (
     <main>
       <DescricaoTela
-        titulo="Nossa História"
+        titulo="Sobre Nós"
         descricao="
           Conheça a nossa história, nossos valores e o que nos move todos os
           dias."
