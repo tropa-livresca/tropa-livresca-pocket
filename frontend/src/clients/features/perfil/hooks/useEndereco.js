@@ -236,30 +236,29 @@ export const useEndereco = () => {
   const InativarEndereco = useCallback(
     async (id) => {
       if (!id) return;
+
       setCarregando(true);
 
       try {
         const response = await apiFetch(
           `/api/v1/clients/enderecos/${id}/ativo`,
           {
-            method: "PATCH",
+            method: "DELETE",
           },
         );
 
-        if (!response.ok) throw new Error(`Erro ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}`);
+        }
 
-        const json = await response.json();
-        const data = json.data || json;
+        setEndereco((atual) => (atual?.id === id ? null : atual));
 
-        setEndereco(data);
-        mostrarPopup("sucesso", "Status do endereço alterado com sucesso!");
         await BuscarEnderecos();
+
+        mostrarPopup("sucesso", "Endereço excluído com sucesso!");
       } catch (error) {
-        console.error("Erro ao alterar status do endereço", error);
-        mostrarPopup(
-          "erro",
-          "Ocorreu um erro ao alterar o status do endereço.",
-        );
+        console.error("Erro ao excluir endereço:", error);
+        mostrarPopup("erro", "Ocorreu um erro ao excluir o endereço.");
       } finally {
         setCarregando(false);
       }

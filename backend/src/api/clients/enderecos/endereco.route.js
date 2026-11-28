@@ -9,7 +9,7 @@ router.get("/principal", checkAuth, EnderecoController.BuscarEnderecoPrincipal);
 router.get("/:id", checkAuth, EnderecoController.BuscarEnderecoById);
 router.post("/", checkAuth, EnderecoController.CriarEndereco);
 router.put("/:id", checkAuth, EnderecoController.AtualizarEnderecoById);
-router.patch("/:id/ativo", checkAuth, EnderecoController.InativarEndereco);
+router.delete("/:id/ativo", checkAuth, EnderecoController.ExcluirEndereco);
 router.patch(
   "/:id/principal",
   checkAuth,

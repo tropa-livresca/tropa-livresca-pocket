@@ -127,8 +127,27 @@ export class EnderecoModel {
     }
   }
 
-  static async InativarEndereco(id, userId) {
-    return this.AtualizarEnderecoById(id, { ativo: false }, userId);
+  static async ExcluirEndereco(id, userId) {
+    const pb = await criarClienteModel();
+
+    try {
+      const endereco = await buscarEndereco(userId, id);
+
+      if (!endereco) {
+        const error = new Error("Endereço não encontrado.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      await pb.collection(COLECAO).delete(id);
+
+      return {
+        data: true,
+      };
+    } catch (error) {
+      if (error.statusCode) throw error;
+      marcarErro(error);
+    }
   }
 
   static async CriarEndereco(userId, dadosEndereco) {

@@ -132,10 +132,10 @@ export class EnderecoService {
     }
   }
 
-  static async InativarEndereco(id, userId) {
+  static async ExcluirEndereco(id, userId) {
     if (!id) {
       const erroId = new Error("Id do endereço não informado.");
-      erroId.statusCode = 500;
+      erroId.statusCode = 400;
       throw erroId;
     }
 
@@ -146,18 +146,21 @@ export class EnderecoService {
     }
 
     try {
-      const { data } = await EnderecoModel.InativarEndereco(id, userId);
+      const { data } = await EnderecoModel.ExcluirEndereco(id, userId);
 
       if (!data) {
-        const erroInativar = new Error("Erro ao inativar endereço.");
-        erroInativar.statusCode = 500;
-        throw erroInativar;
+        const erroExcluir = new Error("Erro ao excluir endereço.");
+        erroExcluir.statusCode = 500;
+        throw erroExcluir;
       }
 
-      return data;
+      return {
+        message: "Endereço excluído com sucesso.",
+      };
     } catch (error) {
       if (error.statusCode) throw error;
-      const erroBanco = new Error("Erro ao inativar o endereço.");
+
+      const erroBanco = new Error("Erro ao excluir o endereço.");
       erroBanco.statusCode = 500;
       throw erroBanco;
     }

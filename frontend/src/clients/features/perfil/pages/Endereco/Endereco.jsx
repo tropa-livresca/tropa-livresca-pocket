@@ -39,6 +39,14 @@ export default function Endereco() {
 
   const [idSelecionado, setIdSelecionado] = useState("");
 
+  const executarExclusao = async (id) => {
+  await InativarEndereco(id);
+
+  if (idSelecionado === id) {
+    executarLimpar();
+  }
+};
+
   useEffect(() => {
     BuscarEnderecos();
   }, [BuscarEnderecos]);
@@ -257,7 +265,8 @@ export default function Endereco() {
                             )}
 
                             <button
-                              onClick={() => InativarEndereco(end.id)}
+                              type="button"
+                              onClick={() => executarExclusao(end.id)}
                               className={styles.btnStatus}
                             >
                               Remover

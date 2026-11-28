@@ -38,13 +38,14 @@ export class EnderecoController {
     }
   }
 
-  static async InativarEndereco(req, res, next) {
+  static async ExcluirEndereco(req, res, next) {
     try {
       const userId = req.user?.id;
       const { id } = req.params;
-      const endereco = await EnderecoService.InativarEndereco(id, userId);
 
-      return res.status(200).json(endereco);
+      const resultado = await EnderecoService.ExcluirEndereco(id, userId);
+
+      return res.status(200).json(resultado);
     } catch (err) {
       next(err);
     }
