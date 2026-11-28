@@ -31,7 +31,7 @@
 }
 
 .fechar:hover {
-  color: #d4b46a;
+  color: #ffbb33;
   transition: 0.3s;
 }
 
@@ -92,7 +92,10 @@
 }
 
 .btnCancelar:hover {
-  background: #f5edcf;
+  background: #ffbb33;
+  border-color: #ffbb33;
+  color: #ede6b3;
+  transition: 0.3s;
 }
 
 .btnConfirmar {
@@ -110,9 +113,10 @@
   text-align: center;
   white-space: pre-line;
   line-height: 1.6;
+  color: var(--cor-texto-muted);
 }
 
-.conteudo2{
+.conteudo2 {
   display: flex;
   align-items: center;
 }
@@ -120,96 +124,61 @@
 .secaoCredenciais {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  margin-top: 12px;
-  background: #fffcf4;
-  border: 1px solid #e8dcc2;
-  border-radius: 10px;
-}
-
-.campoCredencial {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.campoCredencial span {
-  color: #7a6a5b;
-  font-size: 0.82rem;
-}
-
-.campoCredencial strong {
-  color: #432c28;
-  font-size: 0.95rem;
-  overflow-wrap: anywhere;
-}
-
-.avisoEmail {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #fff3d6;
-  color: #795719;
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.sucessoEmail {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #eaf5e9;
-  color: #286333;
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.secaoCredenciais {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: 14px;
   margin-top: 16px;
-  background: #fffcf4;
-  border: 1px solid #e8dcc2;
-  border-radius: 10px;
-  overflow-wrap: anywhere;
+  padding: 16px;
+  border: 1px solid #e2c77c;
+  color: #67170c;
+  background: #fff8d7;
+  border-radius: 0.5rem;
+  text-align: left;
 }
 
 .campoCredencial {
   display: flex;
   flex-direction: column;
-  gap: 5px;
 }
 
-.campoCredencial span {
-  color: #7a6a5b;
-  font-size: 0.82rem;
+.rotuloCredencial {
+  color: #67170c;
+  font-size: 0.78rem;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
 }
 
-.campoCredencial strong {
-  color: #432c28;
+.valorCredencial {
+  display: block;
+  padding: 0.55rem 0.8rem;
+  background: #fffdf7;
+  border: 1px solid #e3d5ad;
+  border-radius: 0.5rem;
+  color: #67170c;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.95rem;
+  overflow-wrap: anywhere;
+  user-select: all;
 }
 
 .avisoEmail,
 .sucessoEmail {
   margin-top: 14px;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   font-size: 0.85rem;
   line-height: 1.5;
+  text-align: left;
 }
 
 .avisoEmail {
-  background: #fff3d6;
-  color: #795719;
+  background: transparent;
+  border: 1px solid red;
+  color: red;
 }
 
 .sucessoEmail {
-  background: #eaf5e9;
-  color: #286333;
+  background: transparent;
+  border: 1px solid green;
+  color: green;
 }
 
 @keyframes aparecer {

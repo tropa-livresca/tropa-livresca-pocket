@@ -377,7 +377,7 @@ export default function Carrinho() {
                     </div>
                   </>
                 ) : (
-                  <p>
+                  <p className={styles.msgfrete}>
                     {precisaCadastrarEndereco
                       ? "Cadastre um endereço para calcular o frete."
                       : "Calculando frete..."}
@@ -400,16 +400,19 @@ export default function Carrinho() {
 
             {precisaCadastrarEndereco && (
               <div className={styles.enderecoObrigatorio}>
-                <p>
+                <p className={styles.msgtotalend}>
                   Para comprar livros físicos, você precisa cadastrar um
                   endereço de entrega.
                 </p>
-
-                <Link to="/perfil/endereco" className={styles.finalizar}>
-                  Cadastrar endereço
-                </Link>
               </div>
             )}
+
+            {precisaCadastrarEndereco && (
+                <Link to="/perfil/endereco" className={styles.btnend}>
+                  Cadastrar endereço
+                </Link>
+            )}
+
 
             {(!possuiLivroFisico || possuiEndereco) && (
               <button

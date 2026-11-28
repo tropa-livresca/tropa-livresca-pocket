@@ -99,12 +99,20 @@ export default function ResumoCompra() {
 
                   {temDigital && (
                     <p>
-                      Seu e-book será enviado para o e-mail da sua conta. Caso o
-                      e-mail não tenha chegado, clique no botão abaixo:
+                      Seu e-book será enviado para o e-mail da sua conta ou baixar via biblioteca pessoal.
                     </p>
                   )}
 
                   <div className={styles.acoes}>
+                    
+                    <button
+                      className={styles.botaoPrimario}
+                      type="button"
+                      onClick={() => navigate("/")}
+                    >
+                      Voltar à página inicial
+                    </button>
+                    
                     {temDigital && (
                       <>
                         <button
@@ -115,19 +123,10 @@ export default function ResumoCompra() {
                           Reenviar Email
                         </button>
 
-                        Ou baixar o livro em:
-
-                        <Link to = "/bibliotecapessoal">Biblioteca Pessoal</Link>
+                        <Link to = "/bibliotecapessoal" className={styles.botaoSecundario2}>Biblioteca Pessoal</Link>
                       </>
                     )}
 
-                    <button
-                      className={styles.botaoPrimario}
-                      type="button"
-                      onClick={() => navigate("/")}
-                    >
-                      Voltar à página inicial
-                    </button>
                   </div>
                 </div>
               </section>

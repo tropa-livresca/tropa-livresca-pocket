@@ -33,6 +33,10 @@
   color: var(--cor-texto-muted);
 }
 
+.numero{
+  font-family: none;
+}
+
 .avaliar {
   display: flex;
   flex-direction: column;
@@ -42,7 +46,9 @@
 }
 
 .pergunta {
-  margin: 0;
+  
+  margin:0;
+  margin-top:0.8rem;
   color: #67170c;
   font-weight: 600;
   text-align: center;

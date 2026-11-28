@@ -79,41 +79,9 @@ export default function VisualizarUsuario() {
 
       setPopup({
         tipo: "sucesso",
-        conteudo: (
-          <>
-            <p>
-              <strong>{usuario.nome}</strong> foi promovido a funcionário com
-              sucesso.
-            </p>
-
-            {dados?.credenciais && (
-              <div className={styles.secaoCredenciais}>
-                <div className={styles.campoCredencial}>
-                  <span>Usuário: </span>
-                  <strong>{dados.credenciais.usuario}</strong>
-                </div>
-
-                <div className={styles.campoCredencial}>
-                  <span>Senha temporária: </span>
-                  <strong>{dados.credenciais.senhaTemporaria}</strong>
-                </div>
-              </div>
-            )}
-
-            {dados?.notificacao?.emailEnviado === false && (
-              <div className={styles.avisoEmail}>
-                Não foi possível enviar o e-mail de notificação. Entregue as
-                credenciais ao funcionário por um canal seguro.
-              </div>
-            )}
-
-            {dados?.notificacao?.emailEnviado === true && (
-              <div className={styles.sucessoEmail}>
-                E-mail de notificação enviado com sucesso.
-              </div>
-            )}
-          </>
-        ),
+        mensagem: `${usuario.nome} foi promovido a funcionário com sucesso.`,
+        credenciais: dados?.credenciais,
+        emailEnviado: dados?.notificacao?.emailEnviado,
       });
     } catch (erro) {
       setPopup({
@@ -411,6 +379,8 @@ export default function VisualizarUsuario() {
           tipo={popup.tipo}
           mensagem={popup.mensagem}
           conteudo={popup.conteudo}
+          credenciais={popup.credenciais}
+          emailEnviado={popup.emailEnviado}
           confirmar={popup.confirmar}
           textoConfirmar={popup.textoConfirmar}
           fechar={() => setPopup(null)}

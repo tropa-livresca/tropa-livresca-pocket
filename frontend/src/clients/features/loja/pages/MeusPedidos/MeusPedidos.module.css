@@ -253,6 +253,7 @@
 
 .pedido {
   width: 100%;
+  margin: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 250px auto auto;
   align-items: center;
@@ -366,13 +367,8 @@
   font-size: 1.4rem;
 }
 
-.paginacao {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 2.5rem;
+.Paginacaobb {
+  margin-top: 3rem !important;
 }
 
 .paginacao span {

@@ -2,10 +2,12 @@ import { useState, useCallback } from "react";
 import { usePopup } from "../../../components/PopUp/usePopup.js";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../../../../common/services/api";
+import useAdmin from "../../../../common/hooks/useAdmin";
 
 export const useNovaSenha = () => {
   const navigate = useNavigate();
   const { mostrarPopup } = usePopup();
+  const { setUser } = useAdmin();
 
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -81,6 +83,10 @@ export const useNovaSenha = () => {
 
         mostrarPopup("sucesso", "Sucesso ao criar nova senha!");
 
+        setUser((atual) =>
+          atual ? { ...atual, primeiro_acesso: false } : atual,
+        );
+
         navigate("/admin/", { replace: true });
       } catch (error) {
         console.error("Erro ao atualizar a senha:", error);
@@ -90,7 +96,7 @@ export const useNovaSenha = () => {
         setCarregando(false);
       }
     },
-    [novaSenha, carregando, verificarSenha, mostrarPopup, navigate],
+    [novaSenha, carregando, verificarSenha, mostrarPopup, navigate, setUser],
   );
 
   const alterarSenhaAntiga = useCallback(

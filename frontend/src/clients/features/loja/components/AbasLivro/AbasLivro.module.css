@@ -40,12 +40,32 @@
   padding-top: 1.5rem;
 }
 
+
+
 .conteudo > p {
   margin: 0;
   color: var(--cor-texto-muted);
   font-size: 1.02rem;
   line-height: 1.9;
+  text-align: justify;
 }
+
+.conteudo2 {
+  display: flex;
+  flex-direction: column; /* Coloca os itens um embaixo do outro */
+  align-items: center;    /* Centraliza na horizontal */
+  justify-content: center;/* Centraliza na vertical */
+}
+
+.desc {
+  margin: 0 !important;
+  color: var(--cor-texto-muted) !important;
+  font-size: 1.02rem !important;
+  line-height: 1.9 !important;
+  text-align: center !important;
+  
+}
+
 
 .linkAutor {
   display: block;
